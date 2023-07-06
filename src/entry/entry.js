@@ -9,7 +9,7 @@ const path = require('path');
   const bodyParser = require('body-parser');
   const app = express()
   const jwt = require('../helper/jwt')
-
+const router = require('../router')
 const httpServer = http.createServer(app);
   // app.use(express.static(path.join(path.resolve(), 'dist')));
 // // parse application/x-www-form-urlencoded
@@ -17,9 +17,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // // parse application/json
 app.use(bodyParser.json());
-app.get('/',(req,res)=>{
-    res.send('This app using graphql please access /gql thank you!!')
-})
+
 
 const startServer = async function() {
 
@@ -67,6 +65,7 @@ const schema  = require('../config/graphqlmerge.js');
  };
 
  startServer()
+ app.use('/',router);
  app.use((err, req, res, next)=>{
   res.json({pesan:'error', error: err})
 })
