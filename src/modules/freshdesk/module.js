@@ -64,6 +64,26 @@ class Fd{
         })
 
     }
-}
 
+    static getTicketByid(id){
+      return new Promise(async (resolve, reject) => {
+          try {
+              let PATH = `/api/v2/search/tickets?query="id:8"`;
+              let dt =    await axios.get(URL+PATH, {
+                      auth: {
+                        username: API_KEY,
+                        password: "X"
+                      }
+                    });
+                    console.log(dt.data);
+                    resolve(dt.data)
+          } catch (error) {
+                  reject(error)
+          }
+        
+      })
+
+  }
+}
+Fd.getTicketByid()
 module.exports =Fd
