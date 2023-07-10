@@ -5,7 +5,7 @@ const fd_module = require("./module");
 const queue_create = new Queue('create_ticket', `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`);
 // const create_queue = new Queue('create_ticket', { redis: { port: 8379, host: '8.215.33.60'} });
 
-queue_create.process(async function (job, done) {
+queue_create.process(50,async function (job, done) {
     try {
         let input ={};
         input.id=uuid.v4()
@@ -34,7 +34,7 @@ queue_create.process(async function (job, done) {
   const queue_update = new Queue('update_ticket', `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`);
 // const create_queue = new Queue('create_ticket', { redis: { port: 8379, host: '8.215.33.60'} });
 
-queue_update.process(async function (job, done) {
+queue_update.process(50,async function (job, done) {
     try {
         let input ={};
         input.id=uuid.v4()
