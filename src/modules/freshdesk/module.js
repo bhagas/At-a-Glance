@@ -69,7 +69,7 @@ class Fd{
     static getTicketByid(id){
       return new Promise(async (resolve, reject) => {
           try {
-              let PATH = `/api/v2/tickets/8"`;
+              let PATH = `/api/v2/tickets/${id}`;
               let dt =    await axios.get(URL+PATH, {
                       auth: {
                         username: API_KEY,
@@ -86,5 +86,5 @@ class Fd{
 
   }
 }
-Fd.getTicketByid()
+// Fd.getTicketByid(10)
 module.exports =Fd
