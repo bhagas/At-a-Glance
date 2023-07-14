@@ -1,4 +1,4 @@
-// require('dotenv').config()
+require('dotenv').config()
 const axios = require('axios');
 const API_KEY = process.env.FD_API_KEY;
 const FD_ENDPOINT = process.env.FD_ENDPOINT;
@@ -15,6 +15,7 @@ class Fd{
                           password: "X"
                         }
                       });
+                      console.log(dt.data);
                     
                       resolve(dt.data)
             } catch (error) {
@@ -68,7 +69,7 @@ class Fd{
     static getTicketByid(id){
       return new Promise(async (resolve, reject) => {
           try {
-              let PATH = `/api/v2/search/tickets?query="id:8"`;
+              let PATH = `/api/v2/tickets/8"`;
               let dt =    await axios.get(URL+PATH, {
                       auth: {
                         username: API_KEY,
