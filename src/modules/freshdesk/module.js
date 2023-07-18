@@ -83,7 +83,7 @@ class Fd{
                         password: "X"
                       }
                     });
-                    console.log(dt.data);
+                    // console.log(dt.data);
                     resolve(dt.data)
           } catch (error) {
                   reject(error)
@@ -164,5 +164,5 @@ class Fd{
   }
 }
 // Fd.getTicketByid(16)
-Fd.getAllAgents();
+// Fd.getAllAgents();
 module.exports =Fd
