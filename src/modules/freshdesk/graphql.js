@@ -18,6 +18,7 @@ const typeDefs=
   }
   extend type Mutation{
     ticketSync:ticketSyncOutput
+    agentSync:ticketSyncOutput
   }
 
   type ticketOverviewOutput{
@@ -258,8 +259,22 @@ Mutation:{
                 error
             }
         }
+    },
+    agentSync:async (_)=>{
+        try {
+            await fd_module.syncAgents();
+            return {
+                status: '200',
+                message: 'Ok',
+            }
+        } catch (error) {
+            return {
+                status: '500',
+                message: 'Failed',
+                error
+            }
+        }
     }
-
 }
 }
 

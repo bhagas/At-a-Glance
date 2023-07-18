@@ -2,6 +2,7 @@ require('dotenv').config()
 const axios = require('axios');
 const uuid = require('uuid');
 const model = require('./model.js');
+const modelAgents = require('../freshdesk_agents/model');
 const API_KEY = process.env.FD_API_KEY;
 const FD_ENDPOINT = process.env.FD_ENDPOINT;
 const URL =  "https://" + FD_ENDPOINT + ".freshdesk.com";
@@ -70,6 +71,9 @@ class Fd{
 
     }
     static getAllAgents(){
+
+    
+
       return new Promise(async (resolve, reject) => {
           try {
               let PATH = "/api/v2/agents";
@@ -87,6 +91,37 @@ class Fd{
         
       })
 
+  }
+
+  static syncAgents(){
+    return new Promise(async (resolve, reject) => {
+      try {
+        let agents = await this.getAllAgents();
+        let dt =[]
+        for (let i = 0; i < agents.length; i++) {
+          let x ={}
+          x.id = agents[i].id;
+          x.available = agents[i].available
+          x.ticket_scope = agents[i].ticket_scope
+          x.type = agents[i].type
+          x.active = agents[i].contact.active
+          x.email = agents[i].contact.email
+          x.name = agents[i].contact.name
+          x.phone = agents[i].contact.phone
+          dt.push(x)
+        }
+           
+              // resolve(dt.data)
+              // console.log(tickets.length);
+              await modelAgents.bulkCreate(dt, {
+                updateOnDuplicate: ['id', 'available',"ticket_scope","type","active","email","name","phone"]
+              });
+              resolve()
+    } catch (error) {
+            reject(error)
+    }
+     
+    })
   }
     static getAgentsInGroup(group_id){
         return new Promise(async (resolve, reject) => {
@@ -129,5 +164,5 @@ class Fd{
   }
 }
 // Fd.getTicketByid(16)
-// Fd.syncTicket();
+Fd.getAllAgents();
 module.exports =Fd

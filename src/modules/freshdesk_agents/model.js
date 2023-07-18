@@ -27,6 +27,9 @@ const agents = koneksi.define('fd_agents', {
       },
       "phone":{
         type: DataTypes.STRING
+      },
+      "last_active_at":{
+        type: DataTypes.STRING
       }
   }, {
     // Other model options go here
