@@ -11,7 +11,8 @@ const Ticket = koneksi.define('fd_tickets', {
       type: DataTypes.JSONB
     },
     "ticket_id" : {
-      type: DataTypes.BIGINT
+      type: DataTypes.BIGINT,
+      unique: true
     },
     "cc_emails" : {
       type: DataTypes.JSONB
@@ -53,7 +54,7 @@ const Ticket = koneksi.define('fd_tickets', {
     type: DataTypes.TEXT
   },
   "company_id" : {
-    type: DataTypes.INTEGER
+    type: DataTypes.BIGINT
   },
 
   "type" : {

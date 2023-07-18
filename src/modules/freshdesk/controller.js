@@ -17,7 +17,7 @@ class Fd{
    }
 
    static async ticketUpdate(req,res){
-      // console.log(req.body);
+     
       try {
         
          queue_update.add(req.body, {delay:60000})
