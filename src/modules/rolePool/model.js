@@ -17,5 +17,5 @@ const Pool = koneksi.define('role_pool', {
   userModel.hasMany(Pool);
 Pool.belongsTo(userModel);
 roleModel.hasMany(Pool);
-Pool.hasMany(roleModel);
+Pool.belongsTo(roleModel);
 module.exports = Pool;
