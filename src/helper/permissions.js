@@ -13,6 +13,7 @@ const isAuthenticated = rule({ cache: 'contextual' })(async (parent, args, ctx, 
        user[0].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [user[0].id],type: QueryTypes.SELECT });
       }
       ctx.user = user[0];
+ 
       return true;
   } catch (error) {
     console.log(error);
@@ -78,7 +79,8 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
       removeUser:chain(isAuthenticated, isActive,isSuperAdmin),
       setRole:chain(isAuthenticated, isActive,isSuperAdmin),
       updateRole:chain(isAuthenticated, isActive,isSuperAdmin),
-      updateUser:chain(isAuthenticated, isActive,isSuperAdmin)
+      updateUser:chain(isAuthenticated, isActive,isSuperAdmin),
+      agentSync:chain(isAuthenticated, isActive,isSuperAdmin)
     }
   })
 

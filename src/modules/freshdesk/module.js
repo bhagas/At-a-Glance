@@ -36,7 +36,7 @@ class Fd{
                 resolve(tickets)
             } catch (error) {
                     
-                reject(error)
+              reject(error.response.data.description)
             }
           
         })
@@ -79,7 +79,7 @@ class Fd{
                
                       resolve(dt.data)
             } catch (error) {
-                    reject(error)
+              reject(error.response.data.description)
             }
           
         })
@@ -99,7 +99,7 @@ class Fd{
                     // console.log(dt.data);
                     resolve(dt.data)
           } catch (error) {
-                  reject(error)
+            reject(error.response.data.description)
           }
         
       })
@@ -149,7 +149,7 @@ class Fd{
                       
                       resolve(dt.data)
             } catch (error) {
-                    reject(error)
+              reject(error.response.data.description)
             }
           
         })
@@ -169,12 +169,61 @@ class Fd{
                     // console.log(dt.data);
                     resolve(dt.data)
           } catch (error) {
-                  reject(error)
+            reject(error.response.data.description)
           }
         
       })
 
   }
+
+  static createReply(id, data){
+    return new Promise(async (resolve, reject) => {
+        try {
+            let PATH = `/api/v2/tickets/${id}/reply`;
+            let dt =    await axios.post(URL+PATH, data, {
+                    auth: {
+                      username: API_KEY,
+                      password: "X"
+                    },
+                    headers: {
+                      'Content-Type': 'multipart/form-data'
+                    }
+                  });
+                  // console.log(dt.data);
+                  resolve(dt.data)
+        } catch (error) {
+          console.log(error.response.data.errors, 'error createReply');
+                reject(error.response.data.description)
+        }
+      
+    })
+
+}
+
+
+static createNotes(id, data){
+  return new Promise(async (resolve, reject) => {
+      try {
+          let PATH = `/api/v2/tickets/${id}/notes`;
+          let dt =    await axios.post(URL+PATH, data, {
+                  auth: {
+                    username: API_KEY,
+                    password: "X"
+                  },
+                  headers: {
+                    'Content-Type': 'multipart/form-data'
+                  }
+                });
+                // console.log(dt.data);
+                resolve(dt.data)
+      } catch (error) {
+        console.log(error, 'error createNotes');
+              reject(error)
+      }
+    
+  })
+
+}
 }
 // Fd.getTicketByid(52)
 // Fd.getAllAgents();

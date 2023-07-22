@@ -1,8 +1,9 @@
 import { finished } from'stream/promises';
 import fs from'fs';
 import { getMimeType } from 'stream-mime-type';
-let MaxImageFileSize = 100;
+let MaxImageFileSize = 20000;
 export default function saveFile(file) {
+    console.log(file);
     return new Promise(async (ya,tidak)=>{
         let validation = true;
         let pesan =''
@@ -21,7 +22,7 @@ export default function saveFile(file) {
             const streamA = createReadStream();
             let {stream, mime} = await getMimeType( streamA )
        
-                if (mime === 'application/pdf' || mime === 'image/jpeg' || mime === 'image/jpg' || mime === 'image/png') {
+                if (mime === 'application/pdf' || mime === 'image/jpeg' || mime === 'image/jpg' || mime === 'image/png' || mime === 'application/octet-stream') {
                     const out = fs.createWriteStream('./assets/local-file-output.jpeg');
                     let byteLength = 0;
                     stream.pipe(out).on("data", (data) => {

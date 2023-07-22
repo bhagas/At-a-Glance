@@ -10,6 +10,7 @@ import bcrypt from'../../helper/bcrypt.js';
 import fd_module from'./module.js'
 import moment from'moment'
 import saveFile from'../../helper/saveFile.js';
+import  FormData from 'form-data';
 const typeDefs=
   gql`
 
@@ -23,7 +24,8 @@ const typeDefs=
   extend type Mutation{
     ticketSync:ticketSyncOutput
     agentSync:ticketSyncOutput
-    saveFile(file:Upload):ticketSyncOutput
+    createReply(filee:[Upload], input:inputReply):ticketSyncOutput
+    createNotes(filee:[Upload], input:inputNotes):ticketSyncOutput
   }
 
   type ticketOverviewOutput{
@@ -61,6 +63,16 @@ const typeDefs=
   input inputDayGraph {
     startDate: String!,
     endDate: String!
+  }
+  input inputReply {
+    body: String!,
+    user_id: String!
+  }
+  input inputNotes {
+    body: String!,
+    user_id: String!,
+    notify_emails:[String],
+    private:String
   }
   type listTicketOutput{
     data:[ticket],
@@ -318,7 +330,7 @@ const resolvers= {
       },
       dayGraph:async(_, {input})=>{
         var dates = [];
-          console.log(input);
+          // console.log(input);
           var currDate = moment(input.startDate).startOf('day');
           var lastDate = moment(input.endDate).startOf('day');
       
@@ -371,8 +383,9 @@ Mutation:{
             }
         }
     },
-    agentSync:async (_)=>{
+    agentSync:async (obj, args, context, info)=>{
         try {
+      
             await fd_module.syncAgents();
             return {
                 status: '200',
@@ -387,13 +400,76 @@ Mutation:{
         }
     },
 
-   saveFile: async(_, {file})=>{
-    let filenya = await saveFile(await file);
-    console.log(filenya);
-    return {
-      status: '200',
-      message: 'Ok',
-  }
+   createReply: async(_, {filee, input}, context, info)=>{
+    try {
+      const form = new FormData();
+      if(filee){
+        let files = await Promise.all(filee)
+     
+        for (let i = 0; i < files.length; i++) {
+          let {createReadStream, filename, mimetype, encoding } = await files[i];
+          let stream = createReadStream()
+          form.append('attachments[]', stream, filename);
+        }
+      }
+ 
+      form.append('body', input.body);
+      form.append('user_id', input.user_id)
+      await fd_module.createReply(52, form);
+      return {
+        status: '200',
+        message: 'Ok',
+    }
+    } catch (error) {
+      return {
+        error,
+        status: '200',
+        message: 'Ok',
+    }
+    }
+  
+   },
+
+     createNotes: async(_, {filee, input}, context, info)=>{
+    try {
+      const form = new FormData();
+      if(filee){
+        let files = await Promise.all(filee)
+   
+        for (let i = 0; i < files.length; i++) {
+          let {createReadStream, filename, mimetype, encoding } = await files[i];
+          let stream = createReadStream()
+          form.append('attachments[]', stream, filename);
+        }
+      }
+     
+     
+ 
+      form.append('body', input.body);
+      form.append('user_id', input.user_id)
+      // notify_emails:[String],
+      // private:Boolean
+      for (let x = 0; x < input.notify_emails.length; x++) {
+       
+        form.append('notify_emails[]', input.notify_emails[x]);
+        
+      }
+    
+      form.append('private', input.private)
+      await fd_module.createNotes(52, form);
+      return {
+        status: '200',
+        message: 'Ok',
+    }
+    } catch (error) {
+      console.log(error);
+      return {
+        error,
+        status: '200',
+        message: 'Ok',
+    }
+    }
+  
    }
 }
 }

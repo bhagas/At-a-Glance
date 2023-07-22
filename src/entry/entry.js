@@ -2,6 +2,7 @@ import  express from 'express';
 import { ApolloServer } from'@apollo/server';
 import { expressMiddleware } from'@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer }from'@apollo/server/plugin/drainHttpServer';
+import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs';
 import { ApolloServerPluginLandingPageDisabled }  from'@apollo/server/plugin/disabled';
 import path from'path';
 import http from'http';
@@ -18,54 +19,50 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // // parse application/json
 app.use(bodyParser.json());
+app.use(graphqlUploadExpress())
 
 
-const startServer = async function() {
-
-
-
-  const server = new ApolloServer({
-    schema:schema,
-    cache: 'bounded',
-    // introspection:false,
-    plugins: [
-      ApolloServerPluginDrainHttpServer({ httpServer }),
-      // ApolloServerPluginLandingPageDisabled()
-    ],
-  });
-  await server.start();
-  app.use(
-    '/gql',
-    cors(),
-    expressMiddleware(server,
-      {
-        context: async ({ req }) => { 
-          try {
-            let user =null;
-            let token = (req.headers.authorization)?req.headers.authorization:'';
-         
-            if(token){
-              let dt = token.split(" ");
-              if(dt.length>1){
-            
-                user=await jwt.verify(dt[1]);
-              } 
-            }
-           
-            return {user};
-          } catch (error) {
-         
-            return {user:null};
+const server = new ApolloServer({
+  schema:schema,
+  cache: 'bounded',
+  // introspection:false,
+  csrfPrevention: true,
+  plugins: [
+    ApolloServerPluginDrainHttpServer({ httpServer }),
+    // ApolloServerPluginLandingPageDisabled()
+  ],
+});
+await server.start();
+app.use(
+  '/gql',
+  cors(),
+  expressMiddleware(server,
+    {
+      context: async ({ req }) => { 
+        try {
+       
+          let user =null;
+          let token = (req.headers.authorization)?req.headers.authorization:'';
+       
+          if(token){
+            let dt = token.split(" ");
+            if(dt.length>1){
+          
+              user=await jwt.verify(dt[1]);
+            } 
           }
-        
+         
+          return {user};
+        } catch (error) {
+       
+          return {user:null};
+        }
+      
 
-      }
-    }),
-  );
+    }
+  }),
+);
 
- };
-
- startServer()
  app.use('/',router);
  app.use((err, req, res, next)=>{
   res.json({pesan:'error', error: err})
