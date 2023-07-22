@@ -1,12 +1,13 @@
-const koneksi = require('../config/koneksi');
-
-let normalizedPath = require("path").join(__dirname, "../modules");
+import koneksi from'../config/koneksi';
+import path from 'path';
+import fs from 'fs';
+let normalizedPath = path.join(__dirname, "../modules");
 // console.log(normalizedPath);
-require("fs").readdirSync(normalizedPath).forEach(function (file) {
-    let normalize = require("path").join(__dirname, "../modules/" + file);
-    require("fs").readdirSync(normalize).forEach(function (file2) {
+fs.readdirSync(normalizedPath).forEach(function (file) {
+    let normalize = path.join(__dirname, "../modules/" + file);
+    fs.readdirSync(normalize).forEach(function (file2) {
         if (file2 == "model.js") {
-            require(`../modules/${file}/model.js`)
+            import(`../modules/${file}/model.js`)
         }
     });
 });

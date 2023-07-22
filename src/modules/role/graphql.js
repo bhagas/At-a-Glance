@@ -1,8 +1,8 @@
-const db = require('../../config/koneksi.js');
-const { QueryTypes } = require('sequelize');
-const roleModel = require('./model.js');
-const gql = require('graphql-tag');
-const uuid = require('uuid');
+import db from'../../config/koneksi.js';
+import { QueryTypes } from'sequelize';
+import roleModel from'./model.js';
+import gql from'graphql-tag';
+import { v4 as uuidv4 } from'uuid';
 const typeDefs=
   gql`
   extend type Query {
@@ -59,7 +59,7 @@ const resolvers= {
 Mutation:{
   createRole: async (_, {inputRole})=>{
     try {
-    inputRole.id=uuid.v4()
+    inputRole.id=uuidv4()
  
      await roleModel.create(inputRole)
         return {
@@ -111,4 +111,4 @@ Mutation:{
 }
 
 
-module.exports = {typeDefs, resolvers}
+export {typeDefs, resolvers}

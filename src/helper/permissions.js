@@ -1,7 +1,7 @@
-const { chain,not,and, or, rule, shield } = require("graphql-shield");
-const db = require('../config/koneksi');
-const { QueryTypes } = require('sequelize');
-const _ = require("lodash");
+import { chain,not,and, or, rule, shield } from"graphql-shield";
+import db from '../config/koneksi.js';
+import { QueryTypes } from 'sequelize';
+import _ from "lodash";
 
 const isAuthenticated = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
 
@@ -82,4 +82,4 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
     }
   })
 
-  module.exports = permissions
+export default permissions

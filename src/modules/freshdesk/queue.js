@@ -1,15 +1,15 @@
-const Queue = require('bull');
-const model = require('./model');
-const uuid = require('uuid');
-const fd_module = require("./module");
-const activitiesModel = require('../freshdesk_activites/model')
+import Queue from'bull';
+import model from'./model.js';
+import { v4 as uuidv4 } from'uuid';
+import fd_module from"./module.js";
+import activitiesModel from'../freshdesk_activites/model.js'
 const queue_create = new Queue('create_ticket', `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`);
 // const create_queue = new Queue('create_ticket', { redis: { port: 8379, host: '8.215.33.60'} });
 
 queue_create.process(50,async function (job, done) {
     try {
         let input ={};
-        input.id=uuid.v4()
+        input.id=uuidv4()
         input.json = job.data.freshdesk_webhook
         let ticket = await fd_module.getTicketByid(job.data.freshdesk_webhook.ticket_id);
         
@@ -42,7 +42,7 @@ queue_update.process(50,async function (job, done) {
     // console.log(job, 'job');
     try {
         let input ={};
-        input.id=uuid.v4()
+        input.id=uuidv4()
         // input.json = job.data.freshdesk_webhook
         let ticket = await fd_module.getTicketByid(job.data.freshdesk_webhook.ticket_id);
         ticket.fd_created_at = ticket.created_at;
@@ -72,4 +72,4 @@ queue_update.process(50,async function (job, done) {
 
   });
 
-module.exports ={queue_create, queue_update}
+export  {queue_create, queue_update}

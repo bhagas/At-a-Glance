@@ -1,7 +1,7 @@
-const {DataTypes } = require('sequelize');
-const koneksi = require('../../config/koneksi.js');
-const userModel = require('../user/model.js');
-const roleModel = require('../role/model.js');
+import {DataTypes } from'sequelize';
+import koneksi from'../../config/koneksi.js';
+import userModel from'../user/model.js';
+import roleModel from'../role/model.js';
 const Pool = koneksi.define('role_pool', {
     // Model attributes are defined here
     id: {
@@ -18,4 +18,4 @@ const Pool = koneksi.define('role_pool', {
 Pool.belongsTo(userModel);
 roleModel.hasMany(Pool);
 Pool.belongsTo(roleModel);
-module.exports = Pool;
+export default Pool;

@@ -1,5 +1,5 @@
-const {DataTypes, ENUM } = require('sequelize');
-const koneksi = require('../../config/koneksi.js');
+import {DataTypes, ENUM } from'sequelize';
+import koneksi from '../../config/koneksi.js';
 
 const Ticket = koneksi.define('fd_tickets', {
     // Model attributes are defined here
@@ -102,4 +102,4 @@ const Ticket = koneksi.define('fd_tickets', {
     paranoid:true,
     deletedAt: 'deleted'
   });
-module.exports = Ticket;
+export default Ticket;

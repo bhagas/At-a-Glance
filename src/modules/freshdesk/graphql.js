@@ -1,13 +1,15 @@
-const db = require('../../config/koneksi.js');
-const { QueryTypes } = require('sequelize');
-const model = require('./model.js');
-const rolePoolModel = require('../rolePool/model.js');
-const gql = require('graphql-tag');
-const uuid = require('uuid');
-const jwt = require('../../helper/jwt.js');
-const mail = require('../../helper/mail');
-const bcrypt = require('../../helper/bcrypt');
-const fd_module = require('./module')
+import db from'../../config/koneksi.js';
+import { QueryTypes } from'sequelize';
+import model from'./model.js';
+import rolePoolModel from'../rolePool/model.js';
+import gql from'graphql-tag';
+import { v4 as uuidv4 } from'uuid';
+import jwt from'../../helper/jwt.js';
+import mail from'../../helper/mail.js';
+import bcrypt from'../../helper/bcrypt.js';
+import fd_module from'./module.js'
+import moment from'moment'
+import saveFile from'../../helper/saveFile.js';
 const typeDefs=
   gql`
 
@@ -15,14 +17,23 @@ const typeDefs=
     "priority 1, 2 ,3 ,4 "
     ticketOverview(input:inputFilterTicketOverview): ticketOverviewOutput
     listTicket(input:inputFilterListTicket): listTicketOutput
+    dayGraph(input: inputDayGraph): listDayGraphOutput
+    ticketDetail(id: Int!): detailTicketOutput
   }
   extend type Mutation{
     ticketSync:ticketSyncOutput
     agentSync:ticketSyncOutput
+    saveFile(file:Upload):ticketSyncOutput
   }
 
   type ticketOverviewOutput{
     data:[ticketStatusRecap],
+    message:String,
+    status:Int,
+    error:String
+  }
+  type listDayGraphOutput{
+    data:[String],
     message:String,
     status:Int,
     error:String
@@ -47,8 +58,18 @@ const typeDefs=
     priority: Int,
     condition: String!
   }
+  input inputDayGraph {
+    startDate: String!,
+    endDate: String!
+  }
   type listTicketOutput{
     data:[ticket],
+    message:String,
+    status:Int,
+    error:String
+  }
+  type detailTicketOutput{
+    data:detailTicket,
     message:String,
     status:Int,
     error:String
@@ -85,6 +106,80 @@ const typeDefs=
     nr_escalated: Boolean,
     ticket_id: Int
   }
+  type attachment{
+    id: String,
+    content_type: String,
+    size: Int,
+    name: String,
+    attachment_url: String,
+    created_at: String,
+    updated_at: String
+  }
+  type conversation{
+  body: String,
+  body_text: String,
+  id: String,
+  incoming: Boolean,
+  private: Boolean,
+  user_id: String,
+  support_email: String,
+  source: Int,
+  category: Int,
+  to_emails: [String],
+  from_email: String,
+  cc_emails: [String],
+  bcc_emails: [String],
+  email_failure_count: Boolean,
+  outgoing_failures: Boolean,
+  thread_id: String,
+  thread_message_id: String,
+  created_at: String,
+  updated_at: String,
+  last_edited_at: String,
+  last_edited_user_id: String,
+  attachments: [attachment],
+  automation_id: String,
+  automation_type_id: String,
+  auto_response: Boolean,
+  ticket_id: Int,
+  source_additional_info: String
+  }
+  type detailTicket{
+    cc_emails: [String],
+    fwd_emails: [String],
+    reply_cc_emails: [String],
+    ticket_cc_emails: [String],
+    fr_escalated: Boolean,
+    spam: Boolean,
+    email_config_id: String,
+    group_id: String,
+    priority: Int,
+    requester_id: String,
+    responder_id: String,
+    source: Int,
+    company_id: String,
+    status: Int,
+    subject: String,
+    association_type: String,
+    support_email: String,
+    to_emails: String,
+    product_id: String,
+    id: String,
+    type: String,
+    due_by: String,
+    fr_due_by: String,
+    is_escalated: Boolean,
+    fd_created_at: String,
+    fd_updated_at: String,
+    tags: [String],
+    nr_due_by: String,
+    nr_escalated: Boolean,
+    ticket_id: Int,
+    attachments:[attachment],
+    conversations: [conversation]
+  }
+
+
 `
 
 const resolvers= {
@@ -221,28 +316,44 @@ const resolvers= {
         }
        
       },
-    // users: async (obj, args, context, info) => {
-    //   try {
-    //     let dt = await db.query('select * from users where deleted is null',{type: QueryTypes.SELECT});
-   
-    //     for (let i = 0; i < dt.length; i++) {
-    //       dt[i].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[i].id],type: QueryTypes.SELECT });
-    //     }
+      dayGraph:async(_, {input})=>{
+        var dates = [];
+          console.log(input);
+          var currDate = moment(input.startDate).startOf('day');
+          var lastDate = moment(input.endDate).startOf('day');
+      
+          while(currDate.add(1, 'days').diff(lastDate) < 0) {
+              // console.log(currDate.toDate());
+              dates.push(currDate.clone().toDate());
+          }
+      
      
-    //     return {data: dt, status:200, message:'Success'};
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
+          return {
+              data:dates,
+              status: '200',
+              message: 'ok'
+          }
     
-       
-    // },
-    // user: async (obj, args, context, info) =>
-    //     {
-           
-    //       let dt = await db.query(`select * from Users where id= $1`,{bind:[args.id], type:QueryTypes.SELECT});
-    //       //harus object return nya
-    //         return dt[0];
-    //     },
+  },
+  ticketDetail: async(_,{id})=>{
+    try {
+     
+     let data= await fd_module.getTicketByid(id);
+    //  console.log(data.conversations[0].attachments);
+      return {
+          data,
+          status: '200',
+          message: 'Ok',
+      }
+  } catch (error) {
+      return {
+          status: '500',
+          message: 'Failed',
+          error
+      }
+  }
+  }
+
 },
 Mutation:{
     ticketSync:async (_)=>{
@@ -274,9 +385,18 @@ Mutation:{
                 error
             }
         }
-    }
+    },
+
+   saveFile: async(_, {file})=>{
+    let filenya = await saveFile(await file);
+    console.log(filenya);
+    return {
+      status: '200',
+      message: 'Ok',
+  }
+   }
 }
 }
 
 
-module.exports = {typeDefs, resolvers}
+export {typeDefs, resolvers}

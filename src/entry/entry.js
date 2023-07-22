@@ -1,15 +1,16 @@
-const  express = require('express');
-const { ApolloServer } = require('@apollo/server');
-const { expressMiddleware } = require('@apollo/server/express4');
-const { ApolloServerPluginDrainHttpServer } = require('@apollo/server/plugin/drainHttpServer');
-const { ApolloServerPluginLandingPageDisabled }  = require('@apollo/server/plugin/disabled');
-const path = require('path');
-  const http = require('http');
-  const cors = require('cors');
-  const bodyParser = require('body-parser');
-  const app = express()
-  const jwt = require('../helper/jwt')
-const router = require('../router')
+import  express from 'express';
+import { ApolloServer } from'@apollo/server';
+import { expressMiddleware } from'@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer }from'@apollo/server/plugin/drainHttpServer';
+import { ApolloServerPluginLandingPageDisabled }  from'@apollo/server/plugin/disabled';
+import path from'path';
+import http from'http';
+import cors from'cors';
+import bodyParser from'body-parser';
+const app = express()
+import jwt from'../helper/jwt.js'
+import router  from'../router.js'
+import schema from '../config/graphqlmerge.js';
 const httpServer = http.createServer(app);
   // app.use(express.static(path.join(path.resolve(), 'dist')));
 // // parse application/x-www-form-urlencoded
@@ -21,7 +22,7 @@ app.use(bodyParser.json());
 
 const startServer = async function() {
 
-const schema  = require('../config/graphqlmerge.js');
+
 
   const server = new ApolloServer({
     schema:schema,
@@ -69,4 +70,4 @@ const schema  = require('../config/graphqlmerge.js');
  app.use((err, req, res, next)=>{
   res.json({pesan:'error', error: err})
 })
- module.exports= httpServer;
+export default httpServer;

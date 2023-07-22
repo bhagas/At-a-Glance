@@ -1,4 +1,4 @@
-var jwt = require('jsonwebtoken');
+import jwt from'jsonwebtoken';
 let key = process.env.JWT_KEY
 class Jewete{
  static  generate(data, expiresIn) {
@@ -29,4 +29,4 @@ static  verify(token) {
 
 
 
-module.exports = Jewete;
+export default Jewete;

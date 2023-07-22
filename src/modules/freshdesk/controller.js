@@ -1,8 +1,8 @@
 
-// const model = require('./model');
-const uuid = require('uuid');
-const fd_module = require("./module");
-const {queue_create, queue_update} = require('./queue');
+// const model from'./model');
+import { v4 as uuidv4 } from'uuid';
+import fd_module from "./module.js";
+import {queue_create, queue_update} from'./queue.js';
 class Fd{
    static async ticketCreate(req,res){
       // console.log(req.body);
@@ -29,4 +29,4 @@ class Fd{
    }
 }
 
-module.exports = Fd;
+export default Fd;

@@ -1,6 +1,6 @@
-const {DataTypes, ENUM } = require('sequelize');
-const koneksi = require('../../config/koneksi.js');
-const modelTickets = require('../freshdesk/model')
+import {DataTypes, ENUM } from'sequelize';
+import koneksi from'../../config/koneksi.js';
+import modelTickets from'../freshdesk/model.js'
 const escalations = koneksi.define('fd_escalations', {
     // Model attributes are defined here
     id: {
@@ -23,4 +23,4 @@ const escalations = koneksi.define('fd_escalations', {
   escalations.belongsTo(modelTickets,{
     foreignKey: 'freshdesk_id'
   });
-module.exports = escalations;
+export default escalations;
