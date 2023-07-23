@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import 'dotenv/config'
 import entry from './src/entry/entry.js'
-const port = 3000
+const port = process.env.PORT || 3000
 
 entry.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
