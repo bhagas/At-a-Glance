@@ -225,6 +225,6 @@ static createNotes(id, data){
 
 }
 }
-Fd.getTicketByid(52)
+// Fd.getTicketByid(52)
 // Fd.getAllAgents();
 export default Fd
