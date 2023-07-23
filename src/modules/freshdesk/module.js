@@ -51,15 +51,68 @@ class Fd{
             tickets[i].id =  uuidv4();
             tickets[i].fd_created_at = tickets[i].created_at
             tickets[i].fd_updated_at = tickets[i].fd_updated_at
+            tickets[i].json_custom_field = tickets[i].custom_fields
+            if(tickets[i].custom_fields.cf_best_number_to_reach){
+              tickets[i].cf_best_number_to_reach = tickets[i].custom_fields.cf_best_number_to_reach
+            }
+            if(tickets[i].custom_fields.cf_best_number_note){
+              tickets[i].cf_best_number_note = tickets[i].custom_fields.cf_best_number_note
+            }
+            if(tickets[i].custom_fields.cf_quotewekrs){
+              tickets[i].cf_quotewekrs = tickets[i].custom_fields.cf_quotewekrs
+            }
+            if(tickets[i].custom_fields.cf_qbsalesorder){
+              tickets[i].cf_qbsalesorder = tickets[i].custom_fields.cf_qbsalesorder
+            }
+            if(tickets[i].custom_fields.cf_qbinv){
+              tickets[i].cf_qbinv = tickets[i].custom_fields.cf_qbinv
+            }
+            if(tickets[i].custom_fields.cf_totalhours){
+              tickets[i].cf_totalhours = tickets[i].custom_fields.cf_totalhours
+            }
           }
              
                 //  console.log(tickets)
                 console.log(tickets.length);
                 await model.bulkCreate(tickets, {
-                  updateOnDuplicate: ['ticket_id', 'cc_emails',"fwd_emails","reply_cc_emails","ticket_cc_emails","tags","email_config_id","group_id","priority","requester_id","responder_id","source","status","subject","company_id","type","to_emails","product_id","fr_escalated","spam","is_escalated","due_by","fr_due_by","nr_due_by","nr_escalated","fd_updated_at","fd_created_at"]
+                  updateOnDuplicate: ['ticket_id',
+                   'cc_emails',
+                   "fwd_emails",
+                   "reply_cc_emails",
+                   "ticket_cc_emails",
+                   "tags",
+                   "email_config_id",
+                   "group_id",
+                   "priority",
+                   "requester_id",
+                   "responder_id",
+                   "source",
+                   "status",
+                   "subject",
+                   "company_id",
+                   "type",
+                   "to_emails",
+                   "product_id",
+                   "fr_escalated",
+                   "spam",
+                   "is_escalated",
+                   "due_by",
+                   "fr_due_by",
+                   "nr_due_by",
+                   "nr_escalated",
+                   "fd_updated_at",
+                   "fd_created_at", 
+                   "json_custom_field",
+                  "cf_best_number_to_reach",
+                  "cf_best_number_note",
+                  "cf_quotewekrs",
+                  "cf_qbsalesorder",
+                  "cf_qbinv",
+                  "cf_totalhours"]
                 });
                 resolve()
       } catch (error) {
+        console.log(error);
               reject(error)
       }
        
@@ -225,6 +278,7 @@ static createNotes(id, data){
 
 }
 }
-// Fd.getTicketByid(52)
-// Fd.getAllAgents();
+// Fd.getTicketByid(51)
+Fd.syncTicket();
+// Fd.syncAgents();
 export default Fd
