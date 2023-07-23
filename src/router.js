@@ -1,9 +1,11 @@
-const express = require('express')
+import express from'express'
 const router = express.Router()
-const fd = require('./modules/freshdesk/router')
+import fd from'./modules/freshdesk/router.js'
 // middleware that is specific to this router
 router.use('/fd', fd)
 
+router.get('/', (req,res)=>{
+    res.json({status:'wrong endpoint!'})
+})
 
-
-module.exports = router
+export default router

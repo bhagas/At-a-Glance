@@ -1,16 +1,13 @@
 import {DataTypes, ENUM } from'sequelize';
 import koneksi from'../../config/koneksi.js';
-
-const Ticket = koneksi.define('fd_group', {
+import modelTickets from'../freshdesk/model.js'
+const escalations = koneksi.define('fd_escalations', {
     // Model attributes are defined here
     id: {
       type: DataTypes.STRING,
         primaryKey: true
       },
-    "group_id":{
-        type: DataTypes.STRING
-      },
-      "group_name":{
+      "escalation_type":{
         type: DataTypes.STRING
       }
   }, {
@@ -19,4 +16,11 @@ const Ticket = koneksi.define('fd_group', {
     paranoid:true,
     deletedAt: 'deleted'
   });
-export default Ticket;
+
+  modelTickets.hasMany(escalations,{
+    foreignKey: 'freshdesk_id'
+  });
+  escalations.belongsTo(modelTickets,{
+    foreignKey: 'freshdesk_id'
+  });
+export default escalations;

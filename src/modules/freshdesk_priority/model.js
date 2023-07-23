@@ -1,16 +1,16 @@
 import {DataTypes, ENUM } from'sequelize';
 import koneksi from'../../config/koneksi.js';
 
-const Ticket = koneksi.define('fd_group', {
+const Priority = koneksi.define('fd_priority', {
     // Model attributes are defined here
     id: {
       type: DataTypes.STRING,
         primaryKey: true
       },
-    "group_id":{
+    "priority_id":{
         type: DataTypes.STRING
       },
-      "group_name":{
+      "name":{
         type: DataTypes.STRING
       }
   }, {
@@ -19,4 +19,4 @@ const Ticket = koneksi.define('fd_group', {
     paranoid:true,
     deletedAt: 'deleted'
   });
-export default Ticket;
+export default Priority;

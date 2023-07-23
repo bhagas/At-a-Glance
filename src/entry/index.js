@@ -1,2 +1,3 @@
 
-module.exports = require('./entry')
+// module.exports = require('./entry')
+export default await import('./entry.js')

@@ -1,5 +1,5 @@
-const {DataTypes } = require('sequelize');
-const koneksi = require('../../config/koneksi.js');
+import {DataTypes } from'sequelize';
+import koneksi from'../../config/koneksi.js';
 
 const Role = koneksi.define('roles', {
     // Model attributes are defined here
@@ -20,4 +20,4 @@ const Role = koneksi.define('roles', {
     paranoid:true,
     deletedAt: 'deleted'
   });
-module.exports = Role;
+export default Role;

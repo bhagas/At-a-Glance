@@ -1,13 +1,16 @@
-const {buildSubgraphSchema} = require('@apollo/subgraph');
-const { applyMiddleware } = require('graphql-middleware');
-const permissions = require('../helper/permissions');
+import {buildSubgraphSchema} from '@apollo/subgraph';
+import { applyMiddleware } from 'graphql-middleware';
+import permissions from '../helper/permissions.js';
 
-const UserModule = require('../modules/user/graphql.js');
-const roleModule = require('../modules/role/graphql');
+
+import {typeDefs as roleTypeDefs, resolvers as roleResolvers} from '../modules/role/graphql.js';
+import {typeDefs as fdTypeDefs, resolvers as fdResolvers} from '../modules/freshdesk/graphql.js';
+import {typeDefs as userTypeDefs, resolvers as userResolvers} from '../modules/user/graphql.js';
 let gabungan= [
-  {typeDefs:UserModule.typeDefs, resolvers: UserModule.resolvers},
-  {typeDefs:roleModule.typeDefs, resolvers: roleModule.resolvers}
+  {typeDefs:userTypeDefs, resolvers: userResolvers},
+  {typeDefs:roleTypeDefs, resolvers: roleResolvers},
+  {typeDefs:fdTypeDefs, resolvers: fdResolvers}
 ]
 // gabungan.push(permissions);
 const schemaWithMiddleware = applyMiddleware(buildSubgraphSchema(gabungan), permissions);
-module.exports = schemaWithMiddleware;
+export default schemaWithMiddleware;

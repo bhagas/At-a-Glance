@@ -1,5 +1,5 @@
-const {DataTypes, ENUM } = require('sequelize');
-const koneksi = require('../../config/koneksi.js');
+import {DataTypes, ENUM } from'sequelize';
+import koneksi from '../../config/koneksi.js';
 
 const Ticket = koneksi.define('fd_tickets', {
     // Model attributes are defined here
@@ -11,7 +11,8 @@ const Ticket = koneksi.define('fd_tickets', {
       type: DataTypes.JSONB
     },
     "ticket_id" : {
-      type: DataTypes.BIGINT
+      type: DataTypes.BIGINT,
+      unique: true
     },
     "cc_emails" : {
       type: DataTypes.JSONB
@@ -53,7 +54,7 @@ const Ticket = koneksi.define('fd_tickets', {
     type: DataTypes.TEXT
   },
   "company_id" : {
-    type: DataTypes.INTEGER
+    type: DataTypes.BIGINT
   },
 
   "type" : {
@@ -94,11 +95,32 @@ const Ticket = koneksi.define('fd_tickets', {
   },
   nr_escalated:{
     type: DataTypes.BOOLEAN
-  }
+  },
+  json_custom_field: {
+    type: DataTypes.JSONB
+  },
+  "cf_best_number_to_reach" : {
+    type: DataTypes.STRING
+  },
+  "cf_best_number_note" : {
+    type: DataTypes.STRING
+  },
+  "cf_quotewekrs" : {
+    type: DataTypes.STRING
+  },
+  "cf_qbsalesorder" : {
+    type: DataTypes.STRING
+  },
+  "cf_qbinv" : {
+    type: DataTypes.STRING
+  },
+  "cf_totalhours" : {
+    type: DataTypes.STRING
+  },
   }, {
     // Other model options go here
     freezeTableName: true,
     paranoid:true,
     deletedAt: 'deleted'
   });
-module.exports = Ticket;
+export default Ticket;
