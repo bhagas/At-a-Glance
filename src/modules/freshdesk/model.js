@@ -95,7 +95,28 @@ const Ticket = koneksi.define('fd_tickets', {
   },
   nr_escalated:{
     type: DataTypes.BOOLEAN
-  }
+  },
+  json_custom_field: {
+    type: DataTypes.JSONB
+  },
+  "cf_best_number_to_reach" : {
+    type: DataTypes.STRING
+  },
+  "cf_best_number_note" : {
+    type: DataTypes.STRING
+  },
+  "cf_quotewekrs" : {
+    type: DataTypes.STRING
+  },
+  "cf_qbsalesorder" : {
+    type: DataTypes.STRING
+  },
+  "cf_qbinv" : {
+    type: DataTypes.STRING
+  },
+  "cf_totalhours" : {
+    type: DataTypes.STRING
+  },
   }, {
     // Other model options go here
     freezeTableName: true,

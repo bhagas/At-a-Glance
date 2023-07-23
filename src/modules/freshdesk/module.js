@@ -166,7 +166,7 @@ class Fd{
                         password: "X"
                       }
                     });
-                    // console.log(dt.data);
+                    console.log(dt.data);
                     resolve(dt.data)
           } catch (error) {
             reject(error.response.data.description)
@@ -225,6 +225,6 @@ static createNotes(id, data){
 
 }
 }
-// Fd.getTicketByid(52)
+Fd.getTicketByid(52)
 // Fd.getAllAgents();
 export default Fd

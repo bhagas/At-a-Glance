@@ -1,6 +1,11 @@
-import koneksi from'../config/koneksi';
+import koneksi from'../config/koneksi.js';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+
+const __dirname = path.dirname(__filename);
 let normalizedPath = path.join(__dirname, "../modules");
 // console.log(normalizedPath);
 fs.readdirSync(normalizedPath).forEach(function (file) {
