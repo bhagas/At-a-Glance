@@ -15,7 +15,7 @@ class Fd{
               let tickets =[];
               let link ='yay'
               while (link) {
-                let PATH = `/api/v2/tickets?per_page=10&page=${page}`;
+                let PATH = `/api/v2/tickets?include=requester&per_page=10&page=${page}`;
                 let dt =    await axios.get(URL+PATH, {
                         auth: {
                           username: API_KEY,
@@ -279,6 +279,6 @@ static createNotes(id, data){
 }
 }
 // Fd.getTicketByid(51)
-Fd.syncTicket();
+// Fd.syncTicket();
 // Fd.syncAgents();
 export default Fd
