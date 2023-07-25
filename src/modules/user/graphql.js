@@ -126,6 +126,7 @@ Mutation:{
       <a href=${process.env.FE_URI}confirm?cc=${input.confirmation_code}> Click here</a>
       </div>`
       mail(input.email, "Transition has invited you", html)
+      input.status='active';
      await userModel.create(input)
         return {
             status: '200',

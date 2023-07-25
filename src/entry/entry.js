@@ -12,6 +12,7 @@ const app = express()
 import jwt from'../helper/jwt.js'
 import router  from'../router.js'
 import schema from '../config/graphqlmerge.js';
+import { request, gql } from 'graphql-request'
 const httpServer = http.createServer(app);
   // app.use(express.static(path.join(path.resolve(), 'dist')));
 // // parse application/x-www-form-urlencoded
@@ -47,7 +48,49 @@ app.use(
           if(token){
             let dt = token.split(" ");
             if(dt.length>1){
-          
+              let qu = gql`
+             query getMe {
+                          me {
+                            id
+                            email
+                            firstName
+                            middleName
+                            lastName
+                            dateJoined
+                            modified
+                            dateJoined
+                            lastName
+                            lastLogin
+                            verified
+                            socialAuth {
+                              id
+                              provider
+                            }
+                            profile {
+                              created
+                              modified
+                              id
+                              gender
+                              picture
+                              dateOfBirth
+                              nationality
+                              timezone
+                              address
+                              inviteCode
+                              company
+                              legacyId
+                            }
+                          }
+                        }`
+              let requestHeaders = {
+                authorization: `Bearer `
+              }
+              let h=    await request({
+                url:process.env.SHELIAK_URL,
+                document:qu,
+                requestHeaders,
+              });
+              console.log(h);
               user=await jwt.verify(dt[1]);
             } 
           }
