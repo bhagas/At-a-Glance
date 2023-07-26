@@ -1,5 +1,5 @@
-const {DataTypes, ENUM } = require('sequelize');
-const koneksi = require('../../config/koneksi.js');
+import {DataTypes, ENUM } from'sequelize';
+import koneksi from'../../config/koneksi.js';
 
 const Priority = koneksi.define('fd_priority', {
     // Model attributes are defined here
@@ -19,4 +19,4 @@ const Priority = koneksi.define('fd_priority', {
     paranoid:true,
     deletedAt: 'deleted'
   });
-module.exports = Priority;
+export default Priority;

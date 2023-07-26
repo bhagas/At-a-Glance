@@ -1,14 +1,17 @@
-const db = require('../../config/koneksi.js');
-const { QueryTypes } = require('sequelize');
-const userModel = require('./model.js');
-const rolePoolModel = require('../rolePool/model.js');
-const gql = require('graphql-tag');
-const uuid = require('uuid');
-const jwt = require('../../helper/jwt.js');
-const mail = require('../../helper/mail');
-const bcrypt = require('../../helper/bcrypt');
+import db from'../../config/koneksi.js';
+import { QueryTypes } from'sequelize';
+import userModel from'./model.js';
+import rolePoolModel from'../rolePool/model.js';
+import gql from'graphql-tag';
+import { v4 as uuidv4 } from'uuid';
+import jwt from'../../helper/jwt.js';
+import mail from'../../helper/mail.js';
+import bcrypt from'../../helper/bcrypt.js';
+import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
+
 const typeDefs=
   gql`
+  scalar Upload
   extend type Query {
     """
     Deskripsi untuk user
@@ -82,7 +85,9 @@ type usersResult{
   
 `
 
+
 const resolvers= {
+  Upload: GraphQLUpload,
   Query: {
     users: async (obj, args, context, info) => {
       try {
@@ -112,7 +117,7 @@ Mutation:{
     try {
     //  let file = await saveFile(await image);
    
-      input.id=uuid.v4()
+      input.id=uuidv4()
       // input.password=await enkrip.hash(input.password)
       input.confirmation_code = await jwt.generate({id: input.id}, '1h');
       let html =`<h1>Invitation</h1>
@@ -121,6 +126,7 @@ Mutation:{
       <a href=${process.env.FE_URI}confirm?cc=${input.confirmation_code}> Click here</a>
       </div>`
       mail(input.email, "Transition has invited you", html)
+      input.status='active';
      await userModel.create(input)
         return {
             status: '200',
@@ -265,7 +271,7 @@ Mutation:{
           transaction: t
         });
         for (let i = 0; i < roles.length; i++) {
-          roles[i].id = uuid.v4();
+          roles[i].id = uuidv4();
           roles[i].userId = idUser;
           
         }
@@ -292,4 +298,4 @@ Mutation:{
 }
 
 
-module.exports = {typeDefs, resolvers}
+export {typeDefs, resolvers}

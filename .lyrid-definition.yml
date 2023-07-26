@@ -3,8 +3,7 @@ description: App Description
 ignoreFiles: .git node_modules
 modules:
 - name: template
-  language: nodejs16.x
-  web: express
+  language: nodejs18.x
   description: Module description
   functions:
   - name: entry

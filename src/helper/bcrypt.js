@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+import bcrypt from'bcrypt';
 const saltRounds = 10;
 
 class Bcrypt{
@@ -21,4 +21,4 @@ class Bcrypt{
     }
 }
 
-module.exports = Bcrypt;
+export default Bcrypt;

@@ -1,12 +1,12 @@
-const db = require('../../config/koneksi.js');
-const { QueryTypes } = require('sequelize');
-const agentsModel = require('./model.js');
-const rolePoolModel = require('../rolePool/model.js');
-const gql = require('graphql-tag');
-const uuid = require('uuid');
-const jwt = require('../../helper/jwt.js');
-const mail = require('../../helper/mail');
-const bcrypt = require('../../helper/bcrypt');
+import db from'../../config/koneksi.js';
+import { QueryTypes } from'sequelize';
+import agentsModel from'./model.js';
+import rolePoolModel from'../rolePool/model.js';
+import gql from'graphql-tag';
+import { v4 as uuidv4 } from'uuid';
+import jwt from'../../helper/jwt.js';
+import mail from'../../helper/mail.js';
+import bcrypt from'../../helper/bcrypt.js';
 const typeDefs=
   gql`
 
@@ -49,7 +49,7 @@ Mutation:{
     try {
     //  let file = await saveFile(await image);
    
-      input.id=uuid.v4()
+      input.id=uuidv4()
       // input.password=await enkrip.hash(input.password)
         
      await agentsModel.create(input)
@@ -73,4 +73,4 @@ Mutation:{
 }
 
 
-module.exports = {typeDefs, resolvers}
+export {typeDefs, resolvers}
