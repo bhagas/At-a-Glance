@@ -20,6 +20,7 @@ const typeDefs=
     listTicket(input:inputFilterListTicket): listTicketOutput
     dayGraph(input: inputDayGraph): listDayGraphOutput
     ticketDetail(id: Int!): detailTicketOutput
+    listAgents: listAgentOutput
   }
   extend type Mutation{
     ticketSync:ticketSyncOutput
@@ -36,11 +37,12 @@ const typeDefs=
     error:String
   }
   type listDayGraphOutput{
-    data:[String],
+    data:[day_graph],
     message:String,
     status:Int,
     error:String
   }
+
   type ticketSyncOutput{
     message:String,
     status:Int,
@@ -95,6 +97,16 @@ const typeDefs=
     status:Int,
     error:String
   }
+  type listAgentOutput{
+    data:[agent],
+    message:String,
+    status:Int,
+    error:String
+  }
+  type day_graph{
+    date:String,
+    count:Int
+  }
   type ticket{
     cc_emails: [String],
     fwd_emails: [String],
@@ -109,6 +121,8 @@ const typeDefs=
     requester_name: String,
     requester_email:String,
     responder_id: String,
+    responder_name:String,
+    responder_email:String,
     source: Int,
     company_id: String,
     status: Int,
@@ -128,6 +142,15 @@ const typeDefs=
     nr_due_by: String,
     nr_escalated: Boolean,
     ticket_id: Int
+  }
+  type agent{
+    name:String,
+    email:String,
+    active:String,
+    id:String,
+    ticket_scope:String,
+    type:String,
+    phone:String,
   }
   type attachment{
     id: String,
@@ -280,8 +303,8 @@ const resolvers= {
             subject,
             to_emails,
             product_id,
-            id,
-            type,
+            a.id,
+            a.type,
             due_by,
             fr_due_by,
             is_escalated,
@@ -290,28 +313,31 @@ const resolvers= {
             tags,
             nr_due_by,
             nr_escalated,
-            ticket_id`
+            ticket_id,
+            b.name as responder_name,
+            b.email as responder_email
+            `
             switch (args.input.condition) {
                 case "unresolved":
-                    q=`SELECT ${kolom} FROM fd_tickets WHERE status <> 4 AND status <> 5 ${a}`
+                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.status <> 4 AND a.status <> 5 ${a}`
                     break;
                 case "unassigned":
-                    q=`SELECT ${kolom} FROM fd_tickets WHERE responder_id is null AND status =2 ${a}`
+                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.responder_id is null AND a.status =2 ${a}`
                 break;
                 case "on_hold":
-                    q=`SELECT ${kolom} FROM fd_tickets WHERE status = 3 OR status = 6 OR status = 7 ${a}`
+                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.status = 3 OR a.status = 6 OR a.status = 7 ${a}`
                 break;
                 case "open":
-                    q=`SELECT ${kolom} FROM fd_tickets WHERE status = 2 ${a}`
+                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.status = 2 ${a}`
                 break;
                 case "overdue":
-                    q=`SELECT ${kolom} FROM fd_tickets WHERE due_by > now() ${a}`
+                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.due_by > now() ${a}`
                 break;
                 case "due_today":
-                    q=`SELECT ${kolom} FROM fd_tickets WHERE due_by = current_date ${a}`
+                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.due_by = current_date ${a}`
                 break;
                 default:
-                    q=`SELECT ${kolom} FROM fd_tickets WHERE status <> 4 AND status <> 5 ${a}`
+                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.status <> 4 AND a.status <> 5 ${a}`
                 break;
             }
             // let q = `SELECT (SELECT COUNT(*) FROM fd_tickets WHERE status <> 4 AND status <> 5 ${a}) as unresolved,
@@ -320,7 +346,55 @@ const resolvers= {
             // (SELECT COUNT(*) FROM fd_tickets WHERE status = 2 ${a}) as open,
             // (SELECT COUNT(*) FROM fd_tickets WHERE due_by > now() ${a}) as overdue,
             // (SELECT COUNT(*) FROM fd_tickets WHERE due_by = current_date ${a}) as due_today `;
-           
+          //  console.log(q);
+            const graph_1 = await db.query(q, 
+            { 
+            // replacements: [],
+            bind,
+            type: QueryTypes.SELECT 
+             });
+            //   console.log({  data:graph_1,});
+            return {
+                data:graph_1,
+                status: '200',
+                message: 'ok'
+            }
+        } catch (error) {
+          console.log(error);
+          return {
+            status: '500',
+            message: 'gagal',
+            error: JSON.stringify(error)
+        }
+        }
+       
+      },
+      listAgents: async (obj, args, context, info)=>{
+        try {
+            // console.log(args);
+            let bind={ };
+            let a ="";
+          
+         
+            let q ='';
+          
+            let kolom =`
+              id,
+              name,
+              email,
+              phone,
+              type,
+              active,
+              ticket_scope
+            `
+            q=`SELECT ${kolom} FROM fd_agents  WHERE deleted is null`
+            // let q = `SELECT (SELECT COUNT(*) FROM fd_tickets WHERE status <> 4 AND status <> 5 ${a}) as unresolved,
+            // (SELECT COUNT(*) FROM fd_tickets WHERE responder_id is null AND status =2 ${a}) as unassigned,
+            // (SELECT COUNT(*) FROM fd_tickets WHERE status = 3 OR status = 6 OR status = 7 ${a}) as on_hold,
+            // (SELECT COUNT(*) FROM fd_tickets WHERE status = 2 ${a}) as open,
+            // (SELECT COUNT(*) FROM fd_tickets WHERE due_by > now() ${a}) as overdue,
+            // (SELECT COUNT(*) FROM fd_tickets WHERE due_by = current_date ${a}) as due_today `;
+          //  console.log(q);
             const graph_1 = await db.query(q, 
             { 
             // replacements: [],
@@ -344,22 +418,43 @@ const resolvers= {
        
       },
       dayGraph:async(_, {input})=>{
-        var dates = [];
+        let bind=[input.startDate, input.endDate];
           // console.log(input);
-          var currDate = moment(input.startDate).startOf('day');
-          var lastDate = moment(input.endDate).startOf('day');
-      
-          while(currDate.add(1, 'days').diff(lastDate) < 0) {
-              // console.log(currDate.toDate());
-              dates.push(currDate.clone().toDate());
-          }
-      
+          // var currDate = moment(input.startDate).startOf('day');
+          // var lastDate = moment(input.endDate).startOf('day');
+          // dates.push(currDate.format("YYYY-MM-DD"));
+          // while(currDate.add(1, 'days').diff(lastDate) <= 0) {
+          //     // console.log(currDate.toDate());
+          //     dates.push(currDate.clone().format("YYYY-MM-DD"));
+          // }
+try {
+  let q = `SELECT date_trunc('day', dd):: date as date, (select count(*) from fd_tickets where "createdAt"::date= date_trunc('day', dd):: date) as count
+  FROM generate_series
+      ( $1::timestamp 
+      , $2::timestamp
+      , '1 day'::interval) dd`
+
+      const graph_1 = await db.query(q, 
+        { 
+        // replacements: [],
+        bind,
+        type: QueryTypes.SELECT 
+         });
+        //  console.log(graph_1);
+  return {
+      data:graph_1,
+      status: '200',
+      message: 'ok'
+  }
+} catch (error) {
+  console.log(error);
+  return {
+    status: '500',
+    message: 'failed',
+    error: JSON.stringify(error)
+}
+}
      
-          return {
-              data:dates,
-              status: '200',
-              message: 'ok'
-          }
     
   },
   ticketDetail: async(_,{id})=>{
