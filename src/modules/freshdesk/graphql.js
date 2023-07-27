@@ -68,14 +68,16 @@ const typeDefs=
   input inputReply {
     body: String!,
     user_id: String!,
-    ticket_id: String!
+    ticket_id: String!,
+    cc_emails:[String],
+    bcc_emails:[String]
   }
   input inputNotes {
     body: String!,
     user_id: String!,
     ticket_id: String!,
     notify_emails:[String],
-    private:String
+    private:String!
   }
   input inputUpdateNotes {
     body: String!,
@@ -104,6 +106,8 @@ const typeDefs=
     group_id: String,
     priority: Int,
     requester_id: String,
+    requester_name: String,
+    requester_email:String,
     responder_id: String,
     source: Int,
     company_id: String,
@@ -174,6 +178,8 @@ const typeDefs=
     group_id: String,
     priority: Int,
     requester_id: String,
+    requester_name:String,
+    requester_email:String,
     responder_id: String,
     source: Int,
     company_id: String,
@@ -265,6 +271,8 @@ const resolvers= {
             group_id,
             priority,
             requester_id,
+            requester_name,
+            requester_email,
             responder_id,
             source,
             company_id,
@@ -358,6 +366,8 @@ const resolvers= {
     try {
      
      let data= await fd_module.getTicketByid(id);
+     data.requester_name = data.requester.name;
+     data.requester_email = data.requester.email;
     //  console.log(data.conversations[0].attachments);
       return {
           data,
@@ -412,22 +422,38 @@ Mutation:{
       const form = new FormData();
       if(filee){
         let files = await Promise.all(filee)
-     
-        for (let i = 0; i < files.length; i++) {
-          let {createReadStream, filename, mimetype, encoding } = await files[i];
-          let stream = createReadStream()
-          form.append('attachments[]', stream, filename);
+        if(Array.isArray(files)){
+          for (let i = 0; i < files.length; i++) {
+            let {createReadStream, filename, mimetype, encoding } = await files[i];
+            let stream = createReadStream()
+            form.append('attachments[]', stream, filename);
+          }
         }
+      
       }
  
       form.append('body', input.body);
       form.append('user_id', input.user_id)
+      if(input.cc_emails){
+        for (let i = 0; i < input.cc_emails.length; i++) {
+          form.append('cc_emails[]', input.cc_emails[i]);
+        }
+      }
+     
+      if(input.bcc_emails){
+        for (let i = 0; i < input.bcc_emails.length; i++) {
+          form.append('bcc_emails[]', input.bcc_emails[i]);
+        }
+      }
+    
+      
       await fd_module.createReply(input.ticket_id, form);
       return {
         status: '200',
         message: 'Ok',
     }
     } catch (error) {
+      console.log(error);
       return {
         error,
         status: '200',
@@ -442,12 +468,13 @@ Mutation:{
       const form = new FormData();
       if(filee){
         let files = await Promise.all(filee)
-   
+        if(Array.isArray(files)){
         for (let i = 0; i < files.length; i++) {
           let {createReadStream, filename, mimetype, encoding } = await files[i];
           let stream = createReadStream()
           form.append('attachments[]', stream, filename);
         }
+      }
       }
      
      
@@ -456,11 +483,14 @@ Mutation:{
       form.append('user_id', input.user_id)
       // notify_emails:[String],
       // private:Boolean
-      for (let x = 0; x < input.notify_emails.length; x++) {
+      if(input.notify_emails){
+        for (let x = 0; x < input.notify_emails.length; x++) {
        
-        form.append('notify_emails[]', input.notify_emails[x]);
-        
+          form.append('notify_emails[]', input.notify_emails[x]);
+          
+        }
       }
+    
     
       form.append('private', input.private)
       await fd_module.createNotes(input.ticket_id, form);

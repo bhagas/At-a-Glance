@@ -16,6 +16,7 @@ import { request, gql } from 'graphql-request'
 const httpServer = http.createServer(app);
   // app.use(express.static(path.join(path.resolve(), 'dist')));
 // // parse application/x-www-form-urlencoded
+app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // // parse application/json
@@ -36,7 +37,6 @@ const server = new ApolloServer({
 await server.start();
 app.use(
   '/gql',
-  cors(),
   expressMiddleware(server,
     {
       context: async ({ req }) => { 

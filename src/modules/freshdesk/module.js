@@ -51,6 +51,8 @@ class Fd{
             tickets[i].id =  uuidv4();
             tickets[i].fd_created_at = tickets[i].created_at
             tickets[i].fd_updated_at = tickets[i].fd_updated_at
+            tickets[i].requester_name =  tickets[i].requester.name
+            tickets[i].requester_email =  tickets[i].requester.email
             tickets[i].json_custom_field = tickets[i].custom_fields
             if(tickets[i].custom_fields.cf_best_number_to_reach){
               tickets[i].cf_best_number_to_reach = tickets[i].custom_fields.cf_best_number_to_reach
@@ -70,6 +72,7 @@ class Fd{
             if(tickets[i].custom_fields.cf_totalhours){
               tickets[i].cf_totalhours = tickets[i].custom_fields.cf_totalhours
             }
+            
           }
              
                 //  console.log(tickets)
@@ -85,6 +88,8 @@ class Fd{
                    "group_id",
                    "priority",
                    "requester_id",
+                   "requester_name",
+                   "requester_email",
                    "responder_id",
                    "source",
                    "status",
@@ -214,14 +219,14 @@ class Fd{
     static getTicketByid(id){
       return new Promise(async (resolve, reject) => {
           try {
-              let PATH = `/api/v2/tickets/${id}?include=conversations`;
+              let PATH = `/api/v2/tickets/${id}?include=conversations,requester`;
               let dt =    await axios.get(URL+PATH, {
                       auth: {
                         username: API_KEY,
                         password: "X"
                       }
                     });
-                    console.log(dt.data);
+                    // console.log(dt.data);
                     resolve(dt.data)
           } catch (error) {
             console.log(error);

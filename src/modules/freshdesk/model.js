@@ -41,6 +41,12 @@ const Ticket = koneksi.define('fd_tickets', {
   "requester_id" : {
     type: DataTypes.BIGINT
   },
+  "requester_name":{
+    type: DataTypes.TEXT
+  },
+  "requester_email":{
+    type: DataTypes.TEXT
+  },
   "responder_id" : {
     type: DataTypes.BIGINT
   },
