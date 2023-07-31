@@ -13,6 +13,9 @@ import jwt from'../helper/jwt.js'
 import router  from'../router.js'
 import schema from '../config/graphqlmerge.js';
 import { request, gql } from 'graphql-request'
+import { WebSocketServer } from 'ws';
+import { useServer } from 'graphql-ws/lib/use/ws';
+import PubSub from '../config/redis.js';
 const httpServer = http.createServer(app);
   // app.use(express.static(path.join(path.resolve(), 'dist')));
 // // parse application/x-www-form-urlencoded
@@ -23,6 +26,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(graphqlUploadExpress())
 
+const wsServer = new WebSocketServer({
+  server: httpServer,
+  path: '/gql',
+});
+const serverCleanup = useServer({ schema }, wsServer);
 
 const server = new ApolloServer({
   schema:schema,
@@ -31,6 +39,15 @@ const server = new ApolloServer({
   csrfPrevention: true,
   plugins: [
     ApolloServerPluginDrainHttpServer({ httpServer }),
+    {
+      async serverWillStart() {
+        return {
+          async drainServer() {
+            await serverCleanup.dispose();
+          },
+        };
+      },
+    },
     // ApolloServerPluginLandingPageDisabled()
   ],
 });

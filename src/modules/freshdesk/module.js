@@ -3,6 +3,7 @@ import axios from'axios';
 import { v4 as uuidv4 } from'uuid';
 import model from'./model.js';
 import modelAgents from'../freshdesk_agents/model.js';
+import PubSUb from '../../config/redis.js'
 const API_KEY = process.env.FD_API_KEY;
 const FD_ENDPOINT = process.env.FD_ENDPOINT;
 const URL =  "https://" + FD_ENDPOINT + ".freshdesk.com";
@@ -15,7 +16,7 @@ class Fd{
               let tickets =[];
               let link ='yay'
               while (link) {
-                let PATH = `/api/v2/tickets?include=requester&per_page=10&page=${page}`;
+                let PATH = `/api/v2/tickets?include=requester&per_page=${process.env.FD_MAX_TICKETS_GET}&page=${page}`;
                 let dt =    await axios.get(URL+PATH, {
                         auth: {
                           username: API_KEY,
@@ -30,7 +31,12 @@ class Fd{
                 }else{
                   link=null
                 }
-              
+                PubSUb.publish('SYNC_TICKET', {
+                  syncTicket: {
+                    status: 'Loading data from Freshdesk',
+                    progress: '',
+                  },
+                });
               }
            
                 resolve(tickets)
@@ -46,7 +52,9 @@ class Fd{
       return new Promise(async (resolve, reject) => {
         try {
           let tickets = await this.getAllTickets();
+          let t = []
           for (let i = 0; i < tickets.length; i++) {
+           
             tickets[i].ticket_id = tickets[i].id;
             tickets[i].id =  uuidv4();
             tickets[i].fd_created_at = tickets[i].created_at
@@ -72,48 +80,66 @@ class Fd{
             if(tickets[i].custom_fields.cf_totalhours){
               tickets[i].cf_totalhours = tickets[i].custom_fields.cf_totalhours
             }
-            
+            t.push(tickets[i])
+            if(((i+1) % process.env.FD_MAX_TICKETS_GET)==0 || ((i+1) == tickets.length)){
+              PubSUb.publish('SYNC_TICKET', {
+                syncTicket: {
+                  status: 'Save data to database',
+                  progress: '',
+                },
+              });
+                    //  console.log(tickets)
+                    console.log(tickets.length);
+                    await model.bulkCreate(t, {
+                      updateOnDuplicate: ['ticket_id',
+                       'cc_emails',
+                       "fwd_emails",
+                       "reply_cc_emails",
+                       "ticket_cc_emails",
+                       "tags",
+                       "email_config_id",
+                       "group_id",
+                       "priority",
+                       "requester_id",
+                       "requester_name",
+                       "requester_email",
+                       "responder_id",
+                       "source",
+                       "status",
+                       "subject",
+                       "company_id",
+                       "type",
+                       "to_emails",
+                       "product_id",
+                       "fr_escalated",
+                       "spam",
+                       "is_escalated",
+                       "due_by",
+                       "fr_due_by",
+                       "nr_due_by",
+                       "nr_escalated",
+                       "fd_updated_at",
+                       "fd_created_at", 
+                       "json_custom_field",
+                      "cf_best_number_to_reach",
+                      "cf_best_number_note",
+                      "cf_quotewekrs",
+                      "cf_qbsalesorder",
+                      "cf_qbinv",
+                      "cf_totalhours"]
+                    });
+                    t=[];
+            }
+           
+  
           }
-             
-                //  console.log(tickets)
-                console.log(tickets.length);
-                await model.bulkCreate(tickets, {
-                  updateOnDuplicate: ['ticket_id',
-                   'cc_emails',
-                   "fwd_emails",
-                   "reply_cc_emails",
-                   "ticket_cc_emails",
-                   "tags",
-                   "email_config_id",
-                   "group_id",
-                   "priority",
-                   "requester_id",
-                   "requester_name",
-                   "requester_email",
-                   "responder_id",
-                   "source",
-                   "status",
-                   "subject",
-                   "company_id",
-                   "type",
-                   "to_emails",
-                   "product_id",
-                   "fr_escalated",
-                   "spam",
-                   "is_escalated",
-                   "due_by",
-                   "fr_due_by",
-                   "nr_due_by",
-                   "nr_escalated",
-                   "fd_updated_at",
-                   "fd_created_at", 
-                   "json_custom_field",
-                  "cf_best_number_to_reach",
-                  "cf_best_number_note",
-                  "cf_quotewekrs",
-                  "cf_qbsalesorder",
-                  "cf_qbinv",
-                  "cf_totalhours"]
+          
+
+                PubSUb.publish('SYNC_TICKET', {
+                  syncTicket: {
+                    status: 'Done',
+                    progress: '',
+                  },
                 });
                 resolve()
       } catch (error) {

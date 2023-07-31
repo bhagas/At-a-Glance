@@ -11,9 +11,16 @@ import fd_module from'./module.js'
 import moment from'moment'
 import saveFile from'../../helper/saveFile.js';
 import  FormData from 'form-data';
+import pubsub from '../../config/redis.js';
 const typeDefs=
   gql`
-
+extend type Subscription {
+    syncTicket: SyncTicket
+}
+type SyncTicket{
+    status: String
+    progress: String 
+}
   extend type Query {
     "priority 1, 2 ,3 ,4 "
     ticketOverview(input:inputFilterTicketOverview): ticketOverviewOutput
@@ -482,7 +489,14 @@ try {
 Mutation:{
     ticketSync:async (_)=>{
         try {
-            await fd_module.syncTicket();
+          pubsub.publish('SYNC_TICKET', {
+            syncTicket: {
+              status: 'Sync Started',
+              progress: '',
+            },
+          });
+            fd_module.syncTicket();
+           
             return {
                 status: '200',
                 message: 'Ok',
@@ -638,7 +652,13 @@ Mutation:{
     }
   
    }
-}
+},
+Subscription: {
+  syncTicket: {
+    // More on pubsub below
+    subscribe: () => pubsub.asyncIterator(['SYNC_TICKET']),
+  },
+},
 }
 
 
