@@ -67,20 +67,20 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
   // Permissions
   const permissions = shield({
     Query: {
-      users: chain(isAuthenticated, isActive,isSuperAdmin),
-      user:chain(isAuthenticated, isActive,isSuperAdmin),
-      role:chain(isAuthenticated, isActive,isSuperAdmin),
-      roles:chain(isAuthenticated, isActive,isSuperAdmin)
+      // users: chain(isAuthenticated, isActive,isSuperAdmin),
+      // user:chain(isAuthenticated, isActive,isSuperAdmin),
+      // role:chain(isAuthenticated, isActive,isSuperAdmin),
+      // roles:chain(isAuthenticated, isActive,isSuperAdmin)
     },
     Mutation:{
-      createRole:chain(isAuthenticated, isActive, isSuperAdmin),
-      createUser:chain(isAuthenticated, isActive, isSuperAdmin),
-      removeRole:chain(isAuthenticated, isActive,isSuperAdmin),
-      removeUser:chain(isAuthenticated, isActive,isSuperAdmin),
-      setRole:chain(isAuthenticated, isActive,isSuperAdmin),
-      updateRole:chain(isAuthenticated, isActive,isSuperAdmin),
-      updateUser:chain(isAuthenticated, isActive,isSuperAdmin),
-      agentSync:chain(isAuthenticated, isActive,isSuperAdmin)
+      // createRole:chain(isAuthenticated, isActive, isSuperAdmin),
+      // createUser:chain(isAuthenticated, isActive, isSuperAdmin),
+      // removeRole:chain(isAuthenticated, isActive,isSuperAdmin),
+      // removeUser:chain(isAuthenticated, isActive,isSuperAdmin),
+      // setRole:chain(isAuthenticated, isActive,isSuperAdmin),
+      // updateRole:chain(isAuthenticated, isActive,isSuperAdmin),
+      // updateUser:chain(isAuthenticated, isActive,isSuperAdmin),
+      // agentSync:chain(isAuthenticated, isActive,isSuperAdmin)
     }
   })
 

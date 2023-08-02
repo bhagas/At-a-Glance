@@ -230,8 +230,8 @@ type SyncTicket{
     due_by: String,
     fr_due_by: String,
     is_escalated: Boolean,
-    fd_created_at: String,
-    fd_updated_at: String,
+    created_at: String,
+    updated_at: String,
     tags: [String],
     nr_due_by: String,
     nr_escalated: Boolean,
@@ -291,8 +291,10 @@ const resolvers= {
             let limit = 10;
             let offset =0
             if(args.input.priority){
+              if(args.input.priority.length>0){
                 a+= " AND priority IN(:priority)";
                 replacements.priority = args.input.priority;
+              }
             }
             if(args.input.row){
               limit=args.input.row;
@@ -327,13 +329,13 @@ const resolvers= {
             product_id,
             a.id,
             a.type,
-            due_by,
-            fr_due_by,
+            CAST(due_by AS TEXT) as due_by,
+            CAST(fr_due_by AS TEXT) as fr_due_by,
             is_escalated,
-            fd_created_at,
-            fd_updated_at,
+            CAST(fd_created_at AS TEXT) as fd_created_at,
+            CAST(fd_updated_at AS TEXT) as fd_updated_at,
             tags,
-            nr_due_by,
+            CAST(nr_due_by AS TEXT) as nr_due_by,
             nr_escalated,
             ticket_id,
             b.name as responder_name,
@@ -378,7 +380,7 @@ const resolvers= {
             // bind,
             type: QueryTypes.SELECT 
              });
-            //   console.log({  data:graph_1,});
+              // console.log({  data:graph_1,});
             return {
                 data:graph_1,
                 status: '200',
