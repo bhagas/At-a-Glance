@@ -3,6 +3,7 @@ import model from'./model.js';
 import { v4 as uuidv4 } from'uuid';
 import fd_module from"./module.js";
 import activitiesModel from'../freshdesk_activites/model.js'
+import pubsub from '../../config/redis.js'
 const queue_create = new Queue('create_ticket', `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`);
 // const create_queue = new Queue('create_ticket', { redis: { port: 8379, host: '8.215.33.60'} });
 
@@ -27,6 +28,12 @@ queue_create.process(50,async function (job, done) {
         let merged = {...input, ...ticket};
         // console.log(merged, 'tickets created');
         await model.create(merged)
+        pubsub.publish('UPDATE_TICKET', {
+            syncTicket: {
+              status: 'New Ticket Added',
+              progress: '',
+            },
+          });
         done();
     } catch (error) {
         console.log(error);

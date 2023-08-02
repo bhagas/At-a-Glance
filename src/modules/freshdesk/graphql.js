@@ -14,8 +14,10 @@ import  FormData from 'form-data';
 import pubsub from '../../config/redis.js';
 const typeDefs=
   gql`
+  
 extend type Subscription {
-    syncTicket: SyncTicket
+    syncTicket: SyncTicket,
+    updateTicket: SyncTicket
 }
 type SyncTicket{
     status: String
@@ -657,6 +659,10 @@ Subscription: {
   syncTicket: {
     // More on pubsub below
     subscribe: () => pubsub.asyncIterator(['SYNC_TICKET']),
+  },
+  updateTicket: {
+    // More on pubsub below
+    subscribe: () => pubsub.asyncIterator(['UPDATE_TICKET']),
   },
 },
 }
