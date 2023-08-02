@@ -70,7 +70,9 @@ type SyncTicket{
   }
   input inputFilterListTicket {
     priority: Int,
-    condition: String!
+    condition: String!,
+    row:Int!,
+    start_from:Int!
   }
   input inputDayGraph {
     startDate: String!,
@@ -98,7 +100,8 @@ type SyncTicket{
     data:[ticket],
     message:String,
     status:Int,
-    error:String
+    error:String,
+    total_rows:Int
   }
   type detailTicketOutput{
     data:detailTicket,
@@ -150,7 +153,8 @@ type SyncTicket{
     tags: [String],
     nr_due_by: String,
     nr_escalated: Boolean,
-    ticket_id: Int
+    ticket_id: Int,
+    total_rows:Int
   }
   type agent{
     name:String,
@@ -283,10 +287,18 @@ const resolvers= {
             // console.log(args);
             let bind={ };
             let a ="";
-          
+            let limit = 10;
+            let offset =0
             if(args.input.priority){
                 a+= " AND priority=$priority";
                 bind.priority = args.input.priority;
+            }
+            if(args.input.row){
+              limit=args.input.row;
+              offset=args.input.start_from;
+              a+=` LIMIT $limit OFFSET $offset`
+              bind.limit = limit;
+              bind.offset = offset;
             }
 
             let q ='';
@@ -324,31 +336,34 @@ const resolvers= {
             nr_escalated,
             ticket_id,
             b.name as responder_name,
-            b.email as responder_email
+            b.email as responder_email,
+            count(*) OVER() AS total_rows
             `
             switch (args.input.condition) {
                 case "unresolved":
-                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.status <> 4 AND a.status <> 5 ${a}`
+                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.status <> 4 AND a.status <> 5 `
                     break;
                 case "unassigned":
-                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.responder_id is null AND a.status =2 ${a}`
+                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.responder_id is null AND a.status =2 `
                 break;
                 case "on_hold":
-                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.status = 3 OR a.status = 6 OR a.status = 7 ${a}`
+                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.status = 3 OR a.status = 6 OR a.status = 7 `
                 break;
                 case "open":
-                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.status = 2 ${a}`
+                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.status = 2 `
                 break;
                 case "overdue":
-                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.due_by > now() ${a}`
+                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.due_by > now() `
                 break;
                 case "due_today":
-                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.due_by = current_date ${a}`
+                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.due_by = current_date `
                 break;
                 default:
-                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.status <> 4 AND a.status <> 5 ${a}`
+                    q=`SELECT ${kolom} FROM fd_tickets a left join fd_agents b on a.responder_id = cast(b.id as BIGINT) WHERE a.status <> 4 AND a.status <> 5 `
                 break;
             }
+            q+=a;
+            console.log(a);
             // let q = `SELECT (SELECT COUNT(*) FROM fd_tickets WHERE status <> 4 AND status <> 5 ${a}) as unresolved,
             // (SELECT COUNT(*) FROM fd_tickets WHERE responder_id is null AND status =2 ${a}) as unassigned,
             // (SELECT COUNT(*) FROM fd_tickets WHERE status = 3 OR status = 6 OR status = 7 ${a}) as on_hold,
@@ -366,7 +381,8 @@ const resolvers= {
             return {
                 data:graph_1,
                 status: '200',
-                message: 'ok'
+                message: 'ok',
+                total_rows: graph_1[0].total_rows
             }
         } catch (error) {
           console.log(error);
