@@ -69,7 +69,7 @@ type SyncTicket{
     priority: Int
   }
   input inputFilterListTicket {
-    priority: Int,
+    priority: [Int],
     condition: String!,
     row:Int!,
     start_from:Int!
@@ -286,24 +286,25 @@ const resolvers= {
         try {
             // console.log(args);
             let bind={ };
+            let replacements={}
             let a ="";
             let limit = 10;
             let offset =0
             if(args.input.priority){
-                a+= " AND priority=$priority";
-                bind.priority = args.input.priority;
+                a+= " AND priority IN(:priority)";
+                replacements.priority = args.input.priority;
             }
             if(args.input.row){
               limit=args.input.row;
               offset=args.input.start_from;
-              a+=` LIMIT $limit OFFSET $offset`
-              bind.limit = limit;
-              bind.offset = offset;
+              a+=` LIMIT :limit OFFSET :offset`
+              replacements.limit = limit;
+              replacements.offset = offset;
             }
 
             let q ='';
             if(args.input.condition){
-                bind.condition = args.input.condition;
+              replacements.condition = args.input.condition;
             }
             let kolom =` cc_emails,
             fwd_emails,
@@ -363,7 +364,7 @@ const resolvers= {
                 break;
             }
             q+=a;
-            console.log(a);
+            // console.log(a);
             // let q = `SELECT (SELECT COUNT(*) FROM fd_tickets WHERE status <> 4 AND status <> 5 ${a}) as unresolved,
             // (SELECT COUNT(*) FROM fd_tickets WHERE responder_id is null AND status =2 ${a}) as unassigned,
             // (SELECT COUNT(*) FROM fd_tickets WHERE status = 3 OR status = 6 OR status = 7 ${a}) as on_hold,
@@ -373,8 +374,8 @@ const resolvers= {
           //  console.log(q);
             const graph_1 = await db.query(q, 
             { 
-            // replacements: [],
-            bind,
+            replacements,
+            // bind,
             type: QueryTypes.SELECT 
              });
             //   console.log({  data:graph_1,});
