@@ -2,8 +2,14 @@ import koneksi from'../config/koneksi.js';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import seed from './seeding.js';
+import cliSpinners from 'cli-spinners';
+import ora from 'ora';
 // import model_fd from '../modules/freshdesk/model.js'
 try {
+    // console.log(cliSpinners.dots);
+    const spinner = ora('Sync Started...').start();
+    spinner.color = 'yellow';
     const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = path.dirname(__filename);
@@ -22,7 +28,11 @@ for (let u = 0; u < folder1.length; u++) {
 }
    
     await koneksi.sync({ alter: true })
-    console.log('Database Berhasil di Sinkronisasi')
+    await seed();
+    spinner.color = 'green';
+    spinner.text = 'sync was successful';
+    spinner.succeed();
+    // console.log('sync was successful')
     console.log('disconnecting...')
     process.exit(0);
 } catch (error) {
