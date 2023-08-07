@@ -41,7 +41,7 @@ type usersResult{
     name: String,
     email: String!,
     status: String,
-    password: String
+    password: String!
   }
 
   input UserInputEdit {
