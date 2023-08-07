@@ -40,7 +40,8 @@ type usersResult{
   input UserInput {
     name: String,
     email: String!,
-    status: String
+    status: String,
+    password: String
   }
 
   input UserInputEdit {
@@ -122,8 +123,8 @@ Mutation:{
       input.confirmation_code = await jwt.generate({id: input.id}, '1h');
       let html =`<h1>Invitation</h1>
       <h2>Hello ${input.name}</h2>
-      <p>Transition has invited you, You can accept this invitation by clicking on the following link</p>
-      <a href=${process.env.FE_URI}confirm?cc=${input.confirmation_code}> Click here</a>
+      <p>Transition has invited you, You can login using this email username and password  ${input.password}</p>
+      <a href=${process.env.FE_URI}> Click here</a>
       </div>`
       mail(input.email, "Transition has invited you", html)
       input.status='active';

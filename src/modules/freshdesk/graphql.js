@@ -485,26 +485,26 @@ try {
      
     
   },
-  ticketDetail: async(_,{id})=>{
-    try {
-     
-     let data= await fd_module.getTicketByid(id);
-     data.requester_name = data.requester.name;
-     data.requester_email = data.requester.email;
-    //  console.log(data.conversations[0].attachments);
-      return {
-          data,
-          status: '200',
-          message: 'Ok',
+      ticketDetail: async(_,{id})=>{
+        try {
+        
+        let data= await fd_module.getTicketByid(id);
+        data.requester_name = data.requester.name;
+        data.requester_email = data.requester.email;
+        //  console.log(data.conversations[0].attachments);
+          return {
+              data,
+              status: '200',
+              message: 'Ok',
+          }
+      } catch (error) {
+          return {
+              status: '500',
+              message: 'Failed',
+              error
+          }
       }
-  } catch (error) {
-      return {
-          status: '500',
-          message: 'Failed',
-          error
       }
-  }
-  }
 
 },
 Mutation:{
