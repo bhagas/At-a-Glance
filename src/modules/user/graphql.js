@@ -123,7 +123,7 @@ Mutation:{
       input.confirmation_code = await jwt.generate({id: input.id}, '1h');
       let html =`<h1>Invitation</h1>
       <h2>Hello ${input.name}</h2>
-      <p>Transition has invited you, You can login using this email username and password  ${input.password}</p>
+      <p>Transition has invited you, You can login using this email as username and password: ${input.password}</p>
       <a href=${process.env.FE_URI}> Click here</a>
       </div>`
       mail(input.email, "Transition has invited you", html)
