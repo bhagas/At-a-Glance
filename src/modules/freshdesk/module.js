@@ -7,7 +7,7 @@ import PubSUb from '../../config/redis.js'
 const API_KEY = process.env.FD_API_KEY;
 const FD_ENDPOINT = process.env.FD_ENDPOINT;
 const URL =  "https://" + FD_ENDPOINT + ".freshdesk.com";
-
+let stillUpdate = false;
 class Fd{
     static getAllTickets(){
         return new Promise(async (resolve, reject) => {
@@ -51,6 +51,7 @@ class Fd{
     static syncTicket(){
       return new Promise(async (resolve, reject) => {
         try {
+          stillUpdate=true;
           let tickets = await this.getAllTickets();
           let t = []
           for (let i = 0; i < tickets.length; i++) {
@@ -133,7 +134,7 @@ class Fd{
            
   
           }
-          
+          stillUpdate=false;
 
                 PubSUb.publish('SYNC_TICKET', {
                   syncTicket: {
@@ -141,6 +142,7 @@ class Fd{
                     progress: '',
                   },
                 });
+                
                 resolve()
       } catch (error) {
         console.log(error);
@@ -279,7 +281,7 @@ class Fd{
                   // console.log(dt.data);
                   resolve(dt.data)
         } catch (error) {
-          console.log(error.response.data.errors, 'error createReply');
+          console.log(error.response.data, 'error createReply');
                 reject(error.response.data.description)
         }
       
@@ -304,7 +306,7 @@ static createNotes(id, data){
                 // console.log(dt.data);
                 resolve(dt.data)
       } catch (error) {
-        console.log(error, 'error createNotes');
+        console.log(error.response.data, 'error createNotes');
               reject(error)
       }
     
@@ -355,6 +357,10 @@ static getTicketFields(id, data){
     
   })
 
+}
+
+static getSyncStatus(){
+  return stillUpdate;
 }
 }
 // Fd.getTicketFields()

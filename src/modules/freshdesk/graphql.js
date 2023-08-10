@@ -296,6 +296,7 @@ const resolvers= {
                 replacements.priority = args.input.priority;
               }
             }
+            a+=' order by fd_created_at desc'
             if(args.input.row){
               limit=args.input.row;
               offset=args.input.start_from;
@@ -366,6 +367,7 @@ const resolvers= {
                 break;
             }
             q+=a;
+           
             // console.log(a);
             // let q = `SELECT (SELECT COUNT(*) FROM fd_tickets WHERE status <> 4 AND status <> 5 ${a}) as unresolved,
             // (SELECT COUNT(*) FROM fd_tickets WHERE responder_id is null AND status =2 ${a}) as unassigned,
@@ -475,7 +477,7 @@ try {
       message: 'ok'
   }
 } catch (error) {
-  console.log(error);
+  // console.log(error);
   return {
     status: '500',
     message: 'failed',
@@ -509,6 +511,13 @@ try {
 },
 Mutation:{
     ticketSync:async (_)=>{
+      if(fd_module.getSyncStatus()){
+        return {
+          status: '200',
+          message: 'Sync In Progress',
+          error:''
+      }
+      }else{
         try {
           pubsub.publish('SYNC_TICKET', {
             syncTicket: {
@@ -529,6 +538,8 @@ Mutation:{
                 error
             }
         }
+      }
+        
     },
     agentSync:async (obj, args, context, info)=>{
         try {
@@ -586,8 +597,8 @@ Mutation:{
       console.log(error);
       return {
         error,
-        status: '200',
-        message: 'Ok',
+        status: '500',
+        message: 'error',
     }
     }
   
@@ -629,7 +640,7 @@ Mutation:{
         message: 'Ok',
     }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return {
         error,
         status: '200',
