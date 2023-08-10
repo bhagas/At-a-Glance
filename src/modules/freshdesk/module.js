@@ -341,7 +341,7 @@ static updateNotes(id, data){
 static getTicketFields(id, data){
   return new Promise(async (resolve, reject) => {
       try {
-          let PATH = `/api/v2/ticket_fields`;
+          let PATH = `/api/v2/admin/ticket_fields`;
           let dt =    await axios.get(URL+PATH, {
                   auth: {
                     username: API_KEY,
@@ -358,7 +358,29 @@ static getTicketFields(id, data){
   })
 
 }
+static updateTicket(id, data){
+  return new Promise(async (resolve, reject) => {
+      try {
+          let PATH = `/api/v2/tickets/${id}`;
+          let dt =    await axios.put(URL+PATH, data, {
+                  auth: {
+                    username: API_KEY,
+                    password: "X"
+                  },
+                  headers: {
+                    'Content-Type': 'application/json'
+                  }
+                });
+                // console.log(dt.data);
+                resolve(dt.data)
+      } catch (error) {
+        console.log(error, 'error updateTicket');
+              reject(error)
+      }
+    
+  })
 
+}
 static getSyncStatus(){
   return stillUpdate;
 }

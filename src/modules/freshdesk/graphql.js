@@ -12,9 +12,10 @@ import moment from'moment'
 import saveFile from'../../helper/saveFile.js';
 import  FormData from 'form-data';
 import pubsub from '../../config/redis.js';
+import GraphQLJSON, { GraphQLJSONObject } from 'graphql-type-json';
 const typeDefs=
   gql`
-  
+  scalar JSONObject
 extend type Subscription {
     syncTicket: SyncTicket,
     updateTicket: SyncTicket
@@ -30,6 +31,7 @@ type SyncTicket{
     dayGraph(input: inputDayGraph): listDayGraphOutput
     ticketDetail(id: Int!): detailTicketOutput
     listAgents: listAgentOutput
+    ticketFields: listTicketFields
   }
   extend type Mutation{
     ticketSync:ticketSyncOutput
@@ -37,6 +39,7 @@ type SyncTicket{
     createReply(filee:[Upload], input:inputReply):ticketSyncOutput
     createNotes(filee:[Upload], input:inputNotes):ticketSyncOutput
     updateNotes(filee:[Upload], input:inputUpdateNotes):ticketSyncOutput
+    updateTicket(input:inputUpdateTicket):ticketSyncOutput
   }
 
   type ticketOverviewOutput{
@@ -96,6 +99,12 @@ type SyncTicket{
     body: String!,
     id_notes: String!
   }
+  input inputUpdateTicket {
+    ticket_id: Int!
+    priority: Int,
+    status: Int,
+    custom_fields: JSONObject
+  }
   type listTicketOutput{
     data:[ticket],
     message:String,
@@ -111,6 +120,12 @@ type SyncTicket{
   }
   type listAgentOutput{
     data:[agent],
+    message:String,
+    status:Int,
+    error:String
+  }
+  type listTicketFields{
+    data:[ticketFields],
     message:String,
     status:Int,
     error:String
@@ -239,11 +254,29 @@ type SyncTicket{
     attachments:[attachment],
     conversations: [conversation]
   }
-
+type ticketFields{
+    id: String,
+    name: String,
+    label: String,
+    label_for_customers: String,
+    position: Int,
+    type: String,
+    default: Boolean,
+    customers_can_edit: Boolean,
+    customers_can_filter: Boolean,
+    required_for_closure: Boolean,
+    required_for_agents: Boolean,
+    required_for_customers: Boolean,
+    displayed_to_customers: Boolean,
+    created_at: String,
+    updated_at: String,
+    archived: Boolean
+}
 
 `
 
 const resolvers= {
+  JSONObject: GraphQLJSONObject,
   Query: {
     ticketOverview: async (obj, args, context, info)=>{
         try {
@@ -506,6 +539,24 @@ try {
               error
           }
       }
+      },
+      ticketFields: async(_,{id})=>{
+        try {
+        
+        let data= await fd_module.getTicketFields();
+
+          return {
+              data,
+              status: '200',
+              message: 'Ok',
+          }
+      } catch (error) {
+          return {
+              status: '500',
+              message: 'Failed',
+              error
+          }
+      }
       }
 
 },
@@ -670,6 +721,29 @@ Mutation:{
       form.append('body', input.body);
     
       await fd_module.updateNotes(input.id_notes, form);
+      return {
+        status: '200',
+        message: 'Ok',
+    }
+    } catch (error) {
+      console.log(error);
+      return {
+        error,
+        status: '200',
+        message: 'Ok',
+    }
+    }
+  
+   },
+
+
+   updateTicket: async(_, {input}, context, info)=>{
+    try {
+     
+      let id = input.ticket_id;
+      delete input.ticket_id
+    
+      await fd_module.updateTicket(id, input);
       return {
         status: '200',
         message: 'Ok',
