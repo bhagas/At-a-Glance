@@ -252,7 +252,8 @@ type SyncTicket{
     nr_escalated: Boolean,
     ticket_id: Int,
     attachments:[attachment],
-    conversations: [conversation]
+    conversations: [conversation],
+    custom_fields:JSONObject
   }
 type ticketFields{
     id: String,
@@ -527,6 +528,7 @@ try {
         data.requester_name = data.requester.name;
         data.requester_email = data.requester.email;
         //  console.log(data.conversations[0].attachments);
+        // console.log(data);
           return {
               data,
               status: '200',
