@@ -9,10 +9,10 @@ const typeDefs=
   extend type Query {
  
       config: configResult,
-      testSendMail: Output
+     
   }
   extend type Mutation {
-
+    testSendMail(input: testMailInput): Output
     updateConfig(input: configInput): Output
   }
 
@@ -23,7 +23,11 @@ type configResult{
   status:Int,
   error:String
 }
-  
+input testMailInput {
+    to: String,
+    message:String,
+    subject:String
+  }
   input configInput {
     mail_user: String,
     mail_from:String,
@@ -54,24 +58,7 @@ const resolvers= {
        
     },
 
-    testSendMail: async (obj, args, context, info) => {
-try {
-    let dt = await mail("belajar@fosan.id", "test","<p>aaa</p>");
-    //bisa array return nya
-    return {
-        status: '200',
-        message: 'Success'
-    }
-} catch (error) {
-    return {
-        error,
-        status: '200',
-        message: 'failed'
-    }
-}
-       
-         
-      },
+    
    
 },
 Mutation:{
@@ -87,7 +74,25 @@ Mutation:{
           status: '200',
           message: 'Updated'
       }
-  }
+  },
+  testSendMail: async (_, {input}) => {
+    try {
+        let dt = await mail(input.to, input.subject,input.message);
+        //bisa array return nya
+        return {
+            status: '200',
+            message: 'Success'
+        }
+    } catch (error) {
+        return {
+            error,
+            status: '200',
+            message: 'failed'
+        }
+    }
+           
+             
+          },
 }
 }
 
