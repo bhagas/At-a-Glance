@@ -2,7 +2,7 @@ import 'dotenv/config'
 import userModel from '../modules/user/model.js';
 import roleModel from '../modules/role/model.js';
 import rolePoolModel from '../modules/rolePool/model.js';
-
+import configModel from '../modules/config/model.js';
 function seed() {
     return new Promise(async (resolve, reject) => {
         try {
@@ -31,6 +31,19 @@ function seed() {
                   userId: "60d9c4ad-d770-4999-9468-a7953fbc42a3",
                   createdAt: new Date(),
                   roleId:'99bcd0a5-66b0-4688-86b1-751904100cdb'
+                }
+              })
+
+              await configModel.findOrCreate({
+                where: { id: '60d9c4ad-d770-4999-9468-a7953fbc42xx' },
+                defaults: {
+                  mail_user: "sample@mail.com",
+                  createdAt: new Date(),
+                  mail_from:'sample@mail.com',
+                  mail_host:'smtp.gmail.com',
+                  mail_port:465,
+                  mail_password:'abcd',
+                  mail_secure:true
                 }
               })
               resolve()

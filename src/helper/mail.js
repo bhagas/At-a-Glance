@@ -1,19 +1,27 @@
 import nodemailer from'nodemailer';
+import configModel from'../modules/config/model.js';
+import db from'../config/koneksi.js';
+import { QueryTypes } from'sequelize';
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.MAIL,
-      pass: process.env.MAIL_PASS
-    }
-  });
   
  
   
   function sendMail(to, subject, html) {
-    return new Promise((resolve, reject) => {
+
+    return new Promise(async (resolve, reject) => {
+      let dt = await db.query("select * from config where id='60d9c4ad-d770-4999-9468-a7953fbc42xx'",{type: QueryTypes.SELECT});
+      const transporter = nodemailer.createTransport({
+        host: dt[0].mail_host,
+        port: dt[0].mail_port,
+        secure: dt[0].mail_secure,
+        auth: {
+          // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+          user: dt[0].mail_user,
+          pass: dt[0].mail_password
+        }
+      });
       const mailOptions = {
-        from: 'NoReply<tump.store@gmail.com>',
+        from: `NoReply<${dt[0].mail_from}>`,
         to,
         subject,
         html
