@@ -42,8 +42,8 @@ const serverCleanup = useServer({ schema }, wsServer);
 // console.log(`redis://${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}?db=${process.env.REDIS_DB}`);
 const server = new ApolloServer({
   schema:schema,
-  // cache: 'bounded',
-  cache:  new KeyvAdapter(new Keyv(`redis://serova.id:8379`)),
+  cache: 'bounded',
+  // cache:  new KeyvAdapter(new Keyv(`redis://serova.id:8379`)),
   // introspection:false,
   csrfPrevention: true,
   plugins: [
@@ -58,9 +58,9 @@ const server = new ApolloServer({
       },
     },
     // ApolloServerPluginLandingPageDisabled()
-    ApolloServerPluginCacheControl({ defaultMaxAge: 100 }),
+    // ApolloServerPluginCacheControl({ defaultMaxAge: 100 }),
     // ApolloServerPluginCacheControlDisabled(),
-    responseCachePlugin()
+    // responseCachePlugin()
   ],
 });
 await server.start();
