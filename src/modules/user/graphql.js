@@ -9,8 +9,19 @@ import mail from'../../helper/mail.js';
 import bcrypt from'../../helper/bcrypt.js';
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
 
+
 const typeDefs=
   gql`
+#   enum CacheControlScope {
+#   PUBLIC
+#   PRIVATE
+# }
+
+# directive @cacheControl(
+#   maxAge: Int
+#   scope: CacheControlScope
+#   inheritMaxAge: Boolean
+# ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
   scalar Upload
   extend type Query {
     """
@@ -97,7 +108,7 @@ const resolvers= {
         for (let i = 0; i < dt.length; i++) {
           dt[i].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[i].id],type: QueryTypes.SELECT });
         }
-     
+        info.cacheControl.setCacheHint({ maxAge: 10 });
         return {data: dt, status:200, message:'Success'};
       } catch (error) {
         console.log(error);
@@ -110,6 +121,7 @@ const resolvers= {
            
           let dt = await db.query(`select * from Users where id= $1`,{bind:[args.id], type:QueryTypes.SELECT});
           //harus object return nya
+          info.cacheControl.setCacheHint({ maxAge: 0 });
             return dt[0];
         },
 },

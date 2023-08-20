@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import  express from 'express';
 import { ApolloServer } from'@apollo/server';
 import { expressMiddleware } from'@apollo/server/express4';
@@ -16,6 +17,13 @@ import { request, gql } from 'graphql-request'
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/lib/use/ws';
 import PubSub from '../config/redis.js';
+import Keyv from "keyv";
+import { KeyvAdapter } from "@apollo/utils.keyvadapter";
+import { ApolloServerPluginCacheControl } from '@apollo/server/plugin/cacheControl';
+import responseCachePlugin from '@apollo/server-plugin-response-cache';
+import { ApolloServerPluginCacheControlDisabled } from '@apollo/server/plugin/disabled';
+
+
 const httpServer = http.createServer(app);
   // app.use(express.static(path.join(path.resolve(), 'dist')));
 // // parse application/x-www-form-urlencoded
@@ -31,10 +39,11 @@ const wsServer = new WebSocketServer({
   path: '/gql',
 });
 const serverCleanup = useServer({ schema }, wsServer);
-
+// console.log(`redis://${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}?db=${process.env.REDIS_DB}`);
 const server = new ApolloServer({
   schema:schema,
-  cache: 'bounded',
+  // cache: 'bounded',
+  cache:  new KeyvAdapter(new Keyv(`redis://serova.id:8379`)),
   // introspection:false,
   csrfPrevention: true,
   plugins: [
@@ -49,6 +58,9 @@ const server = new ApolloServer({
       },
     },
     // ApolloServerPluginLandingPageDisabled()
+    ApolloServerPluginCacheControl({ defaultMaxAge: 100 }),
+    // ApolloServerPluginCacheControlDisabled(),
+    responseCachePlugin()
   ],
 });
 await server.start();
