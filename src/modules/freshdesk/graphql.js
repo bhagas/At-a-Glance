@@ -238,7 +238,7 @@ type SyncTicket{
     subject: String,
     association_type: String,
     support_email: String,
-    to_emails: String,
+    to_emails: [String],
     product_id: String,
     id: String,
     type: String,
@@ -492,7 +492,7 @@ const resolvers= {
           //     dates.push(currDate.clone().format("YYYY-MM-DD"));
           // }
 try {
-  let q = `SELECT date_trunc('day', dd):: date as date, (select count(*) from fd_tickets where "createdAt"::date= date_trunc('day', dd):: date) as count
+  let q = `SELECT date_trunc('day', dd):: date as date, (select count(*) from fd_tickets where "fd_created_at"::date= date_trunc('day', dd):: date) as count
   FROM generate_series
       ( $1::timestamp 
       , $2::timestamp
