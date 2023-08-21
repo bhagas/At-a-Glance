@@ -7,11 +7,13 @@ import {typeDefs as roleTypeDefs, resolvers as roleResolvers} from '../modules/r
 import {typeDefs as fdTypeDefs, resolvers as fdResolvers} from '../modules/freshdesk/graphql.js';
 import {typeDefs as userTypeDefs, resolvers as userResolvers} from '../modules/user/graphql.js';
 import {typeDefs as configTypeDefs, resolvers as configResolvers} from '../modules/config/graphql.js';
+import {typeDefs as qwTypeDefs, resolvers as qwResolvers} from '../modules/quoteworks_opportunity/graphql.js';
 let gabungan= [
   {typeDefs:userTypeDefs, resolvers: userResolvers},
   {typeDefs:roleTypeDefs, resolvers: roleResolvers},
   {typeDefs:fdTypeDefs, resolvers: fdResolvers},
-  {typeDefs:configTypeDefs, resolvers: configResolvers}
+  {typeDefs:configTypeDefs, resolvers: configResolvers},
+  {typeDefs:qwTypeDefs, resolvers: qwResolvers},
 ]
 // gabungan.push(permissions);
 const schemaWithMiddleware = applyMiddleware(buildSubgraphSchema(gabungan), permissions);
