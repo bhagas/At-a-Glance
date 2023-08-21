@@ -34,7 +34,7 @@ type SyncTicket{
     ticketFields: listTicketFields
   }
   extend type Mutation{
-    ticketSync:ticketSyncOutput
+    ticketSync(startDate:String):ticketSyncOutput
     agentSync:ticketSyncOutput
     createReply(filee:[Upload], input:inputReply):ticketSyncOutput
     createNotes(filee:[Upload], input:inputNotes):ticketSyncOutput
@@ -563,7 +563,7 @@ try {
 
 },
 Mutation:{
-    ticketSync:async (_)=>{
+    ticketSync:async (_,{startDate})=>{
       if(fd_module.getSyncStatus()){
         return {
           status: '200',
@@ -578,7 +578,7 @@ Mutation:{
               progress: '',
             },
           });
-            fd_module.syncTicket();
+            fd_module.syncTicket(startDate);
            
             return {
                 status: '200',
