@@ -1,6 +1,6 @@
 import db from'../../config/koneksi.js';
 import { QueryTypes } from'sequelize';
-import roleModel from'./model.js';
+import qwModel from'./model.js';
 import gql from'graphql-tag';
 import { v4 as uuidv4 } from'uuid';
 const typeDefs=
@@ -11,7 +11,32 @@ const typeDefs=
      
   }
 
+  extend type Mutation {
+ 
+ updateQuoteWorks(id:ID!, input:qwInput): Output
 
+}
+
+input qwInput {
+    number:String,
+    name:String,
+    sold_to_company:String,
+    opp_date:String,
+    opp_stage:String,
+    sales_rep:String,
+    total_amount:String,
+    cust_po_number:String,
+    est_close_date:String,
+    created:String,
+    pnx_engineer:String,
+    line_of_business:String,
+    doc_status_date:String,
+    root_cause:String,
+    sold_to_contact:String,
+    preparer:String,
+    ship_to_company:String,
+    bill_to_company:String
+  }
 type quoteWorksResult{
   data:[quoteWork],
   message:String,
@@ -56,8 +81,98 @@ try {
 }
    
     }
+},
+Mutation:{
+    updateQuoteWorks: async (obj, {id, input}, context, info) => {
+        try {
+            await qwModel.update(
+                input,
+                 { where: { id } }
+               )
+            return {status:200, message:'Success'};
+             
+        } catch (error) {
+            console.log(error);
+            return {status:200, message:'Failed'};
+        }
+           
+            }
 }
 }
 
-
+import * as XLSX from 'xlsx/xlsx.mjs';
+import * as fs from 'fs';
+XLSX.set_fs(fs);
+async function readExcel(params) {
+    // console.log("__dirname:    ", __dirname);
+    var workbook = XLSX.readFile("./src/temp/temp_opps.xlsx");
+    var sheet_name_list = workbook.SheetNames;
+    var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+    // console.log(xlData);
+   let a = {
+        'Opportunity Name': 'City of Pell City-Dell Desktop & Laptop August 9th 2023',
+        'Sold to Company': 'City of Pell City',
+        'Opp No.': 'PNXQ21673',
+        'Last Modified': 45149.38590277778,
+        'Opp Date': 45146,
+        'Opp Stage': 'Open',
+        'Sales Rep.': 'rcollins',
+        'Total Amt': 2324.22,
+        Created: 45146.397685185184,
+        'Sold to Contact': 'Bernard White',
+        Preparer: 'rcollins',
+        'Ship to Company': 'City of Pell City',
+        'Bill to Company': 'City of Pell City'
+      }
+      let t = []
+      for (let i = 0; i < xlData.length; i++) {
+        let tem = {
+            "id":uuidv4(),
+            "number":xlData[i]['Opp No.'],
+            "name":xlData[i]['Opportunity Name'],
+            "sold_to_company":xlData[i]['Sold to Company'],
+            "opp_date":xlData[i]['Opp Date'],
+            "opp_stage":xlData[i]['Opp Stage'],
+            "sales_rep":xlData[i]['Sales Rep.'],
+            "total_amount":xlData[i]['Total Amt'],
+            "cust_po_number":xlData[i]['Cust PO#'],
+            "est_close_date":xlData[i]['Est Close Date'],
+            // "created":xlData[i]['Created'],
+            "pnx_engineer":xlData[i]['PNX Engineer'],
+            "line_of_business":xlData[i]['Line of Business'],
+            // "doc_status_date":xlData[i]['Doc Status Date'],
+            "root_cause":xlData[i]['Root Cause'],
+            "sold_to_contact":xlData[i]['Sold to Contact'],
+            "preparer":xlData[i]['Preparer'],
+            "ship_to_company":xlData[i]['Ship to Company'],
+            "bill_to_company":xlData[i]['Bill to Company']
+        }
+        t.push(tem)
+        
+      }
+      await qwModel.bulkCreate(t, {
+        updateOnDuplicate: [
+            "number",
+            "name",
+            "sold_to_company",
+            "opp_date",
+            "opp_stage",
+            "sales_rep",
+            "total_amount",
+            "cust_po_number",
+            "est_close_date",
+            "created",
+            "pnx_engineer",
+            "line_of_business",
+            "doc_status_date",
+            "root_cause",
+            "sold_to_contact",
+            "preparer",
+            "ship_to_company",
+            "bill_to_company"
+        ]
+      });
+  
+}
+readExcel();
 export {typeDefs, resolvers}
