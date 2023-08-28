@@ -5,6 +5,8 @@ import gql from'graphql-tag';
 import { v4 as uuidv4 } from'uuid';
 import moment from 'moment';
 import { getMimeType } from 'stream-mime-type';
+import * as XLSX from 'xlsx/xlsx.mjs';
+
 const typeDefs=
   gql`
   extend type Query {
@@ -101,43 +103,48 @@ Mutation:{
            
             },
     importQuoteWorks: async (obj, {filee}, context, info) => {
-        if(filee){
-            let files = await Promise.all(filee)
-            console.log(files);
-            if(Array.isArray(files)){
-              for (let i = 0; i < files.length; i++) {
-                let {createReadStream, filename, mimetype, encoding } = await files[i];
-                var buffers = [];
-                const streamA = createReadStream();
-                let {stream, mime} = await getMimeType( streamA )
-           
-                    if (mime==='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-                  
-                stream.on("data", function(data) { buffers.push(data); });
-                stream.on("end", function() {
-                    const buf = Buffer.concat(buffers);
-                    const wb = XLSX.read(buf);
-                    // res(wb);
-                    readExcel(wb);
-                  
-                });
-                // console.log({createReadStream, filename, mimetype, encoding });
-                
+        try {
+            if(filee){
+                let files = await Promise.all(filee)
+                console.log(files);
+                if(Array.isArray(files)){
+                  for (let i = 0; i < files.length; i++) {
+                    let {createReadStream, filename, mimetype, encoding } = await files[i];
+                    var buffers = [];
+                    const streamA = createReadStream();
+                    let {stream, mime} = await getMimeType( streamA )
+               
+                        if (mime==='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                      
+                    stream.on("data", function(data) { buffers.push(data); });
+                    stream.on("end", async function() {
+                        const buf = Buffer.concat(buffers);
+                        const wb = XLSX.read(buf);
+                        // res(wb);
+                      await  readExcel(wb);
+                      
+                    });
+                    // console.log({createReadStream, filename, mimetype, encoding });
+                    
+                  }
+                }
+                }
+                return {status:200, message:'Success'};
+              
               }
-            }
-            }
-            return {status:200, message:'Success'};
-          
-          }
+        } catch (error) {
+            return {status:500, message:'Failed'};
+        }
+       
     }
 }
 }
 
-import * as XLSX from 'xlsx/xlsx.mjs';
-import * as fs from 'fs';
-XLSX.set_fs(fs);
+
 async function readExcel(workbook) {
-    // console.log("__dirname:    ", __dirname);
+    return new Promise(async(resolve, reject) => {
+        try {
+             // console.log("__dirname:    ", __dirname);
     
     // var workbook = XLSX.readFile("./src/temp/temp_opps.xlsx");
     var sheet_name_list = workbook.SheetNames;
@@ -219,6 +226,12 @@ async function readExcel(workbook) {
             "bill_to_company"
         ]
       });
+      resolve()
+        } catch (error) {
+            reject(error)
+        }
+    })
+   
   
 }
 
