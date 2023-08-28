@@ -3,6 +3,8 @@ import { QueryTypes } from'sequelize';
 import qwModel from'./model.js';
 import gql from'graphql-tag';
 import { v4 as uuidv4 } from'uuid';
+import moment from 'moment';
+import { getMimeType } from 'stream-mime-type';
 const typeDefs=
   gql`
   extend type Query {
@@ -14,6 +16,7 @@ const typeDefs=
   extend type Mutation {
  
  updateQuoteWorks(id:ID!, input:qwInput): Output
+ importQuoteWorks(filee:[Upload]): Output
 
 }
 
@@ -96,36 +99,79 @@ Mutation:{
             return {status:200, message:'Failed'};
         }
            
+            },
+    importQuoteWorks: async (obj, {filee}, context, info) => {
+        if(filee){
+            let files = await Promise.all(filee)
+            console.log(files);
+            if(Array.isArray(files)){
+              for (let i = 0; i < files.length; i++) {
+                let {createReadStream, filename, mimetype, encoding } = await files[i];
+                var buffers = [];
+                const streamA = createReadStream();
+                let {stream, mime} = await getMimeType( streamA )
+           
+                    if (mime==='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                  
+                stream.on("data", function(data) { buffers.push(data); });
+                stream.on("end", function() {
+                    const buf = Buffer.concat(buffers);
+                    const wb = XLSX.read(buf);
+                    // res(wb);
+                    readExcel(wb);
+                  
+                });
+                // console.log({createReadStream, filename, mimetype, encoding });
+                
+              }
             }
+            }
+            return {status:200, message:'Success'};
+          
+          }
+    }
 }
 }
 
 import * as XLSX from 'xlsx/xlsx.mjs';
 import * as fs from 'fs';
 XLSX.set_fs(fs);
-async function readExcel(params) {
+async function readExcel(workbook) {
     // console.log("__dirname:    ", __dirname);
-    var workbook = XLSX.readFile("./src/temp/temp_opps.xlsx");
+    
+    // var workbook = XLSX.readFile("./src/temp/temp_opps.xlsx");
     var sheet_name_list = workbook.SheetNames;
-    var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]]);
+    var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]], {raw: false});
     // console.log(xlData);
-   let a = {
-        'Opportunity Name': 'City of Pell City-Dell Desktop & Laptop August 9th 2023',
-        'Sold to Company': 'City of Pell City',
-        'Opp No.': 'PNXQ21673',
-        'Last Modified': 45149.38590277778,
-        'Opp Date': 45146,
-        'Opp Stage': 'Open',
-        'Sales Rep.': 'rcollins',
-        'Total Amt': 2324.22,
-        Created: 45146.397685185184,
-        'Sold to Contact': 'Bernard White',
-        Preparer: 'rcollins',
-        'Ship to Company': 'City of Pell City',
-        'Bill to Company': 'City of Pell City'
-      }
+//    let sample = {
+//         'Opportunity Name': 'City of Pell City-Dell Desktop & Laptop August 9th 2023',
+//         'Sold to Company': 'City of Pell City',
+//         'Opp No.': 'PNXQ21673',
+//         'Last Modified': 45149.38590277778,
+//         'Opp Date': 45146,
+//         'Opp Stage': 'Open',
+//         'Sales Rep.': 'rcollins',
+//         'Total Amt': 2324.22,
+//         Created: 45146.397685185184,
+//         'Sold to Contact': 'Bernard White',
+//         Preparer: 'rcollins',
+//         'Ship to Company': 'City of Pell City',
+//         'Bill to Company': 'City of Pell City'
+//       }
       let t = []
       for (let i = 0; i < xlData.length; i++) {
+        if(xlData[i]['Opp Date']){
+            xlData[i]['Opp Date']=  moment(xlData[i]['Opp Date'], 'MM/DD/YY').format('YYYY-MM-DD')
+        }
+        if(xlData[i]['Created']){
+            xlData[i]['Created']=  moment(xlData[i]['Created'], 'MM/DD/YY').format('YYYY-MM-DD')
+        }
+        if(xlData[i]['Doc Status Date']){
+            xlData[i]['Doc Status Date']=  moment(xlData[i]['Doc Status Date'], 'MM/DD/YY').format('YYYY-MM-DD')
+        }
+        if(xlData[i]['Est Close Date']){
+            xlData[i]['Est Close Date']=  moment(xlData[i]['Est Close Date'], 'MM/DD/YY').format('YYYY-MM-DD')
+        }
         let tem = {
             "id":uuidv4(),
             "number":xlData[i]['Opp No.'],
@@ -150,6 +196,7 @@ async function readExcel(params) {
         t.push(tem)
         
       }
+    //   console.log(t);
       await qwModel.bulkCreate(t, {
         updateOnDuplicate: [
             "number",
@@ -174,5 +221,5 @@ async function readExcel(params) {
       });
   
 }
-readExcel();
+
 export {typeDefs, resolvers}

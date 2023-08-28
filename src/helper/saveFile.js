@@ -22,7 +22,7 @@ export default function saveFile(file) {
             const streamA = createReadStream();
             let {stream, mime} = await getMimeType( streamA )
        
-                if (mime === 'application/pdf' || mime === 'image/jpeg' || mime === 'image/jpg' || mime === 'image/png' || mime === 'application/octet-stream') {
+                if (mime === 'application/pdf' || mime === 'image/jpeg' || mime === 'image/jpg' || mime === 'image/png' || mime === 'application/octet-stream' || mime==='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
                     const out = fs.createWriteStream('./assets/local-file-output.jpeg');
                     let byteLength = 0;
                     stream.pipe(out).on("data", (data) => {
