@@ -12,6 +12,7 @@ const typeDefs=
   extend type Query {
  
       quoteWorks: quoteWorksResult
+      quoteWorksByNumber(number: ID!): quoteWorksDetailResult
      
   }
 
@@ -44,6 +45,11 @@ input qwInput {
   }
 type quoteWorksResult{
   data:[quoteWork],
+  message:String,
+  status:Int
+}
+type quoteWorksDetailResult{
+  data:quoteWork,
   message:String,
   status:Int
 }
@@ -85,7 +91,24 @@ try {
     console.log(error);
 }
    
-    }
+    },
+    quoteWorksByNumber: async (obj, args, context, info) => {
+        try {
+            let dt = await db.query('select * from qw_opportunity where deleted is null and number=$number',{bind:{number:args.number}} );
+            // console.log(dt);
+            //bisa array return nya
+            if(dt[0]){
+                return {data: dt[0][0], status:200, message:'Success'};
+            }else{
+                return {data: {}, status:200, message:'Success'};
+            }
+       
+             
+        } catch (error) {
+            console.log(error);
+        }
+           
+            },
 },
 Mutation:{
     updateQuoteWorks: async (obj, {id, input}, context, info) => {
