@@ -139,7 +139,19 @@ Mutation:{
     }
 }
 }
-
+function ec(r, c){
+    return XLSX.utils.encode_cell({r:r,c:c});
+}
+function delete_row(ws, row_index){
+    var variable = XLSX.utils.decode_range(ws["!ref"])
+    for(var R = row_index; R < variable.e.r; ++R){
+        for(var C = variable.s.c; C <= variable.e.c; ++C){
+            ws[ec(R,C)] = ws[ec(R+1,C)];
+        }
+    }
+    variable.e.r--
+    ws['!ref'] = XLSX.utils.encode_range(variable.s, variable.e);
+}
 
 async function readExcel(workbook) {
     return new Promise(async(resolve, reject) => {
@@ -148,7 +160,10 @@ async function readExcel(workbook) {
     
     // var workbook = XLSX.readFile("./src/temp/temp_opps.xlsx");
     var sheet_name_list = workbook.SheetNames;
-    var xlData = XLSX.utils.sheet_to_json(workbook.Sheets[sheet_name_list[0]], {raw: false});
+    let worksheet = workbook.Sheets[sheet_name_list[0]]
+   delete_row(worksheet, 0);
+  
+    var xlData = XLSX.utils.sheet_to_json(worksheet, {raw: false});
     // console.log(xlData);
 //    let sample = {
 //         'Opportunity Name': 'City of Pell City-Dell Desktop & Laptop August 9th 2023',
@@ -204,28 +219,28 @@ async function readExcel(workbook) {
         
       }
     //   console.log(t);
-      await qwModel.bulkCreate(t, {
-        updateOnDuplicate: [
-            "number",
-            "name",
-            "sold_to_company",
-            "opp_date",
-            "opp_stage",
-            "sales_rep",
-            "total_amount",
-            "cust_po_number",
-            "est_close_date",
-            "created",
-            "pnx_engineer",
-            "line_of_business",
-            "doc_status_date",
-            "root_cause",
-            "sold_to_contact",
-            "preparer",
-            "ship_to_company",
-            "bill_to_company"
-        ]
-      });
+    //   await qwModel.bulkCreate(t, {
+    //     updateOnDuplicate: [
+    //         "number",
+    //         "name",
+    //         "sold_to_company",
+    //         "opp_date",
+    //         "opp_stage",
+    //         "sales_rep",
+    //         "total_amount",
+    //         "cust_po_number",
+    //         "est_close_date",
+    //         "created",
+    //         "pnx_engineer",
+    //         "line_of_business",
+    //         "doc_status_date",
+    //         "root_cause",
+    //         "sold_to_contact",
+    //         "preparer",
+    //         "ship_to_company",
+    //         "bill_to_company"
+    //     ]
+    //   });
       resolve()
         } catch (error) {
             reject(error)
