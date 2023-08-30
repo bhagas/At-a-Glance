@@ -218,29 +218,29 @@ async function readExcel(workbook) {
         t.push(tem)
         
       }
-    //   console.log(t);
-    //   await qwModel.bulkCreate(t, {
-    //     updateOnDuplicate: [
-    //         "number",
-    //         "name",
-    //         "sold_to_company",
-    //         "opp_date",
-    //         "opp_stage",
-    //         "sales_rep",
-    //         "total_amount",
-    //         "cust_po_number",
-    //         "est_close_date",
-    //         "created",
-    //         "pnx_engineer",
-    //         "line_of_business",
-    //         "doc_status_date",
-    //         "root_cause",
-    //         "sold_to_contact",
-    //         "preparer",
-    //         "ship_to_company",
-    //         "bill_to_company"
-    //     ]
-    //   });
+      console.log(t);
+      await qwModel.bulkCreate(t, {
+        updateOnDuplicate: [
+            "number",
+            "name",
+            "sold_to_company",
+            "opp_date",
+            "opp_stage",
+            "sales_rep",
+            "total_amount",
+            "cust_po_number",
+            "est_close_date",
+            "created",
+            "pnx_engineer",
+            "line_of_business",
+            "doc_status_date",
+            "root_cause",
+            "sold_to_contact",
+            "preparer",
+            "ship_to_company",
+            "bill_to_company"
+        ]
+      });
       resolve()
         } catch (error) {
             reject(error)
