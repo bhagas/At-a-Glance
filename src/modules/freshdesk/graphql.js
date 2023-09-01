@@ -253,7 +253,9 @@ type SyncTicket{
     ticket_id: Int,
     attachments:[attachment],
     conversations: [conversation],
-    custom_fields:JSONObject
+    custom_fields:JSONObject,
+    description:String,
+    description_text:String
   }
 type ticketFields{
     id: String,

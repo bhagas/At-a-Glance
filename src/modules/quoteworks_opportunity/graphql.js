@@ -10,7 +10,6 @@ import * as XLSX from 'xlsx/xlsx.mjs';
 const typeDefs=
   gql`
   extend type Query {
- 
       quoteWorks: quoteWorksResult
       quoteWorksByNumber(number: ID!): quoteWorksDetailResult
      
