@@ -8,6 +8,12 @@ const fd_ticket_conversations = koneksi.define('fd_ticket_conversations', {
       type: DataTypes.STRING,
         primaryKey: true
       },
+    fd_ticket_id: {
+        type:DataTypes.STRING
+    },
+    fd_conv_id: {
+        type:DataTypes.STRING
+    },
       amount: {
         type: DataTypes.STRING
         }
