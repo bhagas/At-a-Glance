@@ -219,6 +219,9 @@ type SyncTicket{
   source_additional_info: String
   }
   type detailTicket{
+    amount:String,
+    typeId:String,
+    type_name:String,
     cc_emails: [String],
     fwd_emails: [String],
     reply_cc_emails: [String],
