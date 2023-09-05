@@ -195,6 +195,9 @@ type SyncTicket{
   }
   type conversation{
   body: String,
+  amount:String,
+  typeId:String,
+  type_name:String,
   body_text: String,
   id: String,
   incoming: Boolean,
@@ -536,10 +539,25 @@ const resolvers = {
         let data = await fd_module.getTicketByid(id);
         data.requester_name = data.requester.name;
         data.requester_email = data.requester.email;
+
+        for (let i = 0; i < data.conversations.length; i++) {
+          const result_conv = await db.query(`SELECT * FROM fd_ticket_conversations WHERE fd_conv_id = '${data.conversations[i].id}'`, { type: QueryTypes.SELECT })
+          if (result_conv[0]) {
+            console.log(result_conv);
+            data.conversations[i].amount = result_conv[0].amount
+            data.conversations[i].typeId = result_conv[0].typeId
+            data.conversations[i].type_name = result_conv[0].type_name
+          }
+
+
+        }
+
+        // console.log(result_conv);
+        // console.log(data.conversations);
         //  console.log(data.conversations[0].attachments);
         // console.log(data);
         return {
-          data,
+          data: data,
           status: '200',
           message: 'Ok',
         }
