@@ -33,6 +33,7 @@ type SyncTicket{
     ticketDetail(id: Int!): detailTicketOutput
     listAgents: listAgentOutput
     ticketFields: listTicketFields
+    listExpenseByConvId(conv_id:ID!): listExpenses
   }
   extend type Mutation{
     ticketSync(startDate:String):ticketSyncOutput
@@ -44,6 +45,7 @@ type SyncTicket{
     createExpense(input:inputExpense):ticketSyncOutput
     updateExpense(id: ID!, input:inputExpense):ticketSyncOutput
     deleteExpense(id: ID!):ticketSyncOutput
+   
   }
 
   type ticketOverviewOutput{
@@ -134,6 +136,20 @@ type SyncTicket{
     message:String,
     status:Int,
     error:String
+  }
+  type listExpenses{
+    data:[expense],
+    message:String,
+    status:Int,
+    error:String
+  }
+  type expense{
+    id:String,
+    fd_conv_id: String,
+    amount: String,
+    app_fdTicketId: String,
+    typeId:String,
+    fd_ticket_id:String
   }
   type listTicketFields{
     data:[ticketFields],
@@ -593,8 +609,38 @@ const resolvers = {
           error
         }
       }
-    }
+    },
+    listExpenseByConvId: async (_, { conv_id }) => {
+      try {
+        let data=  []
+        const result_conv = await db.query(`SELECT * FROM fd_ticket_conversations WHERE fd_conv_id = '${conv_id}'`, { type: QueryTypes.SELECT })
+   
+        if (result_conv) {
+          for (let i = 0; i < result_conv.length; i++) {
+            data.push({
+              id:result_conv[i].id,
+             fd_conv_id: result_conv[i].fd_conv_id,
+             amount: result_conv[i].amount,
+             app_fdTicketId: result_conv[i].fdTicketId,
+             typeId:result_conv[i].typeId,
+             fd_ticket_id:result_conv[i].fd_ticket_id
+             })
+          }
+        }
 
+        return {
+          data,
+          status: '200',
+          message: 'Ok',
+        }
+      } catch (error) {
+        return {
+          status: '500',
+          message: 'Failed',
+          error
+        }
+      }
+    }
   },
   Mutation: {
     ticketSync: async (_, { startDate }) => {
