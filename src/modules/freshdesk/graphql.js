@@ -33,6 +33,7 @@ type SyncTicket{
     ticketDetail(id: Int!): detailTicketOutput
     listAgents: listAgentOutput
     ticketFields: listTicketFields
+    listExpenseByConvId(conv_id:ID!): listExpenses
   }
   extend type Mutation{
     ticketSync(startDate:String):ticketSyncOutput
@@ -41,6 +42,10 @@ type SyncTicket{
     createNotes(filee:[Upload], input:inputNotes):ticketSyncOutput
     updateNotes(filee:[Upload], input:inputUpdateNotes):ticketSyncOutput
     updateTicket(input:inputUpdateTicket):ticketSyncOutput
+    createExpense(input:inputExpense):ticketSyncOutput
+    updateExpense(id: ID!, input:inputExpense):ticketSyncOutput
+    deleteExpense(id: ID!):ticketSyncOutput
+   
   }
 
   type ticketOverviewOutput{
@@ -90,14 +95,18 @@ type SyncTicket{
     bcc_emails:[String]
   }
   input inputNotes {
-    body: String!,
-    user_id: String!,
-    ticket_id: String!,
+          body: String!,
+          user_id: String!,
+          ticket_id: String!,
+          notify_emails:[String],
+          private:String!
+  }
+  input inputExpense{
+    fd_conv_id: String!,
     amount: String!,
-    typeId: String!,
-    fdTicketId: String!, 
-    notify_emails:[String],
-    private:String!
+    app_fdTicketId: String!,
+    typeId:String!,
+    fd_ticket_id:String!
   }
   input inputUpdateNotes {
     body: String!,
@@ -127,6 +136,20 @@ type SyncTicket{
     message:String,
     status:Int,
     error:String
+  }
+  type listExpenses{
+    data:[expense],
+    message:String,
+    status:Int,
+    error:String
+  }
+  type expense{
+    id:String,
+    fd_conv_id: String,
+    amount: String,
+    app_fdTicketId: String,
+    typeId:String,
+    fd_ticket_id:String
   }
   type listTicketFields{
     data:[ticketFields],
@@ -586,8 +609,38 @@ const resolvers = {
           error
         }
       }
-    }
+    },
+    listExpenseByConvId: async (_, { conv_id }) => {
+      try {
+        let data=  []
+        const result_conv = await db.query(`SELECT * FROM fd_ticket_conversations WHERE fd_conv_id = '${conv_id}'`, { type: QueryTypes.SELECT })
+   
+        if (result_conv) {
+          for (let i = 0; i < result_conv.length; i++) {
+            data.push({
+              id:result_conv[i].id,
+             fd_conv_id: result_conv[i].fd_conv_id,
+             amount: result_conv[i].amount,
+             app_fdTicketId: result_conv[i].fdTicketId,
+             typeId:result_conv[i].typeId,
+             fd_ticket_id:result_conv[i].fd_ticket_id
+             })
+          }
+        }
 
+        return {
+          data,
+          status: '200',
+          message: 'Ok',
+        }
+      } catch (error) {
+        return {
+          status: '500',
+          message: 'Failed',
+          error
+        }
+      }
+    }
   },
   Mutation: {
     ticketSync: async (_, { startDate }) => {
@@ -715,15 +768,7 @@ const resolvers = {
 
         form.append('private', input.private)
         let hasil = await fd_module.createNotes(input.ticket_id, form);
-        let data = {
-          "id": uuidv4(),
-          "fd_conv_id": hasil.id,
-          "amount": input.amount,
-          "fdTicketId": input.fdTicketId,
-          "typeId": input.typeId,
-          "fd_ticket_id": input.ticket_id
-        }
-        await fd_ticket_conversations_model.create(data)
+      
         return {
           status: '200',
           message: 'Ok',
@@ -774,7 +819,80 @@ const resolvers = {
 
     },
 
+    createExpense: async (_, { input }, context, info) => {
+      try {
+        let data = {
+          "id": uuidv4(),
+          "fd_conv_id": input.fd_conv_id,
+          "amount": input.amount,
+          "fdTicketId": input.app_fdTicketId,
+          "typeId": input.typeId,
+          "fd_ticket_id": input.fd_ticket_id
+        }
+        await fd_ticket_conversations_model.create(data)
+        return {
+          status: '200',
+          message: 'Ok',
+        }
+      } catch (error) {
+        return {
+          error,
+          status: '200',
+          message: 'Ok',
+        }
+      }
+    },
 
+    updateExpense: async (_, {id, input }, context, info) => {
+      try {
+        let data = {
+          "fd_conv_id": input.fd_conv_id,
+          "amount": input.amount,
+          "fdTicketId": input.app_fdTicketId,
+          "typeId": input.typeId,
+          "fd_ticket_id": input.fd_ticket_id
+        }
+     
+        await fd_ticket_conversations_model.update(data, {
+          where: {
+            id: id,
+          },
+        });
+        
+        
+        return {
+          status: '200',
+          message: 'Ok',
+        }
+      } catch (error) {
+        return {
+          error,
+          status: '200',
+          message: 'Ok',
+        }
+      }
+    },
+    deleteExpense: async (_, {id }, context, info) => {
+      try {
+   
+        await fd_ticket_conversations_model.destroy({
+          where: {
+            id: id,
+          },
+        });
+        
+        return {
+          status: '200',
+          message: 'Ok',
+        }
+      } catch (error) {
+        return {
+          error,
+          status: '200',
+          message: 'Ok',
+        }
+      }
+    },
     updateTicket: async (_, { input }, context, info) => {
       try {
 
