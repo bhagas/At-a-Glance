@@ -30,7 +30,7 @@ const typeDefs=
     """
       users: usersResult
       "Query untuk user by id"
-      user(id: ID!): User
+      user(id: ID!): usersResult
   }
   extend type Mutation {
     createUser(input: UserInput): Output
@@ -80,7 +80,8 @@ type usersResult{
      createdAt: String,
      updatedAt:String,
      roles:[Role],
-     status:String
+     status:String,
+     agent_id: String
   }
   type OutputLogin{
     status:String,
@@ -118,11 +119,39 @@ const resolvers= {
     },
     user: async (obj, args, context, info) =>
         {
-           
-          let dt = await db.query(`select * from Users where id= $1`,{bind:[args.id], type:QueryTypes.SELECT});
+           try {
+            let dt = await db.query(`select * from Users where id= $1`,{bind:[args.id], type:QueryTypes.SELECT});
           //harus object return nya
-          info.cacheControl.setCacheHint({ maxAge: 0 });
-            return dt[0];
+          // info.cacheControl.setCacheHint({ maxAge: 0 });
+          if(dt.length){
+            dt[0].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[0].id],type: QueryTypes.SELECT });
+            let agent= await db.query(`select a.id from fd_agents a where a."email"= $1`, { bind: [dt[0].email],type: QueryTypes.SELECT });
+            dt[0].agent_id = agent[0].id;
+        
+                return {
+                    status: '200',
+                    message: 'Success',
+                 
+                    data: [dt[0]]
+                }
+          }else{
+            return {
+              status: '200',
+              message: 'Success',
+       
+              data: []
+          }
+          }
+        
+           } catch (error) {
+            console.log(error);
+            return {
+              status: '500',
+              message: 'gagal',
+              error: JSON.stringify(error)
+          }
+           }
+          
         },
 },
 Mutation:{
@@ -164,7 +193,8 @@ Mutation:{
  
       if(hasil){
         dt[0].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[0].id],type: QueryTypes.SELECT });
-   
+        agent= await db.query(`select a.id from fd_agents a where a."email"= $1`, { bind: [input.email],type: QueryTypes.SELECT });
+        dt[0].agent_id = agent[0].id;
         let token = await jwt.generate({id: dt[0].id}, '24h')
             return {
                 status: '200',

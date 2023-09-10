@@ -81,7 +81,8 @@ type SyncTicket{
     priority: [Int],
     condition: String!,
     row:Int!,
-    start_from:Int!
+    start_from:Int!,
+    agent_id:String
   }
   input inputDayGraph {
     startDate: String!,
@@ -364,6 +365,11 @@ const resolvers = {
             a += " AND priority IN(:priority)";
             replacements.priority = args.input.priority;
           }
+        }
+        if (args.input.agent_id) {
+            a += " AND responder_id = :agent_id";
+            replacements.agent_id = args.input.agent_id;
+          
         }
         a += ' order by fd_created_at desc'
         if (args.input.row) {
