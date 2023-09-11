@@ -150,7 +150,8 @@ type SyncTicket{
     amount: String,
     app_fdTicketId: String,
     typeId:String,
-    fd_ticket_id:String
+    fd_ticket_id:String,
+    type_name:String
   }
   type listTicketFields{
     data:[ticketFields],
@@ -251,8 +252,6 @@ type SyncTicket{
   }
   type detailTicket{
     amount:String,
-    typeId:String,
-    type_name:String,
     cc_emails: [String],
     fwd_emails: [String],
     reply_cc_emails: [String],
@@ -568,19 +567,21 @@ const resolvers = {
         let data = await fd_module.getTicketByid(id);
         data.requester_name = data.requester.name;
         data.requester_email = data.requester.email;
-
+        data.amount =0;
         for (let i = 0; i < data.conversations.length; i++) {
-          const result_conv = await db.query(`SELECT * FROM fd_ticket_conversations WHERE fd_conv_id = '${data.conversations[i].id}'`, { type: QueryTypes.SELECT })
+          const result_conv = await db.query(`SELECT sum(amount::INT) as amount FROM fd_ticket_conversations WHERE fd_conv_id = '${data.conversations[i].id}'`, { type: QueryTypes.SELECT })
           if (result_conv[0]) {
-            console.log(result_conv);
-            data.conversations[i].amount = result_conv[0].amount
-            data.conversations[i].typeId = result_conv[0].typeId
-            data.conversations[i].type_name = result_conv[0].type_name
+           
+            data.conversations[i].amount = result_conv[0].amount;
+            if(parseInt(result_conv[0].amount)){
+              data.amount += parseInt(result_conv[0].amount);
+            }
+           
           }
 
 
         }
-
+        // console.log(data.amount);
         // console.log(result_conv);
         // console.log(data.conversations);
         //  console.log(data.conversations[0].attachments);
@@ -619,7 +620,7 @@ const resolvers = {
     listExpenseByConvId: async (_, { conv_id }) => {
       try {
         let data=  []
-        const result_conv = await db.query(`SELECT * FROM fd_ticket_conversations WHERE fd_conv_id = '${conv_id}'`, { type: QueryTypes.SELECT })
+        const result_conv = await db.query(`SELECT a.*, b.type_name FROM fd_ticket_conversations a join types b on a."typeId" = b.id  WHERE a.fd_conv_id = '${conv_id}'`, { type: QueryTypes.SELECT })
    
         if (result_conv) {
           for (let i = 0; i < result_conv.length; i++) {
@@ -629,7 +630,8 @@ const resolvers = {
              amount: result_conv[i].amount,
              app_fdTicketId: result_conv[i].fdTicketId,
              typeId:result_conv[i].typeId,
-             fd_ticket_id:result_conv[i].fd_ticket_id
+             fd_ticket_id:result_conv[i].fd_ticket_id,
+             type_name: result_conv[i].type_name
              })
           }
         }
