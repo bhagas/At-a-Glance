@@ -35,7 +35,7 @@ const resolvers= {
   Query: {
     listAgentMember: async (obj, args, context, info) => {
       try {
-        let dt = await db.query('select a.*, b.name as "memberName" from fd_agent_member a join users b on a.id_user_agent  = b.id where a.deleted is null and a.id_agent=$1',{bind: [args.idAgent],type: QueryTypes.SELECT});
+        let dt = await db.query('select a.*, b.name as "memberName" from fd_agent_member a join users b on a.id_member  = b.id where a.deleted is null and a.id_agent=$1',{bind: [args.idAgent],type: QueryTypes.SELECT});
    
         return {data: dt, status:200, message:'Success'};
           } catch (error) {
