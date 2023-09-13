@@ -7,67 +7,62 @@ import { v4 as uuidv4 } from'uuid';
 import jwt from'../../helper/jwt.js';
 import mail from'../../helper/mail.js';
 import bcrypt from'../../helper/bcrypt.js';
+import fd_agent_member_model from '../fd_agent_member/model.js'
 const typeDefs=
   gql`
-
-  extend type Mutation {
-    syncAgents(): Output
-
+  extend type Query{
+    listAgentMember(idAgent:ID!):listAgentMemberResult
   }
-
-
+  type listAgentMemberResult{
+  data:[agentMember],
+  message:String,
+  status:Int
+}
+type agentMember{
+  id_agent:String,
+  id_member: String,
+  idUserAgent:String,
+  memberName:String
+}
+  extend type Mutation {
+    # syncAgents: Output
+    addMemberToAgent(idAgent:ID!,idUserAgent:ID!, idUserMember:ID!):Output
+  }
   
 `
 
 const resolvers= {
   Query: {
-    // users: async (obj, args, context, info) => {
-    //   try {
-    //     let dt = await db.query('select * from users where deleted is null',{type: QueryTypes.SELECT});
+    listAgentMember: async (obj, args, context, info) => {
+      try {
+        let dt = await db.query('select a.*, b.name as "memberName" from fd_agent_member a join users b on a.id_user_agent  = b.id where a.deleted is null and a.id_agent=$1',{bind: [args.idAgent],type: QueryTypes.SELECT});
    
-    //     for (let i = 0; i < dt.length; i++) {
-    //       dt[i].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[i].id],type: QueryTypes.SELECT });
-    //     }
-     
-    //     return {data: dt, status:200, message:'Success'};
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
+        return {data: dt, status:200, message:'Success'};
+          } catch (error) {
+            console.log(error);
+          }
     
-       
-    // },
-    // user: async (obj, args, context, info) =>
-    //     {
-           
-    //       let dt = await db.query(`select * from Users where id= $1`,{bind:[args.id], type:QueryTypes.SELECT});
-    //       //harus object return nya
-    //         return dt[0];
-    //     },
+        }
 },
 Mutation:{
-    syncAgents: async (_)=>{
+  
+  addMemberToAgent: async(_, {idAgent, idUserAgent, idUserMember})=>{
     try {
-    //  let file = await saveFile(await image);
-   
-      input.id=uuidv4()
-      // input.password=await enkrip.hash(input.password)
-        
-     await agentsModel.create(input)
-        return {
-            status: '200',
-            message: 'Berhasil Simpan'
-        }
+    
+      await fd_agent_member_model.create({id: uuidv4(),id_agent: idAgent, id_member:idUserMember, id_user_agent:idUserAgent})
+      return {
+        status: '200',
+        message: 'success'
+    }
     } catch (error) {
-      console.log(error);
       return {
         status: '500',
-        message: 'gagal',
-        error: JSON.stringify(error)
+        message: 'Failed',
+        error
     }
     }
    
-  },
-
+  }
 
 }
 }
