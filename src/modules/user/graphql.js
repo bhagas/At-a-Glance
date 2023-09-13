@@ -30,7 +30,7 @@ const typeDefs=
     """
       users: usersResult
       "Query untuk user by id"
-      user(id: ID!): usersResult
+      user(id: ID, email: String): usersResult
   }
   extend type Mutation {
     createUser(input: UserInput): Output
@@ -120,13 +120,24 @@ const resolvers= {
     user: async (obj, args, context, info) =>
         {
            try {
-            let dt = await db.query(`select * from Users where id= $1`,{bind:[args.id], type:QueryTypes.SELECT});
+            let dt =[];
+            if(args.id){
+              dt = await db.query(`select * from Users where id= $1`,{bind:[args.id], type:QueryTypes.SELECT});
+            }else if(args.email){
+              dt = await db.query(`select * from Users where email= $1`,{bind:[args.email], type:QueryTypes.SELECT});
+           
+            }
           //harus object return nya
           // info.cacheControl.setCacheHint({ maxAge: 0 });
           if(dt.length){
             dt[0].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[0].id],type: QueryTypes.SELECT });
             let agent= await db.query(`select a.id from fd_agents a where a."email"= $1`, { bind: [dt[0].email],type: QueryTypes.SELECT });
+           if(agent.length){
             dt[0].agent_id = agent[0].id;
+           }else{
+            dt[0].agent_id =null
+           }
+           
         
                 return {
                     status: '200',
