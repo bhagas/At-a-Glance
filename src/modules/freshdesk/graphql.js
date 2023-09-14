@@ -565,22 +565,25 @@ const resolvers = {
       try {
 
         let data = await fd_module.getTicketByid(id);
+    
         data.requester_name = data.requester.name;
         data.requester_email = data.requester.email;
         data.amount =0;
+        // console.log(data.conversations);
         for (let i = 0; i < data.conversations.length; i++) {
-          const result_conv = await db.query(`SELECT sum(amount::INT) as amount FROM fd_ticket_conversations WHERE fd_conv_id = '${data.conversations[i].id}'`, { type: QueryTypes.SELECT })
-          if (result_conv[0]) {
-           
+          let result_conv = await db.query(`SELECT sum(amount::FLOAT) as amount FROM fd_ticket_conversations WHERE fd_conv_id = '${data.conversations[i].id}'`, { type: QueryTypes.SELECT })
+         
+          if (result_conv.length) {
+          
             data.conversations[i].amount = result_conv[0].amount;
             if(parseInt(result_conv[0].amount)){
+           
               data.amount += parseInt(result_conv[0].amount);
             }
            
           }
-
-
         }
+       
         // console.log(data.amount);
         // console.log(result_conv);
         // console.log(data.conversations);
@@ -592,6 +595,7 @@ const resolvers = {
           message: 'Ok',
         }
       } catch (error) {
+        console.log(error);
         return {
           status: '500',
           message: 'Failed',
