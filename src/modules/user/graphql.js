@@ -52,7 +52,8 @@ type usersResult{
     name: String,
     email: String!,
     status: String,
-    password: String!
+    password: String!,
+    isRegistered: Boolean!
   }
 
   input UserInputEdit {
@@ -173,11 +174,19 @@ Mutation:{
       input.id=uuidv4()
       // input.password=await enkrip.hash(input.password)
       input.confirmation_code = await jwt.generate({id: input.id}, '1h');
+   
       let html =`<h1>Invitation</h1>
       <h2>Hello ${input.name}</h2>
       <p>Transition has invited you, You can login using this email as username and password: ${input.password}</p>
       <a href=${process.env.FE_URI}> Click here</a>
       </div>`
+      if(input.isRegistered){
+        html =`<h1>Invitation</h1>
+      <h2>Hello ${input.name}</h2>
+      <p>Transition has invited you, You can login using your sheliak account</p>
+      <a href=${process.env.FE_URI}> Click here</a>
+      </div>`
+      }
       mail(input.email, "Transition has invited you", html)
       input.status='active';
      await userModel.create(input)
