@@ -10,16 +10,23 @@ import { QueryTypes } from'sequelize';
 
     return new Promise(async (resolve, reject) => {
       let dt = await db.query("select * from config where id='60d9c4ad-d770-4999-9468-a7953fbc42xx'",{type: QueryTypes.SELECT});
-      const transporter = nodemailer.createTransport({
-        host: dt[0].mail_host,
-        port: dt[0].mail_port,
-        secure: dt[0].mail_secure,
-        auth: {
-          // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-          user: dt[0].mail_user,
-          pass: dt[0].mail_password
-        }
-      });
+     
+     let config = {
+      host: dt[0].mail_host,
+      port: dt[0].mail_port,
+      secure: dt[0].mail_secure,
+      auth: {
+        // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+        user: dt[0].mail_user,
+        pass: dt[0].mail_password
+      },
+      tls: {
+        ciphers:'SSLv3'
+    }
+
+    }
+    
+      const transporter = nodemailer.createTransport(config);
       const mailOptions = {
         from: `NoReply<${dt[0].mail_from}>`,
         to,
