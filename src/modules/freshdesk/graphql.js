@@ -159,7 +159,11 @@ type SyncTicket{
     fd_ticket_id:String,
     type_name:String,
     createdAt:String,
-    updatedAt:String
+    updatedAt:String,
+    approved: String,
+             approved_at: String,
+             approved_by: String,
+             approved_by_name: String
   }
   type listTicketFields{
     data:[ticketFields],
@@ -632,7 +636,12 @@ const resolvers = {
     listExpenseByConvId: async (_, { conv_id }) => {
       try {
         let data=  []
-        const result_conv = await db.query(`SELECT a.*,  CAST(a."createdAt" AS TEXT) as created_at,CAST(a."updatedAt" AS TEXT) as updated_at, b.type_name FROM fd_ticket_conversations a join types b on a."typeId" = b.id  WHERE a."deletedAt" is null and a.fd_conv_id = '${conv_id}'`, { type: QueryTypes.SELECT })
+        const result_conv = await db.query(`SELECT a.*,
+        (select name from users where id = a.approved_by) as approved_name, 
+         CAST(a."createdAt" AS TEXT) as created_at,
+         CAST(a."updatedAt" AS TEXT) as updated_at,
+         CAST(a."approved_at" AS TEXT) as approved_at_date,
+          b.type_name FROM fd_ticket_conversations a join types b on a."typeId" = b.id  WHERE a."deletedAt" is null and a.fd_conv_id = '${conv_id}'`, { type: QueryTypes.SELECT })
    
         if (result_conv) {
           for (let i = 0; i < result_conv.length; i++) {
@@ -645,7 +654,11 @@ const resolvers = {
              fd_ticket_id:result_conv[i].fd_ticket_id,
              type_name: result_conv[i].type_name,
              createdAt: result_conv[i].created_at,
-             updatedAt: result_conv[i].updated_at
+             updatedAt: result_conv[i].updated_at,
+             approved: result_conv[i].approved,
+             approved_at: result_conv[i].approved_at_date,
+             approved_by: result_conv[i].approved_by,
+             approved_by_name: result_conv[i].approved_name,
              })
           }
         }
