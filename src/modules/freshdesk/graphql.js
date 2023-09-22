@@ -45,6 +45,7 @@ type SyncTicket{
     createExpense(input:inputExpense):ticketSyncOutput
     updateExpense(id: ID!, input:inputExpense):ticketSyncOutput
     deleteExpense(id: ID!):ticketSyncOutput
+    approveExpense(id:ID, input: inputApproveExpense):ticketSyncOutput
    
   }
 
@@ -109,6 +110,11 @@ type SyncTicket{
     typeId:String!,
     fd_ticket_id:String!
   }
+  input inputApproveExpense{
+    approved:String!,
+    approved_by:String!
+  }
+  
   input inputUpdateNotes {
     body: String!,
     id_notes: String!
@@ -892,6 +898,34 @@ const resolvers = {
             id: id,
           },
         });
+        
+        return {
+          status: '200',
+          message: 'Ok',
+        }
+      } catch (error) {
+        return {
+          error,
+          status: '500',
+          message: 'failed',
+        }
+      }
+    },
+    approveExpense: async (_, {id, input }, context, info) => {
+      try {
+        let data = {
+          "approved": input.approved,
+          "approved_by": input.approved_by,
+          "approved_at": moment()
+         
+        }
+     
+        await fd_ticket_conversations_model.update(data, {
+          where: {
+            id: id,
+          },
+        });
+        
         
         return {
           status: '200',
