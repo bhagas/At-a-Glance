@@ -157,7 +157,9 @@ type SyncTicket{
     app_fdTicketId: String,
     typeId:String,
     fd_ticket_id:String,
-    type_name:String
+    type_name:String,
+    createdAt:String,
+    updatedAt:String
   }
   type listTicketFields{
     data:[ticketFields],
@@ -630,7 +632,7 @@ const resolvers = {
     listExpenseByConvId: async (_, { conv_id }) => {
       try {
         let data=  []
-        const result_conv = await db.query(`SELECT a.*, b.type_name FROM fd_ticket_conversations a join types b on a."typeId" = b.id  WHERE a.fd_conv_id = '${conv_id}'`, { type: QueryTypes.SELECT })
+        const result_conv = await db.query(`SELECT a.*,  CAST(a."createdAt" AS TEXT) as created_at,CAST(a."updatedAt" AS TEXT) as updated_at, b.type_name FROM fd_ticket_conversations a join types b on a."typeId" = b.id  WHERE a.fd_conv_id = '${conv_id}'`, { type: QueryTypes.SELECT })
    
         if (result_conv) {
           for (let i = 0; i < result_conv.length; i++) {
@@ -641,7 +643,9 @@ const resolvers = {
              app_fdTicketId: result_conv[i].fdTicketId,
              typeId:result_conv[i].typeId,
              fd_ticket_id:result_conv[i].fd_ticket_id,
-             type_name: result_conv[i].type_name
+             type_name: result_conv[i].type_name,
+             createdAt: result_conv[i].created_at,
+             updatedAt: result_conv[i].updated_at
              })
           }
         }
