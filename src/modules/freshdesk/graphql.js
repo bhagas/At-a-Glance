@@ -33,7 +33,7 @@ type SyncTicket{
     ticketDetail(id: Int!): detailTicketOutput
     listAgents: listAgentOutput
     ticketFields: listTicketFields
-    listExpenseByConvId(conv_id:ID!): listExpenses
+    listExpenseByConvId(conv_id:ID!, filter:inputFilterExpense): listExpenses
   }
   extend type Mutation{
     ticketSync(startDate:String):ticketSyncOutput
@@ -77,6 +77,13 @@ type SyncTicket{
   }
   input inputFilterTicketOverview {
     priority: Int
+  }
+  enum approved {
+  YES
+  NO
+}
+  input inputFilterExpense {
+    approved: approved
   }
   input inputFilterListTicket {
     priority: [Int],
@@ -633,15 +640,19 @@ const resolvers = {
         }
       }
     },
-    listExpenseByConvId: async (_, { conv_id }) => {
+    listExpenseByConvId: async (_, { conv_id, filter }) => {
       try {
         let data=  []
+        let a =''
+        if(filter.approved){
+          a+= ` and a.approved = '${filter.approved}'`
+        }
         const result_conv = await db.query(`SELECT a.*,
         (select name from users where id = a.approved_by) as approved_name, 
          CAST(a."createdAt" AS TEXT) as created_at,
          CAST(a."updatedAt" AS TEXT) as updated_at,
          CAST(a."approved_at" AS TEXT) as approved_at_date,
-          b.type_name FROM fd_ticket_conversations a join types b on a."typeId" = b.id  WHERE a."deletedAt" is null and a.fd_conv_id = '${conv_id}'`, { type: QueryTypes.SELECT })
+          b.type_name FROM fd_ticket_conversations a join types b on a."typeId" = b.id  WHERE a."deletedAt" is null and a.fd_conv_id = '${conv_id}' ${a}`, { type: QueryTypes.SELECT })
    
         if (result_conv) {
           for (let i = 0; i < result_conv.length; i++) {
