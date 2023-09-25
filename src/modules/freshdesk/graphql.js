@@ -32,6 +32,7 @@ type SyncTicket{
     dayGraph(input: inputDayGraph): listDayGraphOutput
     ticketDetail(id: Int!): detailTicketOutput
     listAgents: listAgentOutput
+   
     ticketFields: listTicketFields
     listExpenseByConvId(conv_id:ID!, filter:inputFilterExpense): listExpenses
   }
@@ -540,6 +541,7 @@ const resolvers = {
       }
 
     },
+
     dayGraph: async (_, { input }) => {
       let bind = [input.startDate, input.endDate];
       // console.log(input);

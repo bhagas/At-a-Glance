@@ -12,6 +12,7 @@ const typeDefs=
   gql`
   extend type Query{
     listAgentMember(idAgent:ID!):listAgentMemberResult
+    listAgentByMember(email: String): listAgentOutput
   }
   type listAgentMemberResult{
   data:[agentMember],
@@ -22,11 +23,13 @@ type agentMember{
   id_agent:String,
   id_member: String,
   idUserAgent:String,
-  memberName:String
+  memberName:String,
+  id:String
 }
   extend type Mutation {
     # syncAgents: Output
     addMemberToAgent(idAgent:ID!,idUserAgent:ID!, idUserMember:ID!):Output
+    removeMemberFromAgent(id:ID!):Output
   }
   
 `
@@ -42,7 +45,53 @@ const resolvers= {
             console.log(error);
           }
     
-        }
+        },
+        listAgentByMember: async (obj, {email}, context, info) => {
+          try {
+            // console.log(args);
+            let dt = await db.query('select a.*, b.name as "memberName" from fd_agent_member a join users b on a.id_member  = b.id where a.deleted is null and b.email=$1',{bind: [email],type: QueryTypes.SELECT});
+   
+            let bind = {}
+            let a = ""
+            if (dt.length) {
+              a += " AND id=$id_agent";
+              bind.id_agent = dt[0].id_agent;
+            }
+            let q = '';
+    
+            let kolom = `
+                  id,
+                  name,
+                  email,
+                  phone,
+                  type,
+                  active,
+                  ticket_scope
+                `
+            q = `SELECT ${kolom} FROM fd_agents  WHERE deleted is null `+a
+       
+            const graph_1 = await db.query(q,
+              {
+                // replacements: [],
+                bind,
+                type: QueryTypes.SELECT
+              });
+              // console.log({  data:graph_1,});
+            return {
+              data: graph_1,
+              status: '200',
+              message: 'ok'
+            }
+          } catch (error) {
+            console.log(error);
+            return {
+              status: '500',
+              message: 'gagal',
+              error: JSON.stringify(error)
+            }
+          }
+    
+        },
 },
 Mutation:{
   
@@ -62,8 +111,24 @@ Mutation:{
     }
     }
    
+  },
+  removeMemberFromAgent: async(_, {id})=>{
+    try {
+    
+      await fd_agent_member_model.destroy({where: {id}})
+      return {
+        status: '200',
+        message: 'success'
+    }
+    } catch (error) {
+      return {
+        status: '500',
+        message: 'Failed',
+        error
+    }
+    }
+   
   }
-
 }
 }
 

@@ -31,6 +31,7 @@ const typeDefs=
       users: usersResult
       "Query untuk user by id"
       user(id: ID, email: String): usersResult
+
   }
   extend type Mutation {
     createUser(input: UserInput): Output
