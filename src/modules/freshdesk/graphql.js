@@ -593,7 +593,7 @@ const resolvers = {
         data.amount =0;
         // console.log(data.conversations);
         for (let i = 0; i < data.conversations.length; i++) {
-          let result_conv = await db.query(`SELECT sum(amount::FLOAT) as amount FROM fd_ticket_conversations WHERE fd_conv_id = '${data.conversations[i].id}'`, { type: QueryTypes.SELECT })
+          let result_conv = await db.query(`SELECT sum(amount::FLOAT) as amount FROM fd_ticket_conversations WHERE "deletedAt" is null AND fd_conv_id = '${data.conversations[i].id}'`, { type: QueryTypes.SELECT })
          
           if (result_conv.length) {
           
