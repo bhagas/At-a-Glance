@@ -42,4 +42,11 @@ user.hasMany(fd_ticket_conversations,{
 fd_ticket_conversations.belongsTo(user,{
   foreignKey: 'approved_by'
 });
+
+user.hasMany(fd_ticket_conversations,{
+  foreignKey: 'created_by'
+});
+fd_ticket_conversations.belongsTo(user,{
+  foreignKey: 'created_by'
+});
 export default fd_ticket_conversations;

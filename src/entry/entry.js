@@ -75,7 +75,7 @@ app.use(
           let token = (req.headers.authorization)?req.headers.authorization:'';
        
           if(token){
-           
+            // console.log(token);
             let dt = token.split(" ");
             if(dt.length>1){
         
@@ -116,11 +116,13 @@ app.use(
               let requestHeaders = {
                 authorization: `Bearer ${dt[1]}`
               }
+              // console.log(requestHeaders);
               let h=    await request({
                 url:process.env.SHELIAK_URL,
                 document:qu,
                 requestHeaders,
               });
+             
               // console.log(h, 'cccc');
               // user=await jwt.verify(dt[1]);
               if(h.me){
@@ -132,7 +134,7 @@ app.use(
          
           return {user};
         } catch (error) {
-       
+       console.log(error);
           return {user:null};
         }
       

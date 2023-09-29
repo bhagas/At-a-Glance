@@ -12,7 +12,7 @@ const isAuthenticated = rule({ cache: 'contextual' })(async (parent, args, ctx, 
       if(user.length){
        user[0].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [user[0].id],type: QueryTypes.SELECT });
       }
-      ctx.user = user[0];
+      ctx.user_app = user[0];
  
       return true;
   } catch (error) {
@@ -28,7 +28,7 @@ const isAuthenticated = rule({ cache: 'contextual' })(async (parent, args, ctx, 
 
 
 const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
-  if(ctx.user.status === 'active'){
+  if(ctx.user_app.status === 'active'){
       return true;
   } else{
       return new Error('Not Authenticated');
@@ -39,30 +39,30 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
    
   const isSuperAdmin = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
     
-    return _.some(ctx.user.roles, ['code', 'A-1']);
+    return _.some(ctx.user_app.roles, ['code', 'A-1']);
   })
    
   const isSalesManager = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
-    return _.some(ctx.user.roles, ['code', 'A-2']);
+    return _.some(ctx.user_app.roles, ['code', 'A-2']);
   })
    
   const isServiceManager = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
-    return _.some(ctx.user.roles, ['code', 'A-3']);
+    return _.some(ctx.user_app.roles, ['code', 'A-3']);
   })
   const isOperationsManager = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
-    return _.some(ctx.user.roles, ['code', 'A-4']);
+    return _.some(ctx.user_app.roles, ['code', 'A-4']);
   })
   const isWarehouseManager = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
-    return _.some(ctx.user.roles, ['code', 'A-5']);
+    return _.some(ctx.user_app.roles, ['code', 'A-5']);
   })
   const isExecutives = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
-    return _.some(ctx.user.roles, ['code', 'A-6']);
+    return _.some(ctx.user_app.roles, ['code', 'A-6']);
   })
   const isFieldServices = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
-    return _.some(ctx.user.roles, ['code', 'A-7']);
+    return _.some(ctx.user_app.roles, ['code', 'A-7']);
   })
   const isSalesReps = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
-    return _.some(ctx.user.roles, ['code', 'A-8']);
+    return _.some(ctx.user_app.roles, ['code', 'A-8']);
   })
   // Permissions
   const permissions = shield({
@@ -73,6 +73,7 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
       // roles:chain(isAuthenticated, isActive,isSuperAdmin)
     },
     Mutation:{
+      createExpense:chain(isAuthenticated)
       // createRole:chain(isAuthenticated, isActive, isSuperAdmin),
       // createUser:chain(isAuthenticated, isActive, isSuperAdmin),
       // removeRole:chain(isAuthenticated, isActive,isSuperAdmin),

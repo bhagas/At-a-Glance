@@ -172,7 +172,8 @@ type SyncTicket{
     approved: String,
              approved_at: String,
              approved_by: String,
-             approved_by_name: String
+             approved_by_name: String,
+             created_by_name: String
   }
   type listTicketFields{
     data:[ticketFields],
@@ -652,6 +653,7 @@ const resolvers = {
         }
         const result_conv = await db.query(`SELECT a.*,
         (select name from users where id = a.approved_by) as approved_name, 
+        (select name from users where id = a.created_by) as created_by_name, 
          CAST(a."createdAt" AS TEXT) as created_at,
          CAST(a."updatedAt" AS TEXT) as updated_at,
          CAST(a."approved_at" AS TEXT) as approved_at_date,
@@ -673,6 +675,7 @@ const resolvers = {
              approved_at: result_conv[i].approved_at_date,
              approved_by: result_conv[i].approved_by,
              approved_by_name: result_conv[i].approved_name,
+             created_by_name: result_conv[i].created_by_name,
              })
           }
         }
@@ -916,6 +919,7 @@ const resolvers = {
     },
 
     createExpense: async (_, { input }, context, info) => {
+      // console.log(context);
       try {
         let data = {
           "id": uuidv4(),
@@ -923,7 +927,8 @@ const resolvers = {
           "amount": input.amount,
           "fdTicketId": input.app_fdTicketId,
           "typeId": input.typeId,
-          "fd_ticket_id": input.fd_ticket_id
+          "fd_ticket_id": input.fd_ticket_id,
+          "created_by":context.user_app.id
         }
         await fd_ticket_conversations_model.create(data)
         return {
