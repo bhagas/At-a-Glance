@@ -14,6 +14,7 @@ import FormData from 'form-data';
 import pubsub from '../../config/redis.js';
 import GraphQLJSON, { GraphQLJSONObject } from 'graphql-type-json';
 import fd_ticket_conversations_model from '../ticket_conversations/model.js'
+import fd_expense_log_model from '../expense_log/model.js'
 const typeDefs =
   gql`
   scalar JSONObject
@@ -931,6 +932,16 @@ const resolvers = {
           "created_by":context.user_app.id
         }
         await fd_ticket_conversations_model.create(data)
+        await fd_expense_log_model.create({
+          "id": uuidv4(),
+          "fd_conv_id": input.fd_conv_id,
+          "amount": input.amount,
+          "fdTicketId": input.app_fdTicketId,
+          "typeId": input.typeId,
+          "fd_ticket_id": input.fd_ticket_id,
+          "created_by":context.user_app.id,
+          "action":"CREATE"
+        })
         return {
           status: '200',
           message: 'Ok',
@@ -960,7 +971,16 @@ const resolvers = {
           },
         });
         
-        
+        await fd_expense_log_model.create({
+          "id": uuidv4(),
+          "fd_conv_id": input.fd_conv_id,
+          "amount": input.amount,
+          "fdTicketId": input.app_fdTicketId,
+          "typeId": input.typeId,
+          "fd_ticket_id": input.fd_ticket_id,
+          "created_by":context.user_app.id,
+          "action":"UPDATE"
+        })
         return {
           status: '200',
           message: 'Ok',
@@ -981,7 +1001,16 @@ const resolvers = {
             id: id,
           },
         });
-        
+        await fd_expense_log_model.create({
+          "id": uuidv4(),
+          "fd_conv_id": input.fd_conv_id,
+          "amount": input.amount,
+          "fdTicketId": input.app_fdTicketId,
+          "typeId": input.typeId,
+          "fd_ticket_id": input.fd_ticket_id,
+          "created_by":context.user_app.id,
+          "action":"DELETE"
+        })
         return {
           status: '200',
           message: 'Ok',
@@ -1008,8 +1037,21 @@ const resolvers = {
             id: id,
           },
         });
-        
-        
+        let act = 'APPROVE';
+        if(input.approved=="NO"){
+          act = 'UNAPPROVE';
+        }
+     
+        await fd_expense_log_model.create({
+          "id": uuidv4(),
+          "fd_conv_id": input.fd_conv_id,
+          "amount": input.amount,
+          "fdTicketId": input.app_fdTicketId,
+          "typeId": input.typeId,
+          "fd_ticket_id": input.fd_ticket_id,
+          "created_by":context.user_app.id,
+          "action":act
+        })
         return {
           status: '200',
           message: 'Ok',
