@@ -4,24 +4,29 @@ import { QueryTypes } from 'sequelize';
 import _ from "lodash";
 
 const isAuthenticated = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
-
+  console.log(ctx,'ctxxxxxxx');
+  ctx.user_app=null;
   if(ctx.user !== null){
   try {
     let user= await db.query(`select * from users where email= $1`, { bind: [ctx.user.email],type: QueryTypes.SELECT });
     // console.log(user, 'dd');
       if(user.length){
        user[0].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [user[0].id],type: QueryTypes.SELECT });
+       ctx.user_app = user[0];
+       return true;
+      }else{
+        return new Error('User Unregistered');
       }
-      ctx.user_app = user[0];
+      
  
-      return true;
+    
   } catch (error) {
     console.log(error);
     return new Error('Not Authenticated');
   }
      
   } else{
-      return new Error('Not Authenticated');
+      return new Error('Not Authenticated or Token Expired');
   }
  
 })
@@ -71,9 +76,13 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
       // user:chain(isAuthenticated, isActive,isSuperAdmin),
       // role:chain(isAuthenticated, isActive,isSuperAdmin),
       // roles:chain(isAuthenticated, isActive,isSuperAdmin)
+      listLogExpenseByTicketId:chain(isAuthenticated)
     },
     Mutation:{
-      createExpense:chain(isAuthenticated)
+      createExpense:chain(isAuthenticated),
+      updateExpense:chain(isAuthenticated),
+      deleteExpense:chain(isAuthenticated),
+      approveExpense:chain(isAuthenticated)
       // createRole:chain(isAuthenticated, isActive, isSuperAdmin),
       // createUser:chain(isAuthenticated, isActive, isSuperAdmin),
       // removeRole:chain(isAuthenticated, isActive,isSuperAdmin),

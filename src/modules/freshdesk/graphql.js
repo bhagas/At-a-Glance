@@ -37,6 +37,7 @@ type SyncTicket{
     ticketFields: listTicketFields
     listExpenseByConvId(conv_id:ID!, filter:inputFilterExpense): listExpenses
     listExpenseByTicketId(ticketId:ID!, filter:inputFilterExpense): listExpenses
+    listLogExpenseByTicketId(ticketId:ID!): listLogExpenses
   }
   extend type Mutation{
     ticketSync(startDate:String):ticketSyncOutput
@@ -160,6 +161,12 @@ type SyncTicket{
     status:Int,
     error:String
   }
+  type listLogExpenses{
+    data:[logExpense],
+    message:String,
+    status:Int,
+    error:String
+  }
   type expense{
     id:String,
     fd_conv_id: String,
@@ -174,6 +181,19 @@ type SyncTicket{
              approved_at: String,
              approved_by: String,
              approved_by_name: String,
+             created_by_name: String
+  }
+  type logExpense{
+    id:String,
+    fd_conv_id: String,
+    amount: String,
+    fdTicketId: String,
+    typeId:String,
+    fd_ticket_id:String,
+    type_name:String,
+    createdAt:String,
+    updatedAt:String,
+    action: String,
              created_by_name: String
   }
   type listTicketFields{
@@ -740,6 +760,58 @@ const resolvers = {
           error
         }
       }
+    },
+    listLogExpenseByTicketId: async (_, { ticketId }) => {
+      try {
+        let data=  []
+      
+        const result_conv = await db.query(`SELECT a.*,
+        (select name from users where id = a.created_by) as created_by_name, 
+         CAST(a."createdAt" AS TEXT) as created_at,
+         CAST(a."updatedAt" AS TEXT) as updated_at,
+          b.type_name FROM fd_expense_log a join types b on a."typeId" = b.id  WHERE a."deletedAt" is null and a.fd_ticket_id = '${ticketId}'`, { type: QueryTypes.SELECT })
+   
+        if (result_conv) {
+          for (let i = 0; i < result_conv.length; i++) {
+            // id:String,
+            // fd_conv_id: String,
+            // amount: String,
+            // fdTicketId: String,
+            // typeId:String,
+            // fd_ticket_id:String,
+            // type_name:String,
+            // createdAt:String,
+            // updatedAt:String,
+            // action: String,
+            //          created_by_name: String
+            data.push({
+              id:result_conv[i].id,
+             fd_conv_id: result_conv[i].fd_conv_id,
+             amount: result_conv[i].amount,
+             fdTicketId: result_conv[i].fdTicketId,
+             typeId:result_conv[i].typeId,
+             fd_ticket_id:result_conv[i].fd_ticket_id,
+             type_name: result_conv[i].type_name,
+             createdAt: result_conv[i].created_at,
+             updatedAt: result_conv[i].updated_at,
+             action: result_conv[i].action,
+             created_by_name: result_conv[i].created_by_name,
+             })
+          }
+        }
+
+        return {
+          data,
+          status: '200',
+          message: 'Ok',
+        }
+      } catch (error) {
+        return {
+          status: '500',
+          message: 'Failed',
+          error
+        }
+      }
     }
   },
   Mutation: {
@@ -996,21 +1068,33 @@ const resolvers = {
     deleteExpense: async (_, {id }, context, info) => {
       try {
    
-        await fd_ticket_conversations_model.destroy({
+      let data =  await fd_ticket_conversations_model.destroy({
           where: {
             id: id,
           },
         });
-        await fd_expense_log_model.create({
-          "id": uuidv4(),
-          "fd_conv_id": input.fd_conv_id,
-          "amount": input.amount,
-          "fdTicketId": input.app_fdTicketId,
-          "typeId": input.typeId,
-          "fd_ticket_id": input.fd_ticket_id,
-          "created_by":context.user_app.id,
-          "action":"DELETE"
-        })
+        const result_conv = await db.query(`SELECT a.*,
+        (select name from users where id = a.approved_by) as approved_name, 
+        (select name from users where id = a.created_by) as created_by_name, 
+         CAST(a."createdAt" AS TEXT) as created_at,
+         CAST(a."updatedAt" AS TEXT) as updated_at,
+         CAST(a."approved_at" AS TEXT) as approved_at_date,
+          b.type_name FROM fd_ticket_conversations a join types b on a."typeId" = b.id  WHERE  a.id = '${id}'`, { type: QueryTypes.SELECT })
+   
+        // console.log(result_conv,'dataaa',context.user_app);
+        if(result_conv.length && context.user_app){
+          await fd_expense_log_model.create({
+            "id": uuidv4(),
+            "fd_conv_id": result_conv[0].fd_conv_id,
+            "amount": result_conv[0].amount,
+            "fdTicketId": result_conv[0].fdTicketId,
+            "typeId": result_conv[0].typeId,
+            "fd_ticket_id": result_conv[0].fd_ticket_id,
+            "created_by":context.user_app.id,
+            "action":"DELETE"
+          })
+        }
+       
         return {
           status: '200',
           message: 'Ok',
@@ -1041,17 +1125,37 @@ const resolvers = {
         if(input.approved=="NO"){
           act = 'UNAPPROVE';
         }
-     
-        await fd_expense_log_model.create({
-          "id": uuidv4(),
-          "fd_conv_id": input.fd_conv_id,
-          "amount": input.amount,
-          "fdTicketId": input.app_fdTicketId,
-          "typeId": input.typeId,
-          "fd_ticket_id": input.fd_ticket_id,
-          "created_by":context.user_app.id,
-          "action":act
-        })
+        const result_conv = await db.query(`SELECT a.*,
+        (select name from users where id = a.approved_by) as approved_name, 
+        (select name from users where id = a.created_by) as created_by_name, 
+         CAST(a."createdAt" AS TEXT) as created_at,
+         CAST(a."updatedAt" AS TEXT) as updated_at,
+         CAST(a."approved_at" AS TEXT) as approved_at_date,
+          b.type_name FROM fd_ticket_conversations a join types b on a."typeId" = b.id  WHERE  a.id = '${id}'`, { type: QueryTypes.SELECT })
+   
+        // console.log(result_conv,'dataaa',context.user_app);
+        if(result_conv.length && context.user_app){
+          await fd_expense_log_model.create({
+            "id": uuidv4(),
+            "fd_conv_id": result_conv[0].fd_conv_id,
+            "amount": result_conv[0].amount,
+            "fdTicketId": result_conv[0].fdTicketId,
+            "typeId": result_conv[0].typeId,
+            "fd_ticket_id": result_conv[0].fd_ticket_id,
+            "created_by":context.user_app.id,
+            "action":act
+          })
+        }
+        // await fd_expense_log_model.create({
+        //   "id": uuidv4(),
+        //   "fd_conv_id": input.fd_conv_id,
+        //   "amount": input.amount,
+        //   "fdTicketId": input.app_fdTicketId,
+        //   "typeId": input.typeId,
+        //   "fd_ticket_id": input.fd_ticket_id,
+        //   "created_by":context.user_app.id,
+        //   "action":act
+        // })
         return {
           status: '200',
           message: 'Ok',
