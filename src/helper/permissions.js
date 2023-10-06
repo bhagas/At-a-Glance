@@ -76,7 +76,7 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
       // user:chain(isAuthenticated, isActive,isSuperAdmin),
       // role:chain(isAuthenticated, isActive,isSuperAdmin),
       // roles:chain(isAuthenticated, isActive,isSuperAdmin)
-      listLogExpenseByTicketId:chain(isAuthenticated)
+      // listLogExpenseByTicketId:chain(isAuthenticated)
     },
     Mutation:{
       createExpense:chain(isAuthenticated),

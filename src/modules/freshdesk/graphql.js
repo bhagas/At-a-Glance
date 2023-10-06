@@ -37,7 +37,7 @@ type SyncTicket{
     ticketFields: listTicketFields
     listExpenseByConvId(conv_id:ID!, filter:inputFilterExpense): listExpenses
     listExpenseByTicketId(ticketId:ID!, filter:inputFilterExpense): listExpenses
-    listLogExpenseByTicketId(ticketId:ID!): listLogExpenses
+    listLogExpenseByTicketId(ticketId:ID): listLogExpenses
   }
   extend type Mutation{
     ticketSync(startDate:String):ticketSyncOutput
@@ -764,12 +764,15 @@ const resolvers = {
     listLogExpenseByTicketId: async (_, { ticketId }) => {
       try {
         let data=  []
-      
+        let a =""
+        if(ticketId){
+          a=`and a.fd_ticket_id = '${ticketId}'`
+        }
         const result_conv = await db.query(`SELECT a.*,
         (select name from users where id = a.created_by) as created_by_name, 
          CAST(a."createdAt" AS TEXT) as created_at,
          CAST(a."updatedAt" AS TEXT) as updated_at,
-          b.type_name FROM fd_expense_log a join types b on a."typeId" = b.id  WHERE a."deletedAt" is null and a.fd_ticket_id = '${ticketId}'`, { type: QueryTypes.SELECT })
+          b.type_name FROM fd_expense_log a join types b on a."typeId" = b.id  WHERE a."deletedAt" is null ${a}`, { type: QueryTypes.SELECT })
    
         if (result_conv) {
           for (let i = 0; i < result_conv.length; i++) {
