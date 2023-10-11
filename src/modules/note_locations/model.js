@@ -3,7 +3,7 @@ import koneksi from'../../config/koneksi.js';
 import fdModel from'../freshdesk/model.js';
 import typeModel from'../type/model.js';
 import user from '../user/model.js'
-const fd_ticket_conversations = koneksi.define('fd_ticket_conversations', {
+const fd_conversations_locations = koneksi.define('fd_conversations_locations', {
     // Model attributes are defined here
     id: {
       type: DataTypes.STRING,
@@ -15,9 +15,6 @@ const fd_ticket_conversations = koneksi.define('fd_ticket_conversations', {
     fd_conv_id: {
         type:DataTypes.STRING
     },
-    amount: {
-        type: DataTypes.STRING
-        },
       long: {
           type: DataTypes.STRING
         },
@@ -26,36 +23,24 @@ const fd_ticket_conversations = koneksi.define('fd_ticket_conversations', {
           },
           location_tag: {
             type: DataTypes.TEXT
-            },
-    approved: {
-          type: DataTypes.ENUM('YES', 'NO'),
-          defaultValue: 'NO',
-          },
-    approved_at:{
-        type: DataTypes.DATE
-      }
+            }
   }, {
     // Other model options go here
     freezeTableName: true,
     paranoid:true
   });
 
-  fdModel.hasMany(fd_ticket_conversations);
-  fd_ticket_conversations.belongsTo(fdModel);
-typeModel.hasMany(fd_ticket_conversations);
-fd_ticket_conversations.belongsTo(typeModel);
+  fdModel.hasMany(fd_conversations_locations);
+  fd_conversations_locations.belongsTo(fdModel);
+typeModel.hasMany(fd_conversations_locations);
+fd_conversations_locations.belongsTo(typeModel);
 
-user.hasMany(fd_ticket_conversations,{
-  foreignKey: 'approved_by'
-});
-fd_ticket_conversations.belongsTo(user,{
-  foreignKey: 'approved_by'
-});
 
-user.hasMany(fd_ticket_conversations,{
+
+user.hasMany(fd_conversations_locations,{
   foreignKey: 'created_by'
 });
-fd_ticket_conversations.belongsTo(user,{
+fd_conversations_locations.belongsTo(user,{
   foreignKey: 'created_by'
 });
-export default fd_ticket_conversations;
+export default fd_conversations_locations;

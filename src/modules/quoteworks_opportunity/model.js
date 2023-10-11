@@ -8,7 +8,9 @@ const qw = koneksi.define('qw_opportunity', {
         primaryKey: true
       },
     "number":{
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
       },
 
      "name":{
