@@ -149,7 +149,7 @@ app.use(
          
           return {user};
         } catch (error) {
-       console.log(error);
+      //  console.log(error);
           return {user:null};
         }
       

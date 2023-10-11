@@ -32,8 +32,6 @@ const fd_conversations_locations = koneksi.define('fd_conversations_locations', 
 
   fdModel.hasMany(fd_conversations_locations);
   fd_conversations_locations.belongsTo(fdModel);
-typeModel.hasMany(fd_conversations_locations);
-fd_conversations_locations.belongsTo(typeModel);
 
 
 
