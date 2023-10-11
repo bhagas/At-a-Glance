@@ -18,15 +18,6 @@ const fd_ticket_conversations = koneksi.define('fd_ticket_conversations', {
     amount: {
         type: DataTypes.STRING
         },
-      long: {
-          type: DataTypes.STRING
-        },
-        lat: {
-          type: DataTypes.STRING
-          },
-          location_tag: {
-            type: DataTypes.TEXT
-            },
     approved: {
           type: DataTypes.ENUM('YES', 'NO'),
           defaultValue: 'NO',
