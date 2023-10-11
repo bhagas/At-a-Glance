@@ -26,7 +26,7 @@ function seed() {
               })
 
               await roleModel.findOrCreate({
-                where: { id: '99bcd0a5-66b0-4688-86b1-751904100cdb' },
+                where: { id: '8e934a0f-9edf-4c70-8f3e-0f4d753368fa' },
                 defaults: {
                   role_name: "Admin",
                   createdAt: new Date(),
@@ -35,7 +35,7 @@ function seed() {
               })
 
               await roleModel.findOrCreate({
-                where: { id: '99bcd0a5-66b0-4688-86b1-751904100cdb' },
+                where: { id: '201d137b-d115-4a2e-b79f-dae3461a135b' },
                 defaults: {
                   role_name: "Field Agent",
                   createdAt: new Date(),
@@ -43,7 +43,7 @@ function seed() {
                 }
               })
               await roleModel.findOrCreate({
-                where: { id: '99bcd0a5-66b0-4688-86b1-751904100cdb' },
+                where: { id: '85664f3d-9728-4c65-9f6a-dbcffaa7952f' },
                 defaults: {
                   role_name: "Support Agent ( Lead )",
                   createdAt: new Date(),
