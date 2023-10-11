@@ -43,7 +43,7 @@ type SyncTicket{
     ticketSync(startDate:String):ticketSyncOutput
     agentSync:ticketSyncOutput
     createReply(filee:[Upload], input:inputReply):ticketSyncOutput
-    createNotes(filee:[Upload], input:inputNotes):ticketSyncOutput
+    createNotes(filee:[Upload], input:inputNotes):createNotesSyncOutput
     updateNotes(filee:[Upload], input:inputUpdateNotes):ticketSyncOutput
     updateTicket(input:inputUpdateTicket):ticketSyncOutput
     createExpense(input:inputExpense):ticketSyncOutput
@@ -70,6 +70,13 @@ type SyncTicket{
     message:String,
     status:Int,
     error:String
+  }
+  # createNotesSyncOutput
+  type createNotesSyncOutput{
+    message:String,
+    status:Int,
+    error:String,
+    data:JSONObject
   }
   type ticketStatusRecap{
     open: Int,
@@ -943,10 +950,11 @@ const resolvers = {
 
         form.append('private', input.private)
         let hasil = await fd_module.createNotes(input.ticket_id, form);
-      
+        
         return {
           status: '200',
           message: 'Ok',
+          data:hasil
         }
       } catch (error) {
         // console.log(error);
