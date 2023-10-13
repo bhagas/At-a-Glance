@@ -8,7 +8,7 @@ import jwt from'../../helper/jwt.js';
 import mail from'../../helper/mail.js';
 import bcrypt from'../../helper/bcrypt.js';
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
-
+import axios from'axios';
 
 const typeDefs=
   gql`
@@ -18,7 +18,9 @@ const typeDefs=
     updateLocations(id: ID!, input: locationInput): Output
   }
 
-
+  extend type Query{
+    getGeocoding(lat:String!, long:String!): createNotesSyncOutput
+  }
 
   
   input locationInput{
@@ -37,7 +39,27 @@ const typeDefs=
 
 
 const resolvers= {
-
+Query:{
+    getGeocoding: async(_,{lat,long},context)=>{
+        try {
+            let PATH = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=${process.env.GMAPS_KEY}`;
+            let dt =    await axios.get(PATH);
+            // console.log(dt.data);
+                  return {
+                    status: '200',
+                    message: 'Ok',
+                    data:dt.data
+                  }
+        } catch (error) {
+            return {
+                error,
+                status: '200',
+                message: 'Ok',
+              }
+        }
+       
+    }
+},
 Mutation:{
   createLocations: async (_, {input}, context)=>{
     try {
@@ -52,6 +74,8 @@ Mutation:{
         "lat": input.lat,
         "location_tag": input.location_tag
       }
+    //   https://maps.googleapis.com/maps/api/geocode/json?latlng=40.714224,-73.961452&key=YOUR_API_KEY
+  
       if(context.user_app){
         data.created_by = context.user_app.id
       }
