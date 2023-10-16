@@ -37,6 +37,7 @@ type SyncTicket{
     ticketFields: listTicketFields
     listExpenseByConvId(conv_id:ID!, filter:inputFilterExpense): listExpenses
     listExpenseByTicketId(ticketId:ID!, filter:inputFilterExpense): listExpenses
+    listExpense(filter:inputFilterExpense): listExpenses
     listLogExpenseByTicketId(ticketId:ID): listLogExpenses
   }
   extend type Mutation{
@@ -751,6 +752,54 @@ const resolvers = {
          CAST(a."updatedAt" AS TEXT) as updated_at,
          CAST(a."approved_at" AS TEXT) as approved_at_date,
           b.type_name FROM fd_ticket_conversations a join types b on a."typeId" = b.id  WHERE a."deletedAt" is null and a.fd_ticket_id = '${ticketId}' ${a}`, { type: QueryTypes.SELECT })
+   
+        if (result_conv) {
+          for (let i = 0; i < result_conv.length; i++) {
+            data.push({
+              id:result_conv[i].id,
+             fd_conv_id: result_conv[i].fd_conv_id,
+             amount: result_conv[i].amount,
+             app_fdTicketId: result_conv[i].fdTicketId,
+             typeId:result_conv[i].typeId,
+             fd_ticket_id:result_conv[i].fd_ticket_id,
+             type_name: result_conv[i].type_name,
+             createdAt: result_conv[i].created_at,
+             updatedAt: result_conv[i].updated_at,
+             approved: result_conv[i].approved,
+             approved_at: result_conv[i].approved_at_date,
+             approved_by: result_conv[i].approved_by,
+             approved_by_name: result_conv[i].approved_name,
+             })
+          }
+        }
+
+        return {
+          data,
+          status: '200',
+          message: 'Ok',
+        }
+      } catch (error) {
+        return {
+          status: '500',
+          message: 'Failed',
+          error
+        }
+      }
+    },
+    listExpense: async (_, {filter }) => {
+      try {
+        let data=  []
+        let a =''
+        if(filter.approved){
+          a+= ` and a.approved = '${filter.approved}'`
+        }
+        const result_conv = await db.query(`SELECT a.*,
+        (select name from users where id = a.approved_by) as approved_name, 
+        (select name from users where id = a.created_by) as created_by_name, 
+         CAST(a."createdAt" AS TEXT) as created_at,
+         CAST(a."updatedAt" AS TEXT) as updated_at,
+         CAST(a."approved_at" AS TEXT) as approved_at_date,
+          b.type_name FROM fd_ticket_conversations a join types b on a."typeId" = b.id  WHERE a."deletedAt" is null ' ${a}`, { type: QueryTypes.SELECT })
    
         if (result_conv) {
           for (let i = 0; i < result_conv.length; i++) {
