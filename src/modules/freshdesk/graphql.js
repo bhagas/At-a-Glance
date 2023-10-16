@@ -790,18 +790,19 @@ const resolvers = {
       try {
         let data=  []
         let a =''
-        if(filter.approved){
-          a+= ` and a.approved = '${filter.approved}'`
-        }
+        // if(filter.approved){
+        //   a+= ` and a.approved = '${filter.approved}'`
+        // }
         const result_conv = await db.query(`SELECT a.*,
         (select name from users where id = a.approved_by) as approved_name, 
         (select name from users where id = a.created_by) as created_by_name, 
          CAST(a."createdAt" AS TEXT) as created_at,
          CAST(a."updatedAt" AS TEXT) as updated_at,
          CAST(a."approved_at" AS TEXT) as approved_at_date,
-          b.type_name FROM fd_ticket_conversations a join types b on a."typeId" = b.id  WHERE a."deletedAt" is null ' ${a}`, { type: QueryTypes.SELECT })
-   
+          b.type_name FROM fd_ticket_conversations a join types b on a."typeId" = b.id  WHERE a."deletedAt" is null ${a}`, { type: QueryTypes.SELECT })
+  //  console.log('abcde');
         if (result_conv) {
+          // console.log(result_conv);
           for (let i = 0; i < result_conv.length; i++) {
             data.push({
               id:result_conv[i].id,
@@ -827,6 +828,7 @@ const resolvers = {
           message: 'Ok',
         }
       } catch (error) {
+        // console.log(error);
         return {
           status: '500',
           message: 'Failed',
