@@ -298,7 +298,10 @@ type SyncTicket{
   automation_type_id: String,
   auto_response: Boolean,
   ticket_id: Int,
-  source_additional_info: String
+  source_additional_info: String,
+  long:String,
+  lat:String,
+  location_tag:String
   }
   type detailTicket{
     amount:String,
@@ -621,6 +624,7 @@ const resolvers = {
         data.requester_email = data.requester.email;
         data.amount =0;
         // console.log(data.conversations);
+         data.conversations = await fd_module.getConversationsByTicketid(id);
         for (let i = 0; i < data.conversations.length; i++) {
           let result_conv = await db.query(`SELECT sum(amount::FLOAT) as amount FROM fd_ticket_conversations WHERE "deletedAt" is null AND fd_conv_id = '${data.conversations[i].id}'`, { type: QueryTypes.SELECT })
          
@@ -631,6 +635,19 @@ const resolvers = {
            
               data.amount += parseInt(result_conv[0].amount);
             }
+           
+          }
+
+
+          //longlat
+          let locations = await db.query(`SELECT long,lat,location_tag FROM fd_conversations_locations WHERE "deletedAt" is null AND fd_conv_id = '${data.conversations[i].id}'`, { type: QueryTypes.SELECT })
+         
+          if (locations.length) {
+          
+            data.conversations[i].long = locations[0].long;
+            data.conversations[i].lat = locations[0].lat;
+            data.conversations[i].location_tag = locations[0].location_tag;
+           
            
           }
         }

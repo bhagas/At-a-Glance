@@ -251,7 +251,7 @@ class Fd{
     static getTicketByid(id){
       return new Promise(async (resolve, reject) => {
           try {
-              let PATH = `/api/v2/tickets/${id}?include=conversations,requester`;
+              let PATH = `/api/v2/tickets/${id}?include=requester`;
               let dt =    await axios.get(URL+PATH, {
                       auth: {
                         username: API_KEY,
@@ -268,6 +268,26 @@ class Fd{
       })
 
   }
+  static getConversationsByTicketid(id){
+    return new Promise(async (resolve, reject) => {
+        try {
+            let PATH = `/api/v2/tickets/${id}/conversations`;
+            let dt =    await axios.get(URL+PATH, {
+                    auth: {
+                      username: API_KEY,
+                      password: "X"
+                    }
+                  });
+                  // console.log(dt.data);
+                  resolve(dt.data)
+        } catch (error) {
+          console.log(error);
+          reject(error.response.data.description)
+        }
+      
+    })
+
+}
 
   static createReply(id, data){
     return new Promise(async (resolve, reject) => {
