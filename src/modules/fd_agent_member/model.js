@@ -8,7 +8,13 @@ const fd_agent_member = koneksi.define('fd_agent_member', {
       type: DataTypes.STRING,
         primaryKey: true
       },
-
+      "hour_salary" : {
+        type: DataTypes.BIGINT,
+      },
+      "salary" : {
+        type: DataTypes.BIGINT,
+   
+      },
   }, {
     // Other model options go here
     freezeTableName: true,

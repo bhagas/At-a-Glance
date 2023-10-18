@@ -28,7 +28,7 @@ type agentMember{
 }
   extend type Mutation {
     # syncAgents: Output
-    addMemberToAgent(idAgent:ID!,idUserAgent:ID!, idUserMember:ID!):Output
+    addMemberToAgent(idAgent:ID!,idUserAgent:ID!, idUserMember:ID!, hour_salary:String, salary:String):Output
     removeMemberFromAgent(id:ID!):Output
   }
   
@@ -95,10 +95,10 @@ const resolvers= {
 },
 Mutation:{
   
-  addMemberToAgent: async(_, {idAgent, idUserAgent, idUserMember})=>{
+  addMemberToAgent: async(_, {idAgent, idUserAgent, idUserMember, hour_salary,salary})=>{
     try {
     
-      await fd_agent_member_model.create({id: uuidv4(),id_agent: idAgent, id_member:idUserMember, id_user_agent:idUserAgent})
+      await fd_agent_member_model.create({id: uuidv4(),id_agent: idAgent, id_member:idUserMember, id_user_agent:idUserAgent,hour_salary,salary})
       return {
         status: '200',
         message: 'success'
