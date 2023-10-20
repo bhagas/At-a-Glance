@@ -8,6 +8,7 @@ import jwt from'../../helper/jwt.js';
 import mail from'../../helper/mail.js';
 import bcrypt from'../../helper/bcrypt.js';
 import fd_agent_member_model from '../fd_agent_member/model.js'
+import fd_agent from './model.js'
 const typeDefs=
   gql`
   extend type Query{
@@ -29,7 +30,8 @@ type agentMember{
   extend type Mutation {
     # syncAgents: Output
     addMemberToAgent(idAgent:ID!,idUserAgent:ID!, idUserMember:ID!, hour_salary:String, salary:String):Output
-    updateAgentSalary(idAgent:ID!, hour_salary:String, salary:String):Output
+    updateAgentSalary(id:ID!, hour_salary:Int, salary:Int):Output
+    updateSalaryMember(id:ID!, hour_salary:Int, salary:Int):Output
     removeMemberFromAgent(id:ID!):Output
   }
   
@@ -100,6 +102,49 @@ Mutation:{
     try {
     
       await fd_agent_member_model.create({id: uuidv4(),id_agent: idAgent, id_member:idUserMember, id_user_agent:idUserAgent,hour_salary,salary})
+      return {
+        status: '200',
+        message: 'success'
+    }
+    } catch (error) {
+      return {
+        status: '500',
+        message: 'Failed',
+        error
+    }
+    }
+   
+  },
+
+  updateSalaryMember: async(_, {id, hour_salary,salary})=>{
+    try { 
+      await fd_agent_member_model.update({ hour_salary,salary},{
+        where: {
+          id,
+        },
+      })
+      return {
+        status: '200',
+        message: 'success'
+    }
+    } catch (error) {
+      return {
+        status: '500',
+        message: 'Failed',
+        error
+    }
+    }
+   
+  },
+
+  updateAgentSalary: async(_, {id, hour_salary,salary})=>{
+    try {
+    
+      await fd_agent.update({ hour_salary,salary},{
+        where: {
+          id,
+        },
+      })
       return {
         status: '200',
         message: 'success'
