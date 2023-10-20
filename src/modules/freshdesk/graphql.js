@@ -20,7 +20,7 @@ extend type Subscription {
     syncTicket: SyncTicket,
     updateTicket: SyncTicket
 }
-type SyncTicket{
+type SyncTicket {
     status: String
     progress: String 
 }
