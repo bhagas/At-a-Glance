@@ -30,7 +30,8 @@ const typeDefs=
     """
       users: usersResult
       "Query untuk user by id"
-      user(id: ID!): User
+      user(id: ID, email: String): usersResult
+
   }
   extend type Mutation {
     createUser(input: UserInput): Output
@@ -52,7 +53,8 @@ type usersResult{
     name: String,
     email: String!,
     status: String,
-    password: String!
+    password: String!,
+    isRegistered: Boolean!
   }
 
   input UserInputEdit {
@@ -80,7 +82,8 @@ type usersResult{
      createdAt: String,
      updatedAt:String,
      roles:[Role],
-     status:String
+     status:String,
+     agent_id: String
   }
   type OutputLogin{
     status:String,
@@ -118,11 +121,50 @@ const resolvers= {
     },
     user: async (obj, args, context, info) =>
         {
+           try {
+            let dt =[];
+            if(args.id){
+              dt = await db.query(`select * from Users where id= $1`,{bind:[args.id], type:QueryTypes.SELECT});
+            }else if(args.email){
+              dt = await db.query(`select * from Users where email= $1`,{bind:[args.email], type:QueryTypes.SELECT});
            
-          let dt = await db.query(`select * from Users where id= $1`,{bind:[args.id], type:QueryTypes.SELECT});
+            }
           //harus object return nya
-          info.cacheControl.setCacheHint({ maxAge: 0 });
-            return dt[0];
+          // info.cacheControl.setCacheHint({ maxAge: 0 });
+          if(dt.length){
+            dt[0].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[0].id],type: QueryTypes.SELECT });
+            let agent= await db.query(`select a.id from fd_agents a where a."email"= $1`, { bind: [dt[0].email],type: QueryTypes.SELECT });
+           if(agent.length){
+            dt[0].agent_id = agent[0].id;
+           }else{
+            dt[0].agent_id =null
+           }
+           
+        
+                return {
+                    status: '200',
+                    message: 'Success',
+                 
+                    data: [dt[0]]
+                }
+          }else{
+            return {
+              status: '200',
+              message: 'Success',
+       
+              data: []
+          }
+          }
+        
+           } catch (error) {
+            console.log(error);
+            return {
+              status: '500',
+              message: 'gagal',
+              error: JSON.stringify(error)
+          }
+           }
+          
         },
 },
 Mutation:{
@@ -133,11 +175,19 @@ Mutation:{
       input.id=uuidv4()
       // input.password=await enkrip.hash(input.password)
       input.confirmation_code = await jwt.generate({id: input.id}, '1h');
+   
       let html =`<h1>Invitation</h1>
       <h2>Hello ${input.name}</h2>
       <p>Transition has invited you, You can login using this email as username and password: ${input.password}</p>
       <a href=${process.env.FE_URI}> Click here</a>
       </div>`
+      if(input.isRegistered){
+        html =`<h1>Invitation</h1>
+      <h2>Hello ${input.name}</h2>
+      <p>Transition has invited you, You can login using your sheliak account</p>
+      <a href=${process.env.FE_URI}> Click here</a>
+      </div>`
+      }
       mail(input.email, "Transition has invited you", html)
       input.status='active';
      await userModel.create(input)
@@ -164,8 +214,9 @@ Mutation:{
  
       if(hasil){
         dt[0].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[0].id],type: QueryTypes.SELECT });
-   
-        let token = await jwt.generate({id: dt[0].id}, '24h')
+        agent= await db.query(`select a.id from fd_agents a where a."email"= $1`, { bind: [input.email],type: QueryTypes.SELECT });
+        dt[0].agent_id = agent[0].id;
+        let token = await jwt.generate({id: dt[0].id}, '24h');
             return {
                 status: '200',
                 message: 'Success',

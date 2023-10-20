@@ -5,9 +5,11 @@ import { expressMiddleware } from'@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer }from'@apollo/server/plugin/drainHttpServer';
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs';
 import { ApolloServerPluginLandingPageDisabled }  from'@apollo/server/plugin/disabled';
+import log_model from '../modules/log/model.js';
 import path from'path';
 import http from'http';
 import cors from'cors';
+import { v4 as uuidv4 } from 'uuid';
 import bodyParser from'body-parser';
 const app = express()
 import jwt from'../helper/jwt.js'
@@ -70,15 +72,15 @@ app.use(
     {
       context: async ({ req }) => { 
         try {
-       
+        //  console.log(req);
           let user =null;
           let token = (req.headers.authorization)?req.headers.authorization:'';
        
           if(token){
-           
+         
             let dt = token.split(" ");
             if(dt.length>1){
-        
+              // console.log(dt);
               let qu = gql`
              query getMe {
                           me {
@@ -116,15 +118,30 @@ app.use(
               let requestHeaders = {
                 authorization: `Bearer ${dt[1]}`
               }
+              // console.log(requestHeaders);
               let h=    await request({
                 url:process.env.SHELIAK_URL,
                 document:qu,
                 requestHeaders,
               });
+             
               // console.log(h, 'cccc');
               // user=await jwt.verify(dt[1]);
               if(h.me){
                 user = h.me
+                let data = {
+                  "id": uuidv4(),
+                  "email": user.email,
+                  // "action_name": input.amount,
+                  // "graphql_schema": input.app_fdTicketId,
+                   "graphql_type": req.body.operationName,
+                  "graphql_queries": req.body.query,
+                  "graphql_variables":req.body.variables
+                }
+                log_model.create(data)
+                // console.log(user);
+                //     console.log(req.body.query);
+                //    console.log(req.body.variables);
               }
         
             } 
@@ -132,7 +149,7 @@ app.use(
          
           return {user};
         } catch (error) {
-       
+      //  console.log(error);
           return {user:null};
         }
       

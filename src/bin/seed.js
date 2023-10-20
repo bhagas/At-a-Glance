@@ -24,7 +24,33 @@ function seed() {
                   code:'A-1'
                 }
               })
-        
+
+              await roleModel.findOrCreate({
+                where: { id: '8e934a0f-9edf-4c70-8f3e-0f4d753368fa' },
+                defaults: {
+                  role_name: "Admin",
+                  createdAt: new Date(),
+                  code:'A-2'
+                }
+              })
+
+              await roleModel.findOrCreate({
+                where: { id: '201d137b-d115-4a2e-b79f-dae3461a135b' },
+                defaults: {
+                  role_name: "Field Agent",
+                  createdAt: new Date(),
+                  code:'F-1'
+                }
+              })
+              await roleModel.findOrCreate({
+                where: { id: '85664f3d-9728-4c65-9f6a-dbcffaa7952f' },
+                defaults: {
+                  role_name: "Support Agent ( Lead )",
+                  createdAt: new Date(),
+                  code:'S-1'
+                }
+              })
+              // Support Agent ( Lead )
               await rolePoolModel.findOrCreate({
                 where: { id: 'd5864088-af94-4ea9-a651-a3b78c4a4d88' },
                 defaults: {
