@@ -9,10 +9,10 @@ const fd_agent_member = koneksi.define('fd_agent_member', {
         primaryKey: true
       },
       "hour_salary" : {
-        type: DataTypes.BIGINT,
+        type: DataTypes.DOUBLE,
       },
       "salary" : {
-        type: DataTypes.BIGINT,
+        type: DataTypes.DOUBLE,
    
       },
   }, {

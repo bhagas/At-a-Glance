@@ -48,6 +48,7 @@ type SyncTicket {
     updateNotes(filee:[Upload], input:inputUpdateNotes):ticketSyncOutput
     updateTicket(input:inputUpdateTicket):ticketSyncOutput
     createExpense(input:inputExpense):ticketSyncOutput
+    createBulkExpense(input:[inputExpense]):ticketSyncOutput
     updateExpense(id: ID!, input:inputExpense):ticketSyncOutput
     deleteExpense(id: ID!):ticketSyncOutput
     approveExpense(id:ID, input: inputApproveExpense):ticketSyncOutput
@@ -94,6 +95,11 @@ type SyncTicket {
   YES
   NO
 }
+
+enum sort {
+  ASC
+  DESC
+}
   input inputFilterExpense {
     approved: approved
   }
@@ -102,7 +108,9 @@ type SyncTicket {
     condition: String!,
     row:Int!,
     start_from:Int!,
-    agent_id:String
+    agent_id:String,
+    sort:sort!,
+    key_search:String,
   }
   input inputDayGraph {
     startDate: String!,
@@ -142,7 +150,8 @@ type SyncTicket {
     ticket_id: Int!
     priority: Int,
     status: Int,
-    custom_fields: JSONObject
+    custom_fields: JSONObject,
+    total_hours: Int
   }
   type listTicketOutput{
     data:[ticket],
@@ -424,7 +433,13 @@ const resolvers = {
             replacements.agent_id = args.input.agent_id;
           
         }
-        a += ' order by fd_created_at desc'
+        if (args.input.key_search) {
+
+          a += ` AND (subject LIKE :key_search OR requester_name LIKE :key_search OR requester_email LIKE :key_search OR json_custom_field->>'cf_quote_po' LIKE :key_search)`
+          replacements.key_search = '%'+args.input.key_search+'%';
+    
+        }
+        a += ' order by fd_created_at '+args.input.sort
         if (args.input.row) {
           limit = args.input.row;
           offset = args.input.start_from;
@@ -433,10 +448,13 @@ const resolvers = {
           replacements.offset = offset;
         }
 
+     
+
         let q = '';
         if (args.input.condition) {
           replacements.condition = args.input.condition;
         }
+
         let kolom = ` cc_emails,
             fwd_emails,
             reply_cc_emails,
@@ -790,9 +808,9 @@ const resolvers = {
       try {
         let data=  []
         let a =''
-        // if(filter.approved){
-        //   a+= ` and a.approved = '${filter.approved}'`
-        // }
+        if(filter.approved){
+          a+= ` and a.approved = '${filter.approved}'`
+        }
         const result_conv = await db.query(`SELECT a.*,
         (select name from users where id = a.approved_by) as approved_name, 
         (select name from users where id = a.created_by) as created_by_name, 
@@ -1093,6 +1111,45 @@ const resolvers = {
           "created_by":context.user_app.id,
           "action":"CREATE"
         })
+        return {
+          status: '200',
+          message: 'Ok',
+        }
+      } catch (error) {
+        return {
+          error,
+          status: '200',
+          message: 'Ok',
+        }
+      }
+    },
+    createBulkExpense: async (_, { input }, context, info) => {
+      // console.log(context);
+      try {
+        for (let i = 0; i < input.length; i++) {
+          let e = input[i];
+          let data = {
+            "id": uuidv4(),
+            "fd_conv_id": e.fd_conv_id,
+            "amount": e.amount,
+            "fdTicketId": e.app_fdTicketId,
+            "typeId": e.typeId,
+            "fd_ticket_id": e.fd_ticket_id,
+            "created_by":context.user_app.id
+          }
+          await fd_ticket_conversations_model.create(data)
+          await fd_expense_log_model.create({
+            "id": uuidv4(),
+            "fd_conv_id": e.fd_conv_id,
+            "amount": e.amount,
+            "fdTicketId": e.app_fdTicketId,
+            "typeId": e.typeId,
+            "fd_ticket_id": e.fd_ticket_id,
+            "created_by":context.user_app.id,
+            "action":"CREATE"
+          })
+        }
+       
         return {
           status: '200',
           message: 'Ok',
