@@ -529,11 +529,15 @@ const resolvers = {
             type: QueryTypes.SELECT
           });
         // console.log({  data:graph_1,});
+        let total_rows =0;
+        if(graph_1.length){
+          total_rows = graph_1[0].total_rows
+        }
         return {
           data: graph_1,
           status: '200',
           message: 'ok',
-          total_rows: graph_1[0].total_rows
+          total_rows: total_rows
         }
       } catch (error) {
         console.log(error);
