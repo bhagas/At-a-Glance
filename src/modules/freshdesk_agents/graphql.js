@@ -32,8 +32,8 @@ type agentMember{
   extend type Mutation {
     # syncAgents: Output
     addMemberToAgent(idAgent:ID!,idUserAgent:ID!, idUserMember:ID!, hour_salary:String, salary:String):Output
-    updateAgentSalary(id:ID!, hour_salary:Int, salary:Int):Output
-    updateSalaryMember(id:ID!, hour_salary:Int, salary:Int):Output
+    updateAgentSalary(id:ID!, hour_salary:String, salary:String):Output
+    updateSalaryMember(id:ID!, hour_salary:String, salary:String):Output
     removeMemberFromAgent(id:ID!):Output
   }
   
