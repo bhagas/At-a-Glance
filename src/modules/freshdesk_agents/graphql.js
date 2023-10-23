@@ -55,38 +55,45 @@ const resolvers= {
           try {
             // console.log(args);
             let dt = await db.query('select a.*, b.name as "memberName" from fd_agent_member a join users b on a.id_member  = b.id where a.deleted is null and b.deleted is null and b.email=$1',{bind: [email],type: QueryTypes.SELECT});
-   
+  //  console.log(dt);
             let bind = {}
             let a = ""
             if (dt.length) {
               a += " AND id=$id_agent";
               bind.id_agent = dt[0].id_agent;
-            }
-            let q = '';
+              let q = '';
     
-            let kolom = `
-                  id,
-                  name,
-                  email,
-                  phone,
-                  type,
-                  active,
-                  ticket_scope
-                `
-            q = `SELECT ${kolom} FROM fd_agents  WHERE deleted is null `+a
-       
-            const graph_1 = await db.query(q,
-              {
-                // replacements: [],
-                bind,
-                type: QueryTypes.SELECT
-              });
-              // console.log({  data:graph_1,});
-            return {
-              data: graph_1,
-              status: '200',
-              message: 'ok'
+              let kolom = `
+                    id,
+                    name,
+                    email,
+                    phone,
+                    type,
+                    active,
+                    ticket_scope
+                  `
+              q = `SELECT ${kolom} FROM fd_agents  WHERE deleted is null `+a
+         
+              const graph_1 = await db.query(q,
+                {
+                  // replacements: [],
+                  bind,
+                  type: QueryTypes.SELECT
+                });
+                // console.log({  data:graph_1,});
+              return {
+                data: graph_1,
+                status: '200',
+                message: 'ok'
+              }
+            }else{
+              return {
+                data: [],
+                status: '200',
+                message: 'ok'
+              }
             }
+        
           } catch (error) {
             console.log(error);
             return {
