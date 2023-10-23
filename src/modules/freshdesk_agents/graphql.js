@@ -54,7 +54,7 @@ const resolvers= {
         listAgentByMember: async (obj, {email}, context, info) => {
           try {
             // console.log(args);
-            let dt = await db.query('select a.*, b.name as "memberName" from fd_agent_member a join users b on a.id_member  = b.id where a.deleted is null and b.email=$1',{bind: [email],type: QueryTypes.SELECT});
+            let dt = await db.query('select a.*, b.name as "memberName" from fd_agent_member a join users b on a.id_member  = b.id where a.deleted is null and b.deleted is null and b.email=$1',{bind: [email],type: QueryTypes.SELECT});
    
             let bind = {}
             let a = ""
