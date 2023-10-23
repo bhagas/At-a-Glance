@@ -25,7 +25,9 @@ type agentMember{
   id_member: String,
   idUserAgent:String,
   memberName:String,
-  id:String
+  id:String,
+  hour_salary:String,
+  salary:String
 }
   extend type Mutation {
     # syncAgents: Output

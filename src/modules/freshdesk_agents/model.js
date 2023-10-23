@@ -33,9 +33,11 @@ const agents = koneksi.define('fd_agents', {
       },
       "hour_salary" : {
         type: DataTypes.DOUBLE,
+        defaultValue:0
       },
       "salary" : {
         type: DataTypes.DOUBLE,
+        defaultValue:0
    
       },
   }, {
