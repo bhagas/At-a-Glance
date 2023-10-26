@@ -4,7 +4,8 @@ import { v4 as uuidv4 } from'uuid';
 import fd_module from"./module.js";
 import activitiesModel from'../freshdesk_activites/model.js'
 import pubsub from '../../config/redis.js'
-const queue_create = new Queue('create_ticket', `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`);
+let redisConn = `redis://${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}?db=${process.env.REDIS_DB}`
+const queue_create = new Queue('create_ticket', redisConn);
 // const create_queue = new Queue('create_ticket', { redis: { port: 8379, host: '8.215.33.60'} });
 
 queue_create.process(50,async function (job, done) {
@@ -42,7 +43,7 @@ queue_create.process(50,async function (job, done) {
 
   });
 
-  const queue_update = new Queue('update_ticket', `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`);
+  const queue_update = new Queue('update_ticket', redisConn);
 // const create_queue = new Queue('create_ticket', { redis: { port: 8379, host: '8.215.33.60'} });
 
 queue_update.process(50,async function (job, done) {

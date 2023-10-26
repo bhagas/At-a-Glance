@@ -120,8 +120,11 @@ const Ticket = koneksi.define('fd_tickets', {
   "cf_qbinv" : {
     type: DataTypes.STRING
   },
-  "cf_totalhours" : {
+  "cf_total_hours" : {
     type: DataTypes.STRING
+  },
+  "total_hours" : {
+    type: DataTypes.DOUBLE
   },
   }, {
     // Other model options go here

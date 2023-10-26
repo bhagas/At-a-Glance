@@ -30,7 +30,16 @@ const agents = koneksi.define('fd_agents', {
       },
       "last_active_at":{
         type: DataTypes.STRING
-      }
+      },
+      "hour_salary" : {
+        type: DataTypes.DOUBLE,
+        defaultValue:0
+      },
+      "salary" : {
+        type: DataTypes.DOUBLE,
+        defaultValue:0
+   
+      },
   }, {
     // Other model options go here
     freezeTableName: true,

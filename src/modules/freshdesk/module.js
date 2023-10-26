@@ -7,16 +7,20 @@ import PubSUb from '../../config/redis.js'
 const API_KEY = process.env.FD_API_KEY;
 const FD_ENDPOINT = process.env.FD_ENDPOINT;
 const URL =  "https://" + FD_ENDPOINT + ".freshdesk.com";
-
+let stillUpdate = false;
 class Fd{
-    static getAllTickets(){
+    static getAllTickets(startDate){
         return new Promise(async (resolve, reject) => {
             try {
+              let date = "2023-01-01";
+              if(startDate){
+                date = startDate;
+              }
               let page =1;
               let tickets =[];
               let link ='yay'
               while (link) {
-                let PATH = `/api/v2/tickets?include=requester&per_page=${process.env.FD_MAX_TICKETS_GET}&page=${page}`;
+                let PATH = `/api/v2/tickets?include=requester&per_page=${process.env.FD_MAX_TICKETS_GET}&page=${page}&updated_since=${date}T00:00:00Z`;
                 let dt =    await axios.get(URL+PATH, {
                         auth: {
                           username: API_KEY,
@@ -48,10 +52,11 @@ class Fd{
         })
 
     }
-    static syncTicket(){
+    static syncTicket(startDate){
       return new Promise(async (resolve, reject) => {
         try {
-          let tickets = await this.getAllTickets();
+          stillUpdate=true;
+          let tickets = await this.getAllTickets(startDate);
           let t = []
           for (let i = 0; i < tickets.length; i++) {
            
@@ -81,7 +86,7 @@ class Fd{
               tickets[i].cf_totalhours = tickets[i].custom_fields.cf_totalhours
             }
             t.push(tickets[i])
-            if(((i+1) % process.env.FD_MAX_TICKETS_GET)==0 || ((i+1) == tickets.length)){
+            if(((i+1) % 20)==0 || ((i+1) == tickets.length)){
               PubSUb.publish('SYNC_TICKET', {
                 syncTicket: {
                   status: 'Save data to database',
@@ -133,7 +138,7 @@ class Fd{
            
   
           }
-          
+          stillUpdate=false;
 
                 PubSUb.publish('SYNC_TICKET', {
                   syncTicket: {
@@ -141,6 +146,7 @@ class Fd{
                     progress: '',
                   },
                 });
+                
                 resolve()
       } catch (error) {
         console.log(error);
@@ -245,7 +251,7 @@ class Fd{
     static getTicketByid(id){
       return new Promise(async (resolve, reject) => {
           try {
-              let PATH = `/api/v2/tickets/${id}?include=conversations,requester`;
+              let PATH = `/api/v2/tickets/${id}?include=requester`;
               let dt =    await axios.get(URL+PATH, {
                       auth: {
                         username: API_KEY,
@@ -262,6 +268,26 @@ class Fd{
       })
 
   }
+  static getConversationsByTicketid(id){
+    return new Promise(async (resolve, reject) => {
+        try {
+            let PATH = `/api/v2/tickets/${id}/conversations`;
+            let dt =    await axios.get(URL+PATH, {
+                    auth: {
+                      username: API_KEY,
+                      password: "X"
+                    }
+                  });
+                  // console.log(dt.data);
+                  resolve(dt.data)
+        } catch (error) {
+          console.log(error);
+          reject(error.response.data.description)
+        }
+      
+    })
+
+}
 
   static createReply(id, data){
     return new Promise(async (resolve, reject) => {
@@ -279,7 +305,7 @@ class Fd{
                   // console.log(dt.data);
                   resolve(dt.data)
         } catch (error) {
-          console.log(error.response.data.errors, 'error createReply');
+          console.log(error.response.data, 'error createReply');
                 reject(error.response.data.description)
         }
       
@@ -304,7 +330,7 @@ static createNotes(id, data){
                 // console.log(dt.data);
                 resolve(dt.data)
       } catch (error) {
-        console.log(error, 'error createNotes');
+        console.log(error.response.data, 'error createNotes');
               reject(error)
       }
     
@@ -339,7 +365,7 @@ static updateNotes(id, data){
 static getTicketFields(id, data){
   return new Promise(async (resolve, reject) => {
       try {
-          let PATH = `/api/v2/ticket_fields`;
+          let PATH = `/api/v2/admin/ticket_fields`;
           let dt =    await axios.get(URL+PATH, {
                   auth: {
                     username: API_KEY,
@@ -355,6 +381,32 @@ static getTicketFields(id, data){
     
   })
 
+}
+static updateTicket(id, data){
+  return new Promise(async (resolve, reject) => {
+      try {
+          let PATH = `/api/v2/tickets/${id}`;
+          let dt =    await axios.put(URL+PATH, data, {
+                  auth: {
+                    username: API_KEY,
+                    password: "X"
+                  },
+                  headers: {
+                    'Content-Type': 'application/json'
+                  }
+                });
+                // console.log(dt.data);
+                resolve(dt.data)
+      } catch (error) {
+        console.log(error, 'error updateTicket');
+              reject(error.response.data)
+      }
+    
+  })
+
+}
+static getSyncStatus(){
+  return stillUpdate;
 }
 }
 // Fd.getTicketFields()

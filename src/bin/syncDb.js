@@ -2,7 +2,7 @@ import koneksi from'../config/koneksi.js';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import seed from './seeding.js';
+import seed from './seed.js';
 import cliSpinners from 'cli-spinners';
 import ora from 'ora';
 // import model_fd from '../modules/freshdesk/model.js'
