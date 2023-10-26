@@ -1,5 +1,5 @@
 {
-  "name": "lyrid-node-express-template",
+  "name": "lyrid-node-express",
   "version": "1.0.0",
   "description": "Simple Web Express Node.js Lyrid Serverless Project",
   "main": "index.js",
