@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 const typeDefs =
   gql`
   extend type Query{
-    reviews:reviewsResult
+    reviews(input: filterReviewInput):reviewsResult
     review(id: ID!):Review
   }
 
@@ -21,6 +21,8 @@ const typeDefs =
     createdAt: String,
     updatedAt:String,
     created_name:String,
+    email:String,
+    name:String
 
  }
  extend type Mutation{
@@ -32,13 +34,34 @@ const typeDefs =
   review:String,
   userId:String
  }
+
+ input filterReviewInput{
+  userId:String
+ }
   `
 const resolvers = {
   Query: {
     reviews: async (obj, args, context, info) => {
-      let dt = await db.query('select * from review where deleted is null')
+      try {
+        let replacements = {}
+      let a = "";
+      if (args.input) {
+        if (args.input.userId) {
+          a += ` AND a."userId" = :userId`;
+          replacements.userId = args.input.userId;
+      }
+    }
+     
+      let dt = await db.query('select a.*, b.email, b.name from review a join users b on a."userId" = b.id where a.deleted is null'+a, {
+        replacements
+      })
       // console.log(dt);
       return { data: dt[0], status: 200, message: 'Success' };
+      } catch (error) {
+          console.log(error);
+          return { data: error, status: 500, message: 'Failed' };
+      }
+      
     },
     review: async (obj, args, context, info) => {
       console.log("get review");
