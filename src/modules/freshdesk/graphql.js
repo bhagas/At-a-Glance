@@ -111,6 +111,7 @@ enum sort {
     agent_id:String,
     sort:sort!,
     key_search:String,
+    member_id:String
   }
   input inputDayGraph {
     startDate: String!,
@@ -351,7 +352,8 @@ enum sort {
     conversations: [conversation],
     custom_fields:JSONObject,
     description:String,
-    description_text:String
+    description_text:String,
+    total_hours:String
   }
 type ticketFields{
     id: String,
@@ -433,6 +435,11 @@ const resolvers = {
             replacements.agent_id = args.input.agent_id;
           
         }
+        if (args.input.member_id) {
+          a += " AND (select count(*) from ticket_member where id_member = :member_id) > 0";
+          replacements.member_id = args.input.member_id;
+        
+      }
         if (args.input.key_search) {
 
           a += ` AND (subject LIKE :key_search OR requester_name LIKE :key_search OR requester_email LIKE :key_search OR json_custom_field->>'cf_quote_po' LIKE :key_search)`
@@ -670,6 +677,16 @@ const resolvers = {
             data.conversations[i].long = locations[0].long;
             data.conversations[i].lat = locations[0].lat;
             data.conversations[i].location_tag = locations[0].location_tag;
+           
+           
+          }
+          let ticket_db = await db.query(`SELECT * FROM fd_tickets WHERE  ticket_id = '${id}'`, { type: QueryTypes.SELECT })
+          data.total_hours =0;
+          if (ticket_db.length) {
+            data.total_hours =ticket_db[0].total_hours;
+          //   data.conversations[i].long = locations[0].long;
+          //   data.conversations[i].lat = locations[0].lat;
+          //   data.conversations[i].location_tag = locations[0].location_tag;
            
            
           }
@@ -1313,8 +1330,15 @@ const resolvers = {
 
         let id = input.ticket_id;
         delete input.ticket_id
-
+        let total_hours = input.total_hours;
+        delete input.total_hours;
         await fd_module.updateTicket(id, input);
+
+        await fd_ticket_conversations_model.update({total_hours: total_hours}, {
+          where: {
+            ticket_id: id,
+          },
+        });
         return {
           status: '200',
           message: 'Ok',

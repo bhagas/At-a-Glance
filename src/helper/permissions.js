@@ -83,7 +83,8 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
       updateExpense:chain(isAuthenticated),
       deleteExpense:chain(isAuthenticated),
       approveExpense:chain(isAuthenticated),
-      createBulkExpense:chain(isAuthenticated)
+      createBulkExpense:chain(isAuthenticated),
+      addMemberToTicket:chain(isAuthenticated)
       // createRole:chain(isAuthenticated, isActive, isSuperAdmin),
       // createUser:chain(isAuthenticated, isActive, isSuperAdmin),
       // removeRole:chain(isAuthenticated, isActive,isSuperAdmin),
