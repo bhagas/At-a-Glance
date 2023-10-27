@@ -110,6 +110,12 @@ const resolvers= {
    
         for (let i = 0; i < dt.length; i++) {
           dt[i].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[i].id],type: QueryTypes.SELECT });
+          let agent= await db.query(`select a.id from fd_agents a where a."email"= $1`, { bind: [dt[i].email],type: QueryTypes.SELECT });
+          if(agent.length){
+           dt[i].agent_id = agent[0].id;
+          }else{
+           dt[i].agent_id =null
+          }
         }
         info.cacheControl.setCacheHint({ maxAge: 10 });
         return {data: dt, status:200, message:'Success'};
