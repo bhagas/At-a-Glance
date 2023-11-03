@@ -442,7 +442,7 @@ const resolvers = {
       }
         if (args.input.key_search) {
 
-          a += ` AND (subject LIKE :key_search OR requester_name LIKE :key_search OR requester_email LIKE :key_search OR json_custom_field->>'cf_quote_po' LIKE :key_search)`
+          a += ` AND (subject ILIKE :key_search OR requester_name ILIKE :key_search OR requester_email ILIKE :key_search OR json_custom_field->>'cf_quote_po' ILIKE :key_search)`
           replacements.key_search = '%'+args.input.key_search+'%';
     
         }
