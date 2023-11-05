@@ -9,6 +9,9 @@ const Review = koneksi.define('review', {
       },
     review: {
       type: DataTypes.STRING
+    },
+    rating: {
+      type: DataTypes.INTEGER
     }
   }, {
     // Other model options go here
@@ -19,4 +22,11 @@ const Review = koneksi.define('review', {
 
   userModel.hasMany(Review);
   Review.belongsTo(userModel);
+
+  userModel.hasMany(Review,{
+    foreignKey: 'created_by'
+  });
+  Review.belongsTo(userModel,{
+    foreignKey: 'created_by'
+  });
 export default Review;
