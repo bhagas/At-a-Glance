@@ -269,6 +269,8 @@ enum sort {
     ticket_scope:String,
     type:String,
     phone:String,
+    hour_salary:Float,
+    salary:Float
   }
   type attachment{
     id: String,
@@ -572,7 +574,9 @@ const resolvers = {
               phone,
               type,
               active,
-              ticket_scope
+              ticket_scope,
+              hour_salary,
+              salary
             `
         q = `SELECT ${kolom} FROM fd_agents  WHERE deleted is null`
         // let q = `SELECT (SELECT COUNT(*) FROM fd_tickets WHERE status <> 4 AND status <> 5 ${a}) as unresolved,
