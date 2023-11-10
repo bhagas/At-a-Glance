@@ -36,7 +36,8 @@ const typeDefs =
     rating:Int,
     name:String,
     email:String,
-    userId:String
+    userId:String,
+    count:Int
  }
  extend type Mutation{
   createReview(input: ReviewInput): Output
@@ -89,7 +90,7 @@ const resolvers = {
       }
     }
      
-      let dt = await db.query('select a."userId", a."created_by", b.email, b.name,  (select name from users where id = a.created_by) as created_name from review a join users b on a."userId" = b.id where a.deleted is null '+a+' GROUP BY a."userId", a."created_by", b.email, b.name', {
+      let dt = await db.query('select a."userId", a."created_by", b.email, b.name,  (select name from users where id = a.created_by) as created_name, AVG(a.rating) as rating, COUNT(a.*) as count from review a right join users b on a."userId" = b.id where a.deleted is null '+a+' GROUP BY a."userId", a."created_by", b.email, b.name', {
         replacements
       })
       // console.log(dt);
