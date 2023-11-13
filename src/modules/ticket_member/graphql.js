@@ -55,7 +55,8 @@ Mutation:{
     addMemberToTicket: async(_, {idAgent, idUserAgent, idUserMember, fd_ticket_id}, context)=>{
     try {
       let dt = await db.query('select a.*, b.name as "memberName" from ticket_member a join users b on a.id_member  = b.id where a."deletedAt" is null and a.fd_ticket_id=$1',{bind: [fd_ticket_id],type: QueryTypes.SELECT});
-      if(dt.length){
+      console.log(dt);
+      if(dt.length==0){
 
         await ticket_member.create({id: uuidv4(),id_agent: idAgent, id_member:idUserMember, id_user_agent:idUserAgent,fd_ticket_id, created_by:context.user_app.id})
         return {
@@ -71,6 +72,7 @@ Mutation:{
       }
      
     } catch (error) {
+      console.log(error);
       return {
         status: '500',
         message: 'Failed',
