@@ -37,7 +37,7 @@ const resolvers = {
      
     }
      
-      let dt = await db.query('select a.* from travel_log a where a."deletedAt" is null order by a."createdAt" desc limit 1'+a, {
+      let dt = await db.query('select a.* from travel_log a where a."deletedAt" is null '+a+' order by a."createdAt" desc limit 1', {
         replacements
       })
       // console.log(dt);
@@ -61,14 +61,14 @@ const resolvers = {
 
   },
   Mutation: {
-    travelCheckin: async (_, { input }, context) => {
+    travelCheckin: async (_, { user_id }, context) => {
       try {
         // input.id = uuidv4()
         // console.log(input);
         let data = {
           "id": uuidv4(),
       
-          "user_id": input.user_id,
+          "user_id": user_id,
           "check_in":  moment()
         }
         await checkInModel.create(data)
@@ -85,11 +85,11 @@ const resolvers = {
         }
       }
     },
-    travelCheckout: async (_, { input, id }) => {
+    travelCheckout: async (_, { user_id, id }) => {
       try {
         let data = {
     
-          "user_id": input.user_id,
+          "user_id": user_id,
           "check_out":  moment()
         }
         await checkInModel.update(
