@@ -14,6 +14,7 @@ import {typeDefs as locationTypeDefs, resolvers as locationResolvers} from '../m
 import {typeDefs as reviewTypeDefs, resolvers as reviewResolvers} from '../modules/review/graphql.js';
 import {typeDefs as ticketMemberTypeDefs, resolvers as ticketMemberResolvers} from '../modules/ticket_member/graphql.js';
 import {typeDefs as checkinTypeDefs, resolvers as checkinResolvers} from '../modules/checkin/graphql.js';
+import {typeDefs as travelCheckinTypeDefs, resolvers as travelCheckinResolvers} from '../modules/travel_log/graphql.js';
 let gabungan= [
   {typeDefs:userTypeDefs, resolvers: userResolvers},
   {typeDefs:roleTypeDefs, resolvers: roleResolvers},
@@ -25,7 +26,8 @@ let gabungan= [
   {typeDefs:locationTypeDefs, resolvers: locationResolvers},
   {typeDefs:reviewTypeDefs, resolvers: reviewResolvers},
   {typeDefs:ticketMemberTypeDefs, resolvers: ticketMemberResolvers},
-  {typeDefs:checkinTypeDefs, resolvers: checkinResolvers}
+  {typeDefs:checkinTypeDefs, resolvers: checkinResolvers},
+  {typeDefs:travelCheckinTypeDefs, resolvers: travelCheckinResolvers},
 ]
 // gabungan.push(permissions);
 const schemaWithMiddleware = applyMiddleware(buildSubgraphSchema(gabungan), permissions);

@@ -247,18 +247,18 @@ const resolvers = {
       try {
         let replacements = {}
       let a = "";
-      if (args.input) {
-        if (args.input.user_id) {
+      if (args) {
+        if (args.user_id) {
           a += ` AND a."user_id" = :user_id`;
-          replacements.user_id = args.input.user_id;
+          replacements.user_id = args.user_id;
       }
-      if (args.input.fd_ticket_id) {
+      if (args.fd_ticket_id) {
         a += ` AND a."fd_ticket_id" = :fd_ticket_id`;
-        replacements.fd_ticket_id = args.input.fd_ticket_id;
+        replacements.fd_ticket_id = args.fd_ticket_id;
     }
     }
      
-      let dt = await db.query('select a.* from check_in a where a."deletedAt" is null order by a."createdAt" desc limit 1'+a, {
+      let dt = await db.query('select a.* from check_in a where a."deletedAt"  is null '+a+' order by a."createdAt" desc limit 1', {
         replacements
       })
       // console.log(dt);
