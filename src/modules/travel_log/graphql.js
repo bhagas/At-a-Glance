@@ -10,8 +10,8 @@ const typeDefs =
 
  "Query untuk user by id"
  travelCheckinStatus(user_id: ID!): checkInStatusResult
- traverHours(user_id:ID!, startDate: String!, endDate: String!): travelStatusOutput
- getAllUserPosition: travelStatusOutput
+ travelHours(user_id:ID!, startDate: String!, endDate: String!): travelStatusOutput
+ getAllUserPosition: AllUserPositionOutput
 }
 
 type travelStatusOutput{
@@ -19,6 +19,23 @@ type travelStatusOutput{
     message:String,
     status:Int,
     error:String
+  }
+  type AllUserPositionOutput{
+    data:[AllUserPosition],
+    message:String,
+    status:Int,
+    error:String
+  }
+  type AllUserPosition{
+    user_id:ID,
+    isTraveling:Boolean,
+    travel_start:String,
+    isOnSite:Boolean,
+    ticket_id:ID,
+    email:String,
+    name:String,
+    onSite_start:String
+   
   }
 type travelStatus{
     totalMinutes:Float
@@ -108,7 +125,62 @@ const resolvers = {
         }
         
       },
-
+      getAllUserPosition: async (obj, args, context, info) => {
+        try {
+          let replacements = {}
+        let a = "";
+        let output =[]
+        // user_id:ID,
+        // isTraveling:Boolean,
+        // isOnSite:Boolean,
+        // ticket_id:ID,
+        // email:String,
+        // name:String
+        let dt = await db.query('select a.* from users a where a."deleted" is null', {
+          replacements
+        })
+        // console.log(dt[0]);
+       for (let i = 0; i < dt[0].length; i++) {
+        let dt2 = await db.query('select a.*, CAST(a."check_in" AS TEXT) as check_in_convert from travel_log a where a."deletedAt" is null and a.check_out is null and user_id=:user_id', {
+            replacements:{user_id:dt[0][i].id}
+          })
+      
+          let isTraveling = false;
+          let travel_start ="";
+          if(dt2[0].length){
+            isTraveling=true;
+            travel_start = dt2[0][0].check_in_convert;
+          }
+          let dt3 = await db.query('select a.*, CAST(a."check_in" AS TEXT) as check_in_convert from check_in a where a."deletedAt" is null and a.check_out is null and user_id=:user_id', {
+            replacements:{user_id:dt[0][i].id}
+          })
+          let isOnSite = false;
+          let ticket_id ="";
+          let onSite_start="";
+          if(dt3[0].length){
+            isOnSite=true;
+            onSite_start = dt3[0][0].check_in_convert;
+            ticket_id= dt3[0][0].fd_ticket_id;
+          }
+            let obj = {
+                user_id: dt[0][i].id,
+                isTraveling,
+                travel_start,
+                isOnSite,
+                onSite_start,
+                ticket_id,
+                email:dt[0][i].email,
+                name:dt[0][i].name
+            }
+            output.push(obj)
+       }
+        return { data: output, status: 200, message: 'Success' };
+        } catch (error) {
+            console.log(error);
+            return { data: error, status: 500, message: 'Failed' };
+        }
+        
+      },
   },
   Mutation: {
     travelCheckin: async (_, { user_id }, context) => {
