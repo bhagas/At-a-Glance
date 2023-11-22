@@ -12,7 +12,38 @@ const Review = koneksi.define('review', {
     },
     rating: {
       type: DataTypes.INTEGER
-    }
+    },
+    "period_start" : {
+      type: DataTypes.DATE
+    },
+    "period_end" : {
+      type: DataTypes.DATE
+    },
+    "productive" : {
+      type: DataTypes.INTEGER
+    },
+    "accountable" : {
+      type: DataTypes.INTEGER
+    },
+    "proactive" : {
+      type: DataTypes.INTEGER
+    },
+    "attitude" : {
+      type: DataTypes.INTEGER
+    },
+    "evalution_goals" : {
+      type: DataTypes.STRING
+    },
+    "employee_verification_date" : {
+      type: DataTypes.DATE
+    },
+    "manager_verification_date" : {
+      type: DataTypes.DATE
+    },
+    "published" : {
+      type: DataTypes.BOOLEAN,
+      defaultValue:false
+    },
   }, {
     // Other model options go here
     freezeTableName: true,

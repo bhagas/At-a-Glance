@@ -22,14 +22,22 @@ const typeDefs =
     status:Int
   }
   type Review {
-    id: ID!,
-    review: String,
+    id: ID!, 
     createdAt: String,
     updatedAt:String,
     created_name:String,
     email:String,
-    rating:Int,
-    name:String
+    name:String,
+    period_start:String,
+  period_end:String,
+  productive:Float,
+  accountable:Float,
+  proactive:Float,
+  attitude:Float,
+  evalution_goals:String,
+  employee_verification_date:String,
+  manager_verification_date:String,
+  published:Boolean
  }
 
  type ReviewGroupRating {
@@ -45,9 +53,18 @@ const typeDefs =
   deleteReview(id: ID!): Output
  }
  input ReviewInput{
-  review:String,
+
   userId:String,
-  rating:Int
+  period_start:String,
+  period_end:String,
+  productive:Float,
+  accountable:Float,
+  proactive:Float,
+  attitude:Float,
+  evalution_goals:String,
+  employee_verification_date:String,
+  manager_verification_date:String,
+  published:Boolean
  }
 
  input filterReviewInput{
@@ -115,9 +132,17 @@ const resolvers = {
         // console.log(input);
         let data = {
           "id": uuidv4(),
-          "review": input.review,
-          "rating": input.rating,
           "userId": input.userId,
+          "period_start": input.period_start,
+          "period_end": input.period_end,
+          "productive": input.productive,
+          "accountable": input.accountable,
+          "proactive": input.proactive,
+          "attitude": input.attitude,
+          "evalution_goals": input.evalution_goals,
+          "employee_verification_date": input.employee_verification_date,
+          "manager_verification_date": input.manager_verification_date,
+          "published":input.published,
           "created_by":context.user_app.id
         }
         await reviewModel.create(data)
