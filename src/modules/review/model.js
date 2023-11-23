@@ -31,6 +31,18 @@ const Review = koneksi.define('review', {
     "attitude" : {
       type: DataTypes.INTEGER
     },
+    "productive_text" : {
+      type: DataTypes.STRING
+    },
+    "accountable_text" : {
+      type: DataTypes.STRING
+    },
+    "proactive_text" : {
+      type: DataTypes.STRING
+    },
+    "attitude_text" : {
+      type: DataTypes.STRING
+    },
     "evalution_goals" : {
       type: DataTypes.STRING
     },
