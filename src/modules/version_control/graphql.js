@@ -52,7 +52,7 @@ const resolvers = {
     //   }
     // }
      
-      let dt = await db.query('select * from version where a.deleted is null'+a, {
+      let dt = await db.query('select * from version a where a.deleted is null order by a."date" desc'+a, {
         replacements
       })
       // console.log(dt);
