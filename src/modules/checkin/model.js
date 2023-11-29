@@ -17,7 +17,12 @@ const check_in = koneksi.define('check_in', {
         check_out: {
           type: DataTypes.DATE
           },
-        
+          checkin_location: {
+            type: DataTypes.STRING
+            },
+            checkout_location: {
+              type: DataTypes.STRING
+              },
   }, {
     // Other model options go here
     freezeTableName: true,

@@ -31,7 +31,8 @@ type getAllUserHoursResult{
 }
 type checkInStatus{
     isCheckedIn:Boolean!
-    id:ID
+    id:ID,
+    location:String
 }
 type userHours{
     totalMinutes:Int!,
@@ -40,9 +41,14 @@ type userHours{
     hour_salary:Float,
     total_salary:Float,
     user_id:ID,
-    name:String
-}
+    name:String,
+    locations:[Locations],
 
+}
+type Locations{
+    checkin_location:String,
+    checkout_location:String
+}
  extend type Mutation{
   checkin(input: checkPointInput): Output
   checkout(id:ID!, input: checkPointInput): Output
@@ -52,7 +58,8 @@ type userHours{
  input checkPointInput{
   fd_ticket_id:ID,
   ticket_id:String,
-  user_id:String
+  user_id:String,
+  location:String
  }
 
   `
@@ -99,12 +106,13 @@ const resolvers = {
         replacements
       })
       let totalMinutes = 0;
+      let locations =[];
       if(dt[0].length){
         for (let i = 0; i < dt[0].length; i++) {
           let duration = moment.duration(moment(dt[0][i].check_out).diff(moment(dt[0][i].check_in)));
           // console.log(duration);
           totalMinutes += duration.asMinutes();
-      
+          locations.push({checkin_location:dt[0][i].checkin_location,checkout_location:dt[0][i].checkout_location})
         }
      
       }
@@ -139,7 +147,8 @@ const resolvers = {
         minuteConvert:minutes,
         hour_salary,
         total_salary,
-        user_id
+        user_id,
+        locations
       }, status: 200, message: 'Ok' };
       } catch (error) {
         console.log(error);
@@ -190,12 +199,14 @@ const resolvers = {
               replacements
             })
             let totalMinutes = 0;
+            let locations=[];
             if(dt[0].length){
               for (let i = 0; i < dt[0].length; i++) {
                 let duration = moment.duration(moment(dt[0][i].check_out).diff(moment(dt[0][i].check_in)));
                 // console.log(duration);
                 totalMinutes += duration.asMinutes();
-            
+                locations.push({checkin_location:dt[0][i].checkin_location,checkout_location:dt[0][i].checkout_location})
+       
               }
            
             }
@@ -230,7 +241,8 @@ const resolvers = {
               hour_salary,
               total_salary,
               user_id,
-              name:user_name
+              name:user_name,
+              locations
             })
         }
  
@@ -265,12 +277,17 @@ const resolvers = {
       let output = {
         isCheckedIn:false,
         id:null
+    
       }
       if(dt[0].length){
+        output.location = "";
         if(dt[0][0].check_out==null){
             output.isCheckedIn=true;
             output.id = dt[0][0].id;
-        } 
+            output.location = dt[0][0].checkin_location;
+        } else{
+          output.location = dt[0][0].checkout_location;
+        }
       }
       return { data: output, status: 200, message: 'Success' };
       } catch (error) {
@@ -291,7 +308,8 @@ const resolvers = {
           "fd_ticket_id": input.fd_ticket_id,
           "ticket_id": input.ticket_id,
           "user_id": input.user_id,
-          "check_in":  moment()
+          "check_in":  moment(),
+          "checkin_location":input.location,
         }
         await checkInModel.create(data)
         return {
@@ -313,7 +331,8 @@ const resolvers = {
           "fd_ticket_id": input.fd_ticket_id,
           "ticket_id": input.ticket_id,
           "user_id": input.user_id,
-          "check_out":  moment()
+          "check_out":  moment(),
+          "checkout_location":input.location,
         }
         await checkInModel.update(
           data,

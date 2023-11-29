@@ -44,8 +44,8 @@ type travelStatus{
 
 
  extend type Mutation{
-  travelCheckin(user_id: ID!): Output
-  travelCheckout(id:ID!, user_id:ID!): Output
+  travelCheckin(user_id: ID!, location:String): Output
+  travelCheckout(id:ID!, user_id:ID!, location:String): Output
 
  }
 
@@ -69,16 +69,33 @@ const resolvers = {
         replacements
       })
       // console.log(dt);
+      // let output = {
+      //   isCheckedIn:false,
+      //   id:null
+      // }
+      // if(dt[0].length){
+      //   if(dt[0][0].check_out==null){
+      //       output.isCheckedIn=true;
+      //       output.id = dt[0][0].id;
+      //   } 
+      // }
+
       let output = {
         isCheckedIn:false,
         id:null
+    
       }
       if(dt[0].length){
+        output.location = "";
         if(dt[0][0].check_out==null){
             output.isCheckedIn=true;
             output.id = dt[0][0].id;
-        } 
+            output.location = dt[0][0].checkin_location;
+        } else{
+          output.location = dt[0][0].checkout_location;
+        }
       }
+
       return { data: output, status: 200, message: 'Success' };
       } catch (error) {
           console.log(error);
@@ -147,9 +164,11 @@ const resolvers = {
       
           let isTraveling = false;
           let travel_start ="";
+          let checkin_location=""
           if(dt2[0].length){
             isTraveling=true;
             travel_start = dt2[0][0].check_in_convert;
+            checkin_location = dt2[0][0].checkin_location;
           }
           let dt3 = await db.query('select a.*, CAST(a."check_in" AS TEXT) as check_in_convert from check_in a where a."deletedAt" is null and a.check_out is null and user_id=:user_id', {
             replacements:{user_id:dt[0][i].id}
@@ -183,13 +202,13 @@ const resolvers = {
       },
   },
   Mutation: {
-    travelCheckin: async (_, { user_id }, context) => {
+    travelCheckin: async (_, { user_id, location }, context) => {
       try {
         // input.id = uuidv4()
         // console.log(input);
         let data = {
           "id": uuidv4(),
-      
+          "checkin_location":location,
           "user_id": user_id,
           "check_in":  moment()
         }
@@ -207,10 +226,10 @@ const resolvers = {
         }
       }
     },
-    travelCheckout: async (_, { user_id, id }) => {
+    travelCheckout: async (_, { user_id, id, location }) => {
       try {
         let data = {
-    
+          "checkout_location":location,
           "user_id": user_id,
           "check_out":  moment()
         }
