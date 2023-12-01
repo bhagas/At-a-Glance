@@ -17,9 +17,22 @@ const travel_log = koneksi.define('travel_log', {
           checkin_location: {
             type: DataTypes.STRING
             },
+            checkin_long: {
+              type: DataTypes.STRING
+              },
+              checkin_lat: {
+                type: DataTypes.STRING
+                },
             checkout_location: {
               type: DataTypes.STRING
               },
+              checkout_long: {
+                type: DataTypes.STRING
+                },
+                checkout_lat: {
+                  type: DataTypes.STRING
+                  },
+              
         
   }, {
     // Other model options go here
