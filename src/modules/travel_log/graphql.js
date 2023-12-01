@@ -106,7 +106,7 @@ const resolvers = {
       
     },
 
-    traverHours: async (obj, args, context, info) => {
+    travelHours: async (obj, args, context, info) => {
         try {
           let replacements = {}
         let a = "";
