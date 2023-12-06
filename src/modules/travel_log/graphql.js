@@ -226,7 +226,7 @@ const resolvers = {
                 name:dt[0][i].name,
                 travel_start_location,
                 site_location,
-                subject
+                ticket_subject:subject
             }
             output.push(obj)
        }
