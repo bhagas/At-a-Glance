@@ -63,7 +63,8 @@ type checkin_log{
     name:String,
     onSite_start:String,
     travel_start_location:String,
-    site_location:String
+    site_location:String,
+    ticket_subject:String
    
   }
 type travelStatus{
@@ -199,18 +200,20 @@ const resolvers = {
             travel_start = dt2[0][0].check_in_convert;
             travel_start_location = dt2[0][0].checkin_location;
           }
-          let dt3 = await db.query('select a.*, CAST(a."check_in" AS TEXT) as check_in_convert from check_in a where a."deletedAt" is null and a.check_out is null and user_id=:user_id', {
+          let dt3 = await db.query('select a.*, b.subject, CAST(a."check_in" AS TEXT) as check_in_convert from check_in a join fd_tickets b on a.fd_ticket_id = b.ticket_id::varchar where a."deletedAt" is null and a.check_out is null and user_id=:user_id', {
             replacements:{user_id:dt[0][i].id}
           })
           let isOnSite = false;
           let ticket_id ="";
           let onSite_start="";
-          let site_location=""
+          let site_location="";
+          let subject = "";
           if(dt3[0].length){
             isOnSite=true;
             onSite_start = dt3[0][0].check_in_convert;
             ticket_id= dt3[0][0].fd_ticket_id;
-            site_location = dt3[0][0].checkin_location
+            site_location = dt3[0][0].checkin_location;
+            subject = dt3[0][0].subject;
           }
             let obj = {
                 user_id: dt[0][i].id,
@@ -222,7 +225,8 @@ const resolvers = {
                 email:dt[0][i].email,
                 name:dt[0][i].name,
                 travel_start_location,
-                site_location
+                site_location,
+                subject
             }
             output.push(obj)
        }
