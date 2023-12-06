@@ -59,7 +59,8 @@ type Locations{
   fd_ticket_id:ID,
   ticket_id:String,
   user_id:String,
-  location:String
+  location:String,
+  time:String
  }
 
   `
@@ -303,12 +304,16 @@ const resolvers = {
       try {
         // input.id = uuidv4()
         // console.log(input);
+        let check_in = moment();
+        if(input.time){
+          check_in = input.time;
+        }
         let data = {
           "id": uuidv4(),
           "fd_ticket_id": input.fd_ticket_id,
           "ticket_id": input.ticket_id,
           "user_id": input.user_id,
-          "check_in":  moment(),
+          "check_in":  check_in,
           "checkin_location":input.location,
         }
         await checkInModel.create(data)
@@ -327,11 +332,15 @@ const resolvers = {
     },
     checkout: async (_, { input, id }) => {
       try {
+        let check_out = moment();
+        if(input.time){
+          check_out = input.time;
+        }
         let data = {
           "fd_ticket_id": input.fd_ticket_id,
           "ticket_id": input.ticket_id,
           "user_id": input.user_id,
-          "check_out":  moment(),
+          "check_out":  check_out,
           "checkout_location":input.location,
         }
         await checkInModel.update(

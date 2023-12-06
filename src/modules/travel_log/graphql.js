@@ -74,8 +74,8 @@ type travelStatus{
 
 
  extend type Mutation{
-  travelCheckin(user_id: ID!, location:String, long:String, lat:String): Output
-  travelCheckout(id:ID!, user_id:ID!, location:String, long:String, lat:String): Output
+  travelCheckin(user_id: ID!, location:String, long:String, lat:String, time:String): Output
+  travelCheckout(id:ID!, user_id:ID!, location:String, long:String, lat:String, time:String): Output
 
  }
 
@@ -306,17 +306,21 @@ const resolvers = {
       },
   },
   Mutation: {
-    travelCheckin: async (_, { user_id, location, long,lat }, context) => {
+    travelCheckin: async (_, { user_id, location, long,lat, time }, context) => {
       try {
         // input.id = uuidv4()
         // console.log(input);
+        let check_in = moment();
+        if(time){
+          check_in = time;
+        }
         let data = {
           "id": uuidv4(),
           "checkin_location":location,
           "checkin_long":long,
           "checkin_lat":lat,
           "user_id": user_id,
-          "check_in":  moment()
+          "check_in":  check_in
         }
         await checkInModel.create(data)
         return {
@@ -332,14 +336,18 @@ const resolvers = {
         }
       }
     },
-    travelCheckout: async (_, { user_id, id, location, long,lat }) => {
+    travelCheckout: async (_, { user_id, id, location, long,lat, time }) => {
       try {
+        let check_out = moment();
+        if(time){
+          check_out = time;
+        }
         let data = {
           "checkout_location":location,
           "checkout_long":location,
           "checkout_lat":location,
           "user_id": user_id,
-          "check_out":  moment()
+          "check_out":  check_out
         }
         await checkInModel.update(
           data,
