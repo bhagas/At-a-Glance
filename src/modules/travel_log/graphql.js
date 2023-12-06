@@ -12,6 +12,7 @@ const typeDefs =
  travelCheckinStatus(user_id: ID!): checkInStatusResult
  travelHours(user_id:ID!, startDate: String!, endDate: String!): travelStatusOutput
  getAllUserPosition: AllUserPositionOutput
+ getUserTravelLog(user_id:ID!, date: String!): userTravelLogOutput
 }
 
 type travelStatusOutput{
@@ -20,6 +21,32 @@ type travelStatusOutput{
     status:Int,
     error:String
   }
+type userTravelLogOutput{
+  data:userTravelLog,
+    message:String,
+    status:Int,
+    error:String
+}
+type userTravelLog{
+    startTravel:String,
+    endTravel:String,
+    checkin_travel_location:String,
+    checkout_travel_location:String,
+    ticket_log:[ticketCheckinLog]
+}
+type ticketCheckinLog{
+  ticket_id:ID,
+  checkin_log:[checkin_log]
+}
+type checkin_log{
+          fd_ticket_id: ID,
+          ticket_id: ID,
+          user_id: ID,
+          check_in: String,
+          checkin_location:String,
+          check_out:  String,
+          checkout_location:String,
+}
   type AllUserPositionOutput{
     data:[AllUserPosition],
     message:String,
@@ -199,6 +226,73 @@ const resolvers = {
             }
             output.push(obj)
        }
+        return { data: output, status: 200, message: 'Success' };
+        } catch (error) {
+            console.log(error);
+            return { data: error, status: 500, message: 'Failed' };
+        }
+        
+      },
+
+      getUserTravelLog: async (obj, args, context, info) => {
+        try {
+          let replacements = {}
+        let a = "";
+        if (args) {
+          if (args.user_id) {
+            a += ` AND a."user_id" = :user_id`;
+            replacements.user_id = args.user_id;
+          }
+
+          if (args.date) {
+            // $1::timestamp
+            a += ` AND (a."check_in"::date = :date OR a."check_out"::date=:date)`;
+            replacements.date = args.date;
+          }
+      }
+       
+        let dt = await db.query('select a.*, CAST(a."check_in" AS TEXT) as check_in_convert , CAST(a."check_out" AS TEXT) as check_out_convert  from travel_log a where a."deletedAt" is null '+a+' order by a."createdAt" desc limit 1', {
+          replacements
+        })
+        // console.log(dt[0]);
+        let output = {
+          startTravel:null,
+          endTravel:null,
+          checkout_travel_location:null,
+          checkin_travel_location:null,
+          ticket_log:[]
+      
+        }
+        if(dt[0].length){
+          output.startTravel = dt[0][0].check_in_convert;
+          output.endTravel = dt[0][0].check_out_convert;
+          output.checkin_travel_location = dt[0][0].checkin_location;
+          output.checkout_travel_location = dt[0][0].checkout_location;
+          let dt2 = await db.query(`select distinct(fd_ticket_id) as ticket_id from check_in a where a."deletedAt" is null ${a}`, {
+            replacements
+          })
+         
+          // console.log(dt2[0]);
+          if(dt2[0].length){
+            output.ticket_log = dt2[0];
+            
+            for (let i = 0; i < output.ticket_log.length; i++) {
+              output.ticket_log[i].checkin_log = [];
+              let dt3 = await db.query(`select fd_ticket_id, ticket_id,user_id,checkin_location,checkout_location, CAST(a."check_in" AS TEXT) as check_in, CAST(a."check_out" AS TEXT) as check_out from check_in a where a."deletedAt" is null and fd_ticket_id='${output.ticket_log[i].ticket_id}' ${a}`, {
+                replacements
+              })
+              if(dt3[0].length){
+                output.ticket_log[i].checkin_log = dt3[0]
+              }
+              
+              // console.log(dt3[0]);
+              
+            }
+            
+          }
+         
+        }
+       
         return { data: output, status: 200, message: 'Success' };
         } catch (error) {
             console.log(error);
