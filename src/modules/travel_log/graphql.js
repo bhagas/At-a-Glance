@@ -28,6 +28,7 @@ type userTravelLogOutput{
     error:String
 }
 type userTravelLog{
+  travel_id:ID,
     startTravel:String,
     endTravel:String,
     checkin_travel_location:String,
@@ -36,9 +37,11 @@ type userTravelLog{
 }
 type ticketCheckinLog{
   ticket_id:ID,
+  subject:String,
   checkin_log:[checkin_log]
 }
 type checkin_log{
+  id:ID,
           fd_ticket_id: ID,
           ticket_id: ID,
           user_id: ID,
@@ -54,6 +57,7 @@ type checkin_log{
     error:String
   }
   type AllUserPosition{
+    travel_id:String,
     user_id:ID,
     isTraveling:Boolean,
     travel_start:String,
@@ -195,8 +199,10 @@ const resolvers = {
           let isTraveling = false;
           let travel_start ="";
           let travel_start_location=""
+          let travel_id="";
           if(dt2[0].length){
             isTraveling=true;
+            travel_id = dt2[0][0].id;
             travel_start = dt2[0][0].check_in_convert;
             travel_start_location = dt2[0][0].checkin_location;
           }
@@ -260,6 +266,7 @@ const resolvers = {
         })
         // console.log(dt[0]);
         let output = {
+          travel_id:null,
           startTravel:null,
           endTravel:null,
           checkout_travel_location:null,
@@ -268,11 +275,12 @@ const resolvers = {
       
         }
         if(dt[0].length){
+          output.travel_id = dt[0][0].id;
           output.startTravel = dt[0][0].check_in_convert;
           output.endTravel = dt[0][0].check_out_convert;
           output.checkin_travel_location = dt[0][0].checkin_location;
           output.checkout_travel_location = dt[0][0].checkout_location;
-          let dt2 = await db.query(`select distinct(fd_ticket_id) as ticket_id from check_in a where a."deletedAt" is null ${a}`, {
+          let dt2 = await db.query(`select distinct(fd_ticket_id) as ticket_id, b.subject from check_in a join fd_tickets b on a.fd_ticket_id = b.ticket_id::varchar where a."deletedAt" is null ${a}`, {
             replacements
           })
          
