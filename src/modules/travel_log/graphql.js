@@ -290,7 +290,7 @@ const resolvers = {
             
             for (let i = 0; i < output.ticket_log.length; i++) {
               output.ticket_log[i].checkin_log = [];
-              let dt3 = await db.query(`select fd_ticket_id, ticket_id,user_id,checkin_location,checkout_location, CAST(a."check_in" AS TEXT) as check_in, CAST(a."check_out" AS TEXT) as check_out from check_in a where a."deletedAt" is null and fd_ticket_id='${output.ticket_log[i].ticket_id}' ${a}`, {
+              let dt3 = await db.query(`select id, fd_ticket_id, ticket_id,user_id,checkin_location,checkout_location, CAST(a."check_in" AS TEXT) as check_in, CAST(a."check_out" AS TEXT) as check_out from check_in a where a."deletedAt" is null and fd_ticket_id='${output.ticket_log[i].ticket_id}' ${a}`, {
                 replacements
               })
               if(dt3[0].length){
