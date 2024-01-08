@@ -11,7 +11,7 @@ const Version = koneksi.define('version', {
       type: DataTypes.STRING
     },
     log: {
-      type: DataTypes.STRING
+      type: DataTypes.TEXT
     },
     "date" : {
       type: DataTypes.DATE

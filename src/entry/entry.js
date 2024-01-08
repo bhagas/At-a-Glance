@@ -31,7 +31,7 @@ const httpServer = http.createServer(app);
 // // parse application/x-www-form-urlencoded
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }));
-
+app.set("trust proxy", true);
 // // parse application/json
 app.use(bodyParser.json());
 app.use(graphqlUploadExpress())
@@ -74,6 +74,7 @@ app.use(
         try {
         //  console.log(req);
           let user =null;
+          // console.log(req.headers);
           let token = (req.headers.authorization)?req.headers.authorization:'';
        
           if(token){

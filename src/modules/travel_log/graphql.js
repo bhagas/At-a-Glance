@@ -246,6 +246,7 @@ const resolvers = {
 
       getUserTravelLog: async (obj, args, context, info) => {
         try {
+          // console.log(context);
           let replacements = {}
         let a = "";
         if (args) {
