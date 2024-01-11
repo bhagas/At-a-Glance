@@ -4,7 +4,7 @@ import { QueryTypes } from 'sequelize';
 import _ from "lodash";
 
 const isAuthenticated = rule({ cache: 'contextual' })(async (parent, args, ctx, info) => {
-  console.log(ctx,'ctxxxxxxx');
+  // console.log(ctx,'ctxxxxxxx');
   ctx.user_app=null;
   if(ctx.user !== null){
   try {
@@ -72,7 +72,7 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
   // Permissions
   const permissions = shield({
     Query: {
-      // users: chain(isAuthenticated, isActive,isSuperAdmin),
+      users: chain(isAuthenticated),
       // user:chain(isAuthenticated, isActive,isSuperAdmin),
       // role:chain(isAuthenticated, isActive,isSuperAdmin),
       // roles:chain(isAuthenticated, isActive,isSuperAdmin)

@@ -8,8 +8,9 @@ import jwt from'../../helper/jwt.js';
 import mail from'../../helper/mail.js';
 import bcrypt from'../../helper/bcrypt.js';
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
-
-
+import axios from 'axios';
+const API_KEY = process.env.IVALT_API_KEY||"gM63py0lku5LCV4iIb3dKoB014k4qEf1Gxpypch5";
+const IVALT_URL = process.env.IVALT_URL||"https://api.ivalt.com";
 const typeDefs=
   gql`
 #   enum CacheControlScope {
@@ -40,9 +41,26 @@ const typeDefs=
     activation(token:String!, password:String!): Output
     setRole(idUser:String!, roles:[inputRole]): Output
     removeUser(idUser:String!): Output
+    biometricAuthRequest(mobile:String!): Output
+    biometricAuthResult(mobile:String!): OutputLogin
   }
 
-
+  type BiometricResult{
+  data:Biometric,
+  message:String,
+  status:Int
+}
+type Biometric{
+  id: ID,
+      name: String,
+      email: String,
+      country_code: String,
+      mobile: String,
+      latitude: String,
+      longitude: String,
+      imei: String,
+      address: String
+}
 type usersResult{
   data:[User],
   message:String,
@@ -363,6 +381,96 @@ Mutation:{
     }
     }
    
+},
+biometricAuthRequest: async (_, {mobile})=>{
+  try {
+    let PATH = `/biometric-auth-request`;
+  let dt =    await axios.post(IVALT_URL+PATH, {mobile}, {
+        
+          headers: {
+            'x-api-key':API_KEY,
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        });
+        // console.log(dt.data.data);
+        if(dt.data?.data){
+          return {
+            status: '200',
+            message: dt.data.data.message
+        }
+        }
+      
+  } catch (error) {
+    return {
+      status: '500',
+      message: 'Internal Server Error',
+      error:JSON.stringify(error)
+  }
+  }
+  
+},
+
+biometricAuthResult: async (_, {mobile})=>{
+  try {
+    let PATH = `/biometric-auth-result`;
+  let dtt =    await axios.post(IVALT_URL+PATH, {mobile}, {
+        
+          headers: {
+            'x-api-key':API_KEY,
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        });
+        // console.log(dtt.data.data.details);
+        if(dtt.data?.data){
+          let dt = await db.query(`select * from users where email= $1 and deleted is null`, { bind: [ dtt.data.data.details.email],type: QueryTypes.SELECT });
+          if(dt.length){
+        //  console.log(dt);
+             dt[0].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[0].id],type: QueryTypes.SELECT });
+             let agent= await db.query(`select a.id from fd_agents a where a."email"= $1`, { bind: [dtt.data.data.details.email],type: QueryTypes.SELECT });
+           if(agent.length){
+            dt[0].agent_id = agent[0].id;
+           }
+       
+             let token = await jwt.generate({id: dt[0].id, email:dt[0].email, name:dt[0].name}, '24h');
+                 return {
+                     status: '200',
+                     message: 'Success',
+                     token,
+                     user: dt[0]
+                 }
+        
+         }else{
+          return {
+            status: '500',
+            message: 'Email not registered'
+        }
+         }
+        //   return {
+        //     status: '200',
+        //     message: dtt.data.data.message,
+        //     data: dtt.data.data.details
+        // }
+        }
+      
+  } catch (error) {
+    console.log(error);
+    // console.log(error.response.status);
+    if(error.response.status==422){
+      return {
+        status: '500',
+        message: 'Internal Server Error',
+        error:JSON.stringify(error.response.data.error.detail)
+    }
+    }else{
+      return {
+        status: '500',
+        message: 'Internal Server Error',
+        error:JSON.stringify(error)
+    }
+    }
+   
+  }
+  
 }
 }
 }

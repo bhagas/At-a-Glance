@@ -24,7 +24,7 @@ import { KeyvAdapter } from "@apollo/utils.keyvadapter";
 import { ApolloServerPluginCacheControl } from '@apollo/server/plugin/cacheControl';
 import responseCachePlugin from '@apollo/server-plugin-response-cache';
 import { ApolloServerPluginCacheControlDisabled } from '@apollo/server/plugin/disabled';
-
+// import jwt from '../helper/jwt.js'
 
 const httpServer = http.createServer(app);
   // app.use(express.static(path.join(path.resolve(), 'dist')));
@@ -76,74 +76,94 @@ app.use(
           let user =null;
           // console.log(req.headers);
           let token = (req.headers.authorization)?req.headers.authorization:'';
-       
+      
           if(token){
          
             let dt = token.split(" ");
             if(dt.length>1){
+              let data = await jwt.verify(dt[1]);
+              if(data){
+               user = data
+                let dataa = {
+                     "id": uuidv4(),
+                     "email": user.email,
+                     // "action_name": input.amount,
+                     // "graphql_schema": input.app_fdTicketId,
+                      "graphql_type": req.body.operationName,
+                     "graphql_queries": req.body.query,
+                     "graphql_variables":req.body.variables
+                   }
+                   log_model.create(dataa)
+              //  console.log(data, 'haha');
+              }else{
+                let qu = gql`
+                query getMe {
+                             me {
+                               id
+                               email
+                               firstName
+                               middleName
+                               lastName
+                               dateJoined
+                               modified
+                               dateJoined
+                               lastName
+                               lastLogin
+                               verified
+                               socialAuth {
+                                 id
+                                 provider
+                               }
+                               profile {
+                                 created
+                                 modified
+                                 id
+                                 gender
+                                 picture
+                                 dateOfBirth
+                                 nationality
+                                 timezone
+                                 address
+                                 inviteCode
+                                 company
+                                 legacyId
+                               }
+                             }
+                           }`
+                 let requestHeaders = {
+                   authorization: `Bearer ${dt[1]}`
+                 }
+                 // console.log(requestHeaders);
+                 let h=    await request({
+                   url:process.env.SHELIAK_URL,
+                   document:qu,
+                   requestHeaders,
+                 });
+            
+                 // console.log(h, 'cccc');
+                 // user=await jwt.verify(dt[1]);
+                 if(h.me){
+                   user = h.me
+                   let dataa = {
+                     "id": uuidv4(),
+                     "email": user.email,
+                     // "action_name": input.amount,
+                     // "graphql_schema": input.app_fdTicketId,
+                      "graphql_type": req.body.operationName,
+                     "graphql_queries": req.body.query,
+                     "graphql_variables":req.body.variables
+                   }
+                   log_model.create(dataa)
+                   // console.log(user);
+                   //     console.log(req.body.query);
+                   //    console.log(req.body.variables);
+                 }
+              }
               // console.log(dt);
-              let qu = gql`
-             query getMe {
-                          me {
-                            id
-                            email
-                            firstName
-                            middleName
-                            lastName
-                            dateJoined
-                            modified
-                            dateJoined
-                            lastName
-                            lastLogin
-                            verified
-                            socialAuth {
-                              id
-                              provider
-                            }
-                            profile {
-                              created
-                              modified
-                              id
-                              gender
-                              picture
-                              dateOfBirth
-                              nationality
-                              timezone
-                              address
-                              inviteCode
-                              company
-                              legacyId
-                            }
-                          }
-                        }`
-              let requestHeaders = {
-                authorization: `Bearer ${dt[1]}`
-              }
-              // console.log(requestHeaders);
-              let h=    await request({
-                url:process.env.SHELIAK_URL,
-                document:qu,
-                requestHeaders,
-              });
-             
-              // console.log(h, 'cccc');
-              // user=await jwt.verify(dt[1]);
-              if(h.me){
-                user = h.me
-                let data = {
-                  "id": uuidv4(),
-                  "email": user.email,
-                  // "action_name": input.amount,
-                  // "graphql_schema": input.app_fdTicketId,
-                   "graphql_type": req.body.operationName,
-                  "graphql_queries": req.body.query,
-                  "graphql_variables":req.body.variables
-                }
-                log_model.create(data)
-                // console.log(user);
-                //     console.log(req.body.query);
-                //    console.log(req.body.variables);
-              }
+            
+              
+               
+              
         
             } 
           }
