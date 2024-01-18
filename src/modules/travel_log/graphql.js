@@ -12,7 +12,7 @@ const typeDefs =
  travelCheckinStatus(user_id: ID!): checkInStatusResult
  travelHours(user_id:ID!, startDate: String!, endDate: String!): travelStatusOutput
  getAllUserPosition: AllUserPositionOutput
- getUserTravelLog(user_id:ID!, date: String!): userTravelLogOutput
+ getUserTravelLog(user_id:ID!, dateStart: String!, dateEnd: String!): userTravelLogOutput
 }
 
 type travelStatusOutput{
@@ -255,10 +255,11 @@ const resolvers = {
             replacements.user_id = args.user_id;
           }
 
-          if (args.date) {
+          if (args.dateStart && args.dateEnd) {
             // $1::timestamp
-            a += ` AND (a."check_in"::date = :date OR a."check_out"::date=:date)`;
-            replacements.date = args.date;
+            a += ` AND (a."check_in"::date >= :dateStart AND a."check_in"::date<=:dateEnd)`;
+            replacements.dateStart = args.dateStart;
+            replacements.dateEnd = args.dateEnd;
           }
       }
        
