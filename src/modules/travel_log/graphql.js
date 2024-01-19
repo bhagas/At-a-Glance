@@ -263,7 +263,7 @@ const resolvers = {
           }
       }
        
-        let dt = await db.query('select a.*, CAST(a."check_in" AS TEXT) as check_in_convert , CAST(a."check_out" AS TEXT) as check_out_convert  from travel_log a where a."deletedAt" is null '+a+' order by a."createdAt" desc limit 1', {
+        let dt = await db.query('select a.*, CAST(a."check_in" AS TEXT) as check_in_convert , CAST(a."check_out" AS TEXT) as check_out_convert  from travel_log a where a."deletedAt" is null '+a+' order by a."createdAt" desc', {
           replacements
         })
         // console.log(dt[0]);
@@ -284,6 +284,9 @@ const resolvers = {
             output.endTravel = dt[0][y].check_out_convert;
             output.checkin_travel_location = dt[0][y].checkin_location;
             output.checkout_travel_location = dt[0][y].checkout_location;
+
+            replacements.dateStart = dt[0][y].check_in_convert;
+            replacements.dateEnd = dt[0][y].check_out_convert;
             let dt2 = await db.query(`select distinct(fd_ticket_id) as ticket_id, b.subject from check_in a join fd_tickets b on a.fd_ticket_id = b.ticket_id::varchar where a."deletedAt" is null ${a}`, {
               replacements
             })
