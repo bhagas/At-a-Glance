@@ -17,7 +17,8 @@ static  verify(token) {
     return new Promise((resolve, reject) => {
         jwt.verify(token, key, function(err, decoded) {
             if(err){
-                reject(err)
+                resolve(null)
+                // reject(err)
             }else{
                 resolve(decoded)
             }

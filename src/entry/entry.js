@@ -82,6 +82,7 @@ app.use(
             let dt = token.split(" ");
             if(dt.length>1){
               let data = await jwt.verify(dt[1]);
+              // console.log(data);
               if(data){
                user = data
                 let dataa = {
@@ -170,6 +171,7 @@ app.use(
          
           return {user};
         } catch (error) {
+          // console.log("mlebu kene");
       //  console.log(error);
           return {user:null};
         }
