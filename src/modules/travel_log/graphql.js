@@ -256,9 +256,16 @@ const resolvers = {
         // ticket_id:ID,
         // email:String,
         // name:String
-        let dt = await db.query('select a.* from fd_agent_member fam join users a on fam.id_member = a.id where a."deleted" is null and fam.id_agent=:id_agent', {
+       let dt = await db.query('select a.* from fd_agents fam join users a on fam.email = a.email where a."deleted" is null and fam.id=:id_agent', {
           replacements:{id_agent}
         })
+        let member = await db.query('select a.* from fd_agent_member fam join users a on fam.id_member = a.id where a."deleted" is null and fam.id_agent=:id_agent', {
+          replacements:{id_agent}
+        })
+        if(member[0].length){
+          dt[0] = dt[0].concat(member[0]);
+        }
+
         // console.log(dt[0]);
        for (let i = 0; i < dt[0].length; i++) {
         let dt2 = await db.query('select a.*, CAST(a."check_in" AS TEXT) as check_in_convert from travel_log a where a."deletedAt" is null and a.check_out is null and user_id=:user_id', {
