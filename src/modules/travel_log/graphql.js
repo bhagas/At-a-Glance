@@ -12,6 +12,7 @@ const typeDefs =
  travelCheckinStatus(user_id: ID!): checkInStatusResult
  travelHours(user_id:ID!, startDate: String!, endDate: String!): travelStatusOutput
  getAllUserPosition: AllUserPositionOutput
+ getMemberPositionByAgent(id_agent:ID!): AllUserPositionOutput
  getUserTravelLog(user_id:ID!, dateStart: String!, dateEnd: String!): userTravelLogOutput
 }
 
@@ -189,6 +190,74 @@ const resolvers = {
         // name:String
         let dt = await db.query('select a.* from users a where a."deleted" is null', {
           replacements
+        })
+        // console.log(dt[0]);
+       for (let i = 0; i < dt[0].length; i++) {
+        let dt2 = await db.query('select a.*, CAST(a."check_in" AS TEXT) as check_in_convert from travel_log a where a."deletedAt" is null and a.check_out is null and user_id=:user_id', {
+            replacements:{user_id:dt[0][i].id}
+          })
+      
+          let isTraveling = false;
+          let travel_start ="";
+          let travel_start_location=""
+          let travel_id="";
+          if(dt2[0].length){
+            isTraveling=true;
+            travel_id = dt2[0][0].id;
+            travel_start = dt2[0][0].check_in_convert;
+            travel_start_location = dt2[0][0].checkin_location;
+          }
+          let dt3 = await db.query('select a.*, b.subject, CAST(a."check_in" AS TEXT) as check_in_convert from check_in a join fd_tickets b on a.fd_ticket_id = b.ticket_id::varchar where a."deletedAt" is null and a.check_out is null and user_id=:user_id', {
+            replacements:{user_id:dt[0][i].id}
+          })
+          let isOnSite = false;
+          let ticket_id ="";
+          let onSite_start="";
+          let site_location="";
+          let subject = "";
+          if(dt3[0].length){
+            isOnSite=true;
+            onSite_start = dt3[0][0].check_in_convert;
+            ticket_id= dt3[0][0].fd_ticket_id;
+            site_location = dt3[0][0].checkin_location;
+            subject = dt3[0][0].subject;
+          }
+            let obj = {
+                user_id: dt[0][i].id,
+                isTraveling,
+                travel_start,
+                isOnSite,
+                onSite_start,
+                ticket_id,
+                email:dt[0][i].email,
+                name:dt[0][i].name,
+                travel_start_location,
+                site_location,
+                ticket_subject:subject
+            }
+            output.push(obj)
+       }
+        return { data: output, status: 200, message: 'Success' };
+        } catch (error) {
+            console.log(error);
+            return { data: error, status: 500, message: 'Failed' };
+        }
+        
+      },
+
+      getMemberPositionByAgent: async (obj, {id_agent}, context, info) => {
+        try {
+          let replacements = {}
+        let a = "";
+        let output =[]
+        // user_id:ID,
+        // isTraveling:Boolean,
+        // isOnSite:Boolean,
+        // ticket_id:ID,
+        // email:String,
+        // name:String
+        let dt = await db.query('select a.* from fd_agent_member fam join users a on fam.id_member = a.id where a."deleted" is null and fam.id_agent=:id_agent', {
+          replacements:{id_agent}
         })
         // console.log(dt[0]);
        for (let i = 0; i < dt[0].length; i++) {
