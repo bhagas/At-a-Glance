@@ -9,6 +9,7 @@ import mail from'../../helper/mail.js';
 import bcrypt from'../../helper/bcrypt.js';
 import GraphQLUpload from 'graphql-upload/GraphQLUpload.mjs';
 import axios from 'axios';
+import moment from 'moment';
 const API_KEY = process.env.IVALT_API_KEY||"gM63py0lku5LCV4iIb3dKoB014k4qEf1Gxpypch5";
 const IVALT_URL = process.env.IVALT_URL||"https://api.ivalt.com";
 const typeDefs=
@@ -101,7 +102,8 @@ type usersResult{
      updatedAt:String,
      roles:[Role],
      status:String,
-     agent_id: String
+     agent_id: String,
+     last_login:String
   }
   type OutputLogin{
     status:String,
@@ -392,7 +394,7 @@ biometricAuthRequest: async (_, {mobile})=>{
             'Content-Type': 'application/x-www-form-urlencoded'
           }
         });
-        // console.log(dt.data.data);
+        console.log(dt);
         if(dt.data?.data){
           return {
             status: '200',
@@ -401,6 +403,7 @@ biometricAuthRequest: async (_, {mobile})=>{
         }
       
   } catch (error) {
+    console.log(error);
     return {
       status: '500',
       message: 'Internal Server Error',
@@ -421,7 +424,10 @@ biometricAuthResult: async (_, {mobile})=>{
           }
         });
         // console.log(dtt.data.data.details);
+        console.log(dtt);
+     
         if(dtt.data?.data){
+          console.log(JSON.stringify(dtt.data.data));
           let dt = await db.query(`select * from users where email= $1 and deleted is null`, { bind: [ dtt.data.data.details.email],type: QueryTypes.SELECT });
           if(dt.length){
         //  console.log(dt);
@@ -430,7 +436,10 @@ biometricAuthResult: async (_, {mobile})=>{
            if(agent.length){
             dt[0].agent_id = agent[0].id;
            }
-       
+           await userModel.update(
+            {last_login:moment()},
+             { where: { id:dt[0].id } }
+           )
              let token = await jwt.generate({id: dt[0].id, email:dt[0].email, name:dt[0].name}, '24h');
                  return {
                      status: '200',
@@ -453,7 +462,7 @@ biometricAuthResult: async (_, {mobile})=>{
         }
       
   } catch (error) {
-    console.log(error);
+    console.log(error.response.data.error);
     // console.log(error.response.status);
     if(error.response.status==422){
       return {

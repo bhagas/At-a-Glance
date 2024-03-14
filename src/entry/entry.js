@@ -18,6 +18,7 @@ import schema from '../config/graphqlmerge.js';
 import { request, gql } from 'graphql-request'
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/lib/use/ws';
+import userModel from'../modules/user/model.js';
 import PubSub from '../config/redis.js';
 import Keyv from "keyv";
 import { KeyvAdapter } from "@apollo/utils.keyvadapter";
@@ -154,6 +155,10 @@ app.use(
                      "graphql_queries": req.body.query,
                      "graphql_variables":req.body.variables
                    }
+                    userModel.update(
+                    {last_login:user.lastLogin},
+                     { where: { email:user.email } }
+                   )
                    log_model.create(dataa)
                    // console.log(user);
                    //     console.log(req.body.query);

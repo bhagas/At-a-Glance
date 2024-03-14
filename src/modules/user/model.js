@@ -26,7 +26,10 @@ const User = koneksi.define('users', {
     status:{
       type: ENUM("pending", "active", "inactive"),
       defaultValue: "pending",
-    }
+    },
+    last_login:{
+      type: DataTypes.DATE
+    },
   }, {
     // Other model options go here
     freezeTableName: true,
