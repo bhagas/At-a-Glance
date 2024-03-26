@@ -331,7 +331,7 @@ static createNotes(id, data){
                 resolve(dt.data)
       } catch (error) {
         console.log(error.response.data, 'error createNotes');
-              reject(error)
+              reject(error.response.data.message)
       }
     
   })
