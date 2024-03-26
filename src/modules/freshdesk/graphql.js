@@ -1071,8 +1071,8 @@ const resolvers = {
         // console.log(error);
         return {
           error,
-          status: '200',
-          message: 'Ok',
+          status: '500',
+          message: 'error',
         }
       }
 
