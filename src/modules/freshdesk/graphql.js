@@ -1106,8 +1106,8 @@ const resolvers = {
         console.log(error);
         return {
           error,
-          status: '200',
-          message: 'Ok',
+          status: '500',
+          message: 'Error',
         }
       }
 
@@ -1143,8 +1143,8 @@ const resolvers = {
       } catch (error) {
         return {
           error,
-          status: '200',
-          message: 'Ok',
+          status: '500',
+          message: 'Error',
         }
       }
     },
@@ -1182,8 +1182,8 @@ const resolvers = {
       } catch (error) {
         return {
           error,
-          status: '200',
-          message: 'Ok',
+          status: '500',
+          message: 'Error',
         }
       }
     },
@@ -1324,8 +1324,8 @@ const resolvers = {
       } catch (error) {
         return {
           error,
-          status: '200',
-          message: 'Ok',
+          status: '500',
+          message: 'Error',
         }
       }
     },
@@ -1351,8 +1351,8 @@ const resolvers = {
         // console.log(error);
         return {
           error: JSON.stringify(error),
-          status: '200',
-          message: 'Ok',
+          status: '500',
+          message: 'Error',
         }
       }
 
