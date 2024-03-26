@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from'uuid';
 import model from'./model.js';
 import modelAgents from'../freshdesk_agents/model.js';
 import PubSUb from '../../config/redis.js'
+// import { isArray } from 'lodash';
 const API_KEY = process.env.FD_API_KEY;
 const FD_ENDPOINT = process.env.FD_ENDPOINT;
 const URL =  "https://" + FD_ENDPOINT + ".freshdesk.com";
@@ -305,8 +306,18 @@ class Fd{
                   // console.log(dt.data);
                   resolve(dt.data)
         } catch (error) {
-          console.log(error.response.data, 'error createReply');
-                reject(error.response.data.description)
+          let errorr = "";
+        
+          if(Array.isArray(error.response.data.errors)){
+            for (let i = 0; i < error.response.data.errors.length; i++) {
+             errorr+=" "+error.response.data.errors[i].message
+              
+            }
+            reject(errorr)
+          }
+          if(error.response.data.message){
+            reject(error.response.data.message)
+          }
         }
       
     })
@@ -331,7 +342,19 @@ static createNotes(id, data){
                 resolve(dt.data)
       } catch (error) {
         console.log(error.response.data, 'error createNotes');
-              reject(error.response.data.message)
+        let errorr = "";
+        
+        if(Array.isArray(error.response.data.errors)){
+          for (let i = 0; i < error.response.data.errors.length; i++) {
+           errorr+=" "+error.response.data.errors[i].message
+            
+          }
+          reject(errorr)
+        }
+        if(error.response.data.message){
+          reject(error.response.data.message)
+        }
+             
       }
     
   })
@@ -354,8 +377,18 @@ static updateNotes(id, data){
                 // console.log(dt.data);
                 resolve(dt.data)
       } catch (error) {
-        console.log(error, 'error updateNotes');
-              reject(error)
+        let errorr = "";
+        
+        if(Array.isArray(error.response.data.errors)){
+          for (let i = 0; i < error.response.data.errors.length; i++) {
+           errorr+=" "+error.response.data.errors[i].message
+            
+          }
+          reject(errorr)
+        }
+        if(error.response.data.message){
+          reject(error.response.data.message)
+        }
       }
     
   })
@@ -400,6 +433,7 @@ static updateTicket(id, data){
       } catch (error) {
         console.log(error, 'error updateTicket');
               reject(error.response.data)
+              
       }
     
   })
