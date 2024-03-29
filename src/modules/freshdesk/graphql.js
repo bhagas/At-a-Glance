@@ -119,14 +119,14 @@ enum sort {
   }
   input inputReply {
     body: String!,
-    user_id: String!,
+    user_id: String,
     ticket_id: String!,
     cc_emails:[String],
     bcc_emails:[String]
   }
   input inputNotes {
           body: String!,
-          user_id: String!,
+          user_id: String,
           ticket_id: String!,
           notify_emails:[String],
           private:String!
