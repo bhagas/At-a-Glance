@@ -1000,7 +1000,11 @@ const resolvers = {
         }
 
         form.append('body', input.body);
-        form.append('user_id', input.user_id)
+        // form.append('user_id', input.user_id)
+        if(input.user_id){
+          form.append('user_id', input.user_id)
+        }
+     
         if (input.cc_emails) {
           for (let i = 0; i < input.cc_emails.length; i++) {
             form.append('cc_emails[]', input.cc_emails[i]);
@@ -1047,7 +1051,10 @@ const resolvers = {
 
 
         form.append('body', input.body);
-        form.append('user_id', input.user_id)
+        if(input.user_id){
+          form.append('user_id', input.user_id)
+        }
+     
         // notify_emails:[String],
         // private:Boolean
         if (input.notify_emails) {
