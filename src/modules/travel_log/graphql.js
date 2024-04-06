@@ -232,9 +232,12 @@ const resolvers = {
           let last_checkout_location="";
           let last_checkout_date="";
           if(dt4[0].length){
-
-            last_checkout_date = dt4[0][0].check_out_convert;
-            last_checkout_location = dt4[0][0].checkout_location;
+            if(isTraveling && travel_start){
+              if(moment(dt4[0][0].checkout_location).isAfter(travel_start))
+              last_checkout_date = dt4[0][0].check_out_convert;
+              last_checkout_location = dt4[0][0].checkout_location;
+            }
+       
           
           }
             let obj = {
