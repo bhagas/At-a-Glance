@@ -69,7 +69,9 @@ type checkin_log{
     onSite_start:String,
     travel_start_location:String,
     site_location:String,
-    ticket_subject:String
+    ticket_subject:String,
+    last_checkout_date:String,
+    last_checkout_location:String
    
   }
 type travelStatus{
@@ -222,6 +224,19 @@ const resolvers = {
             site_location = dt3[0][0].checkin_location;
             subject = dt3[0][0].subject;
           }
+
+          let dt4 = await db.query('select a.*, b.subject, CAST(a."check_out" AS TEXT) as check_out_convert from check_in a join fd_tickets b on a.fd_ticket_id = b.ticket_id::varchar where a."deletedAt" is null and a.check_out is not null and user_id=:user_id limit 1', {
+            replacements:{user_id:dt[0][i].id}
+          })
+
+          let last_checkout_location="";
+          let last_checkout_date="";
+          if(dt4[0].length){
+
+            last_checkout_date = dt4[0][0].check_out_convert;
+            last_checkout_location = dt4[0][0].checkout_location;
+          
+          }
             let obj = {
                 user_id: dt[0][i].id,
                 isTraveling,
@@ -233,7 +248,9 @@ const resolvers = {
                 name:dt[0][i].name,
                 travel_start_location,
                 site_location,
-                ticket_subject:subject
+                ticket_subject:subject,
+                last_checkout_date,
+                last_checkout_location
             }
             output.push(obj)
        }
