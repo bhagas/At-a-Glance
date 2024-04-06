@@ -225,7 +225,7 @@ const resolvers = {
             subject = dt3[0][0].subject;
           }
 
-          let dt4 = await db.query('select a.*, b.subject, CAST(a."check_out" AS TEXT) as check_out_convert from check_in a join fd_tickets b on a.fd_ticket_id = b.ticket_id::varchar where a."deletedAt" is null and a.check_out is not null and user_id=:user_id limit 1', {
+          let dt4 = await db.query('select a.*, b.subject, CAST(a."check_out" AS TEXT) as check_out_convert from check_in a join fd_tickets b on a.fd_ticket_id = b.ticket_id::varchar where a."deletedAt" is null and a.check_out is not null and user_id=:user_id order by a.check_out desc limit 1', {
             replacements:{user_id:dt[0][i].id}
           })
 
