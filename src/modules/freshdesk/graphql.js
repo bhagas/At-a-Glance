@@ -451,7 +451,7 @@ const resolvers = {
       }
         if (args.input.key_search) {
 
-          a += ` AND (ticket_id ILIKE :key_search OR subject ILIKE :key_search OR requester_name ILIKE :key_search OR requester_email ILIKE :key_search OR json_custom_field->>'cf_quote_po' ILIKE :key_search)`
+          a += ` AND (CAST(ticket_id AS TEXT) ILIKE :key_search OR subject ILIKE :key_search OR requester_name ILIKE :key_search OR requester_email ILIKE :key_search OR json_custom_field->>'cf_quote_po' ILIKE :key_search)`
           replacements.key_search = '%'+args.input.key_search+'%';
     
         }
