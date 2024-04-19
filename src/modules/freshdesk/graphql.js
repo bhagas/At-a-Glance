@@ -270,7 +270,8 @@ enum sort {
     type:String,
     phone:String,
     hour_salary:Float,
-    salary:Float
+    salary:Float,
+    idUserAgent:String
   }
   type attachment{
     id: String,
@@ -568,17 +569,18 @@ const resolvers = {
         let q = '';
 
         let kolom = `
-              id,
-              name,
-              email,
-              phone,
-              type,
-              active,
-              ticket_scope,
-              hour_salary,
-              salary
+        a.id,
+        a.name,
+             a.email,
+             a.phone,
+             a.type,
+             a.active,
+             a.ticket_scope,
+             a.hour_salary,
+             a.salary,
+             b.id as "idUserAgent"
             `
-        q = `SELECT ${kolom} FROM fd_agents  WHERE deleted is null`
+        q = `SELECT ${kolom}  FROM fd_agents a join users b on a.email = b.email WHERE a.deleted is null`
         // let q = `SELECT (SELECT COUNT(*) FROM fd_tickets WHERE status <> 4 AND status <> 5 ${a}) as unresolved,
         // (SELECT COUNT(*) FROM fd_tickets WHERE responder_id is null AND status =2 ${a}) as unassigned,
         // (SELECT COUNT(*) FROM fd_tickets WHERE status = 3 OR status = 6 OR status = 7 ${a}) as on_hold,
@@ -592,7 +594,7 @@ const resolvers = {
             bind,
             type: QueryTypes.SELECT
           });
-        //   console.log({  data:graph_1,});
+          console.log({  data:graph_1,});
         return {
           data: graph_1,
           status: '200',

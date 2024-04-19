@@ -31,7 +31,7 @@ const typeDefs=
   extend type Mutation {
     # syncAgents: Output
     addMemberToTicket(idAgent:ID!,idUserAgent:ID!, idUserMember:ID!, fd_ticket_id:ID!):Output
-    removeMemberFromTicket(id:ID!):Output
+    removeMemberFromTicket(fd_ticket_id:ID!,idUserMember:ID!):Output
   }
   
 `
@@ -54,7 +54,7 @@ Mutation:{
   
     addMemberToTicket: async(_, {idAgent, idUserAgent, idUserMember, fd_ticket_id}, context)=>{
     try {
-      let dt = await db.query('select a.*, b.name as "memberName" from ticket_member a join users b on a.id_member  = b.id where a."deletedAt" is null and a.fd_ticket_id=$1',{bind: [fd_ticket_id],type: QueryTypes.SELECT});
+      let dt = await db.query('select a.*, b.name as "memberName" from ticket_member a join users b on a.id_member  = b.id where a."deletedAt" is null and a.fd_ticket_id=$1 and a.id_member=$2',{bind: [fd_ticket_id, idUserMember],type: QueryTypes.SELECT});
       console.log(dt);
       if(dt.length==0){
 
@@ -83,10 +83,10 @@ Mutation:{
   },
 
 
-  removeMemberFromTicket: async(_, {id})=>{
+  removeMemberFromTicket: async(_, {idUserMember, fd_ticket_id})=>{
     try {
     
-      await ticket_member.destroy({where: {id}})
+      await ticket_member.destroy({where: {id_member:idUserMember, fd_ticket_id}})
       return {
         status: '200',
         message: 'success'
