@@ -6,9 +6,9 @@ import { v4 as uuidv4 } from'uuid';
 const typeDefs=
   gql`
   extend type Query {
- 
+  
       roles: rolesResult
-      "Query untuk user by id"
+
       role(id: ID!): Role
   }
   extend type Mutation {
