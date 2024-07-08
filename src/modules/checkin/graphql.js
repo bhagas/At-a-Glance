@@ -52,6 +52,8 @@ type Locations{
  extend type Mutation{
   checkin(input: checkPointInput): Output
   checkout(id:ID!, input: checkPointInput): Output
+  checkinUpdate(id:ID!, input: checkPointInput): Output
+  checkoutUpdate(id:ID!, input: checkPointInput): Output
 
  }
 
@@ -331,6 +333,66 @@ const resolvers = {
       }
     },
     checkout: async (_, { input, id }) => {
+      try {
+        let check_out = moment();
+        if(input.time){
+          check_out = input.time;
+        }
+        let data = {
+          "fd_ticket_id": input.fd_ticket_id,
+          "ticket_id": input.ticket_id,
+          "user_id": input.user_id,
+          "check_out":  check_out,
+          "checkout_location":input.location,
+        }
+        await checkInModel.update(
+          data,
+          { where: { id } }
+        )
+        return {
+          status: '200',
+          message: 'Updated'
+        }
+      } catch (error) {
+        console.log(error);
+        return {
+          status: '500',
+          message: 'Failed',
+          error: JSON.stringify(error)
+        }
+      }
+    },
+    checkinUpdate: async (_, { input, id }) => {
+      try {
+        let check_in = moment();
+        if(input.time){
+          check_in = input.time;
+        }
+        let data = {
+          "fd_ticket_id": input.fd_ticket_id,
+          "ticket_id": input.ticket_id,
+          "user_id": input.user_id,
+          "check_in":  check_in,
+          "checkin_location":input.location,
+        }
+        await checkInModel.update(
+          data,
+          { where: { id } }
+        )
+        return {
+          status: '200',
+          message: 'Updated'
+        }
+      } catch (error) {
+        console.log(error);
+        return {
+          status: '500',
+          message: 'Failed',
+          error: JSON.stringify(error)
+        }
+      }
+    },
+    checkoutUpdate: async (_, { input, id }) => {
       try {
         let check_out = moment();
         if(input.time){

@@ -162,6 +162,10 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
     updateConfig:chain(isAuthenticated),
     checkin:chain(isAuthenticated),
     checkout:chain(isAuthenticated),
+    checkinUpdate:chain(isAuthenticated),
+    checkoutUpdate:chain(isAuthenticated),
+    travelCheckinUpdate:chain(isAuthenticated),
+    travelCheckoutUpdate:chain(isAuthenticated)
       // createRole:chain(isAuthenticated, isActive, isSuperAdmin),
       // createUser:chain(isAuthenticated, isActive, isSuperAdmin),
       // removeRole:chain(isAuthenticated, isActive,isSuperAdmin),

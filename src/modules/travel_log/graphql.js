@@ -83,7 +83,8 @@ type travelStatus{
  extend type Mutation{
   travelCheckin(user_id: ID!, location:String, long:String, lat:String, time:String): Output
   travelCheckout(id:ID!, user_id:ID!, location:String, long:String, lat:String, time:String): Output
-
+  travelCheckinUpdate(id:ID!,user_id: ID!, location:String, long:String, lat:String, time:String): Output
+  travelCheckoutUpdate(id:ID!, user_id:ID!, location:String, long:String, lat:String, time:String): Output
  }
 
   `
@@ -458,8 +459,68 @@ const resolvers = {
         }
         let data = {
           "checkout_location":location,
-          "checkout_long":location,
-          "checkout_lat":location,
+          "checkout_long":long,
+          "checkout_lat":lat,
+          "user_id": user_id,
+          "check_out":  check_out
+        }
+        await checkInModel.update(
+          data,
+          { where: { id } }
+        )
+        return {
+          status: '200',
+          message: 'Updated'
+        }
+      } catch (error) {
+        console.log(error);
+        return {
+          status: '500',
+          message: 'Failed',
+          error: JSON.stringify(error)
+        }
+      }
+    },
+    travelCheckinUpdate: async (_, { user_id, id, location, long,lat, time }) => {
+      try {
+        let check_in = moment();
+        if(time){
+          check_in = time;
+        }
+        let data = {
+          "checkin_location":location,
+          "checkin_long":long,
+          "checkin_lat":lat,
+          "user_id": user_id,
+          "check_in":  check_in
+        }
+        await checkInModel.update(
+          data,
+          { where: { id } }
+        )
+        return {
+          status: '200',
+          message: 'Updated'
+        }
+      } catch (error) {
+        console.log(error);
+        return {
+          status: '500',
+          message: 'Failed',
+          error: JSON.stringify(error)
+        }
+      }
+    },
+    travelCheckoutUpdate: async (_, { user_id, id, location, long,lat, time }) => {
+      try {
+        let check_out = moment();
+        if(time){
+          check_out = time;
+        }
+        let data = {
+          "checkout_location":location,
+          "checkout_long":long,
+          "checkout_lat":lat,
           "user_id": user_id,
           "check_out":  check_out
         }
