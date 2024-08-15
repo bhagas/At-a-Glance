@@ -120,7 +120,7 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
       createReview:chain(isAuthenticated),
       createUser:chain(isAuthenticated),
       updateUser:chain(isAuthenticated),
-      login:chain(isAuthenticated),
+      // login:chain(isAuthenticated),
       activation:chain(isAuthenticated),
       setRole:chain(isAuthenticated),
       removeUser:chain(isAuthenticated),
