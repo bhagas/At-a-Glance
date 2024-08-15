@@ -445,7 +445,7 @@ const resolvers = {
         
       }
         if (args.input.member_id) {
-          a += " AND (select count(*) from ticket_member where id_member = :member_id and fd_ticket_id = a.ticket_id) > 0";
+          a += ' AND (select count(*) from ticket_member where id_member = :member_id and fd_ticket_id = a.ticket_id and "deletedAt" is null) > 0';
           replacements.member_id = args.input.member_id;
         
       }
