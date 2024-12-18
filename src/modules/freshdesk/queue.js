@@ -65,9 +65,10 @@ queue_update.process(50,async function (job, done) {
         delete ticket.source_additional_info;
         delete ticket.id;
         let merged = {...input, ...ticket};
-        // console.log(merged, 'abcd');
+       
         await model.update(merged,  { where: { ticket_id: merged.ticket_id } })
-        await activitiesModel.insert({
+        await activitiesModel.create({
+          id:uuidv4(),
             freshdesk_id:merged.ticket_id,
             status: merged.status,
             priority: merged.priority
@@ -75,6 +76,8 @@ queue_update.process(50,async function (job, done) {
         })
         done();
     } catch (error) {
+      console.log(error);
+      
         done(new Error(error));
     }
 
