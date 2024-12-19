@@ -177,7 +177,7 @@ app.use(
           return {user};
         } catch (error) {
           // console.log("mlebu kene");
-      //  console.log(error);
+       console.log(error);
           return {user:null};
         }
       
