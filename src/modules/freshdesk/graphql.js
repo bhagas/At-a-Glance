@@ -111,6 +111,7 @@ enum sort {
     agent_id:String,
     sort:sort!,
     key_search:String,
+    type:String,
     member_id:String,
     ticket_id:ID
   }
@@ -444,11 +445,24 @@ const resolvers = {
           replacements.ticket_id = args.input.ticket_id;
         
       }
+      if (args.input.ticket_id) {
+        a += " AND ticket_id = :ticket_id";
+        replacements.ticket_id = args.input.ticket_id;
+ 
+    }
+
+    if (args.input.type) {
+      a += " AND type = :type";
+      replacements.type = args.input.type;
+
+  }
         if (args.input.member_id) {
           a += ' AND (select count(*) from ticket_member where id_member = :member_id and fd_ticket_id = a.ticket_id and "deletedAt" is null) > 0';
           replacements.member_id = args.input.member_id;
         
       }
+
+      
         if (args.input.key_search) {
 
           a += ` AND (CAST(ticket_id AS TEXT) ILIKE :key_search OR subject ILIKE :key_search OR requester_name ILIKE :key_search OR requester_email ILIKE :key_search OR json_custom_field->>'cf_quote_po' ILIKE :key_search)`
