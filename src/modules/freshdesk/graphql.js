@@ -452,7 +452,7 @@ const resolvers = {
     }
 
     if (args.input.type) {
-      a += " AND type = :type";
+      a += " AND a.type = :type";
       replacements.type = args.input.type;
 
   }
