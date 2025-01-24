@@ -1183,6 +1183,8 @@ const resolvers = {
       try {
         for (let i = 0; i < input.length; i++) {
           let e = input[i];
+     
+          
           let data = {
             "id": uuidv4(),
             "fd_conv_id": e.fd_conv_id,
@@ -1192,6 +1194,7 @@ const resolvers = {
             "fd_ticket_id": e.fd_ticket_id,
             "created_by":context.user_app.id
           }
+          
           await fd_ticket_conversations_model.create(data)
           await fd_expense_log_model.create({
             "id": uuidv4(),

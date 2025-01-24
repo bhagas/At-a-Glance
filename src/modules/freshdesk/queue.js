@@ -50,7 +50,7 @@ queue_update.process(50,async function (job, done) {
     // console.log(job, 'job');
     try {
         let input ={};
-        input.id=uuidv4()
+        // input.id=uuidv4()
         // input.json = job.data.freshdesk_webhook
         let ticket = await fd_module.getTicketByid(job.data.freshdesk_webhook.ticket_id);
         ticket.fd_created_at = ticket.created_at;
