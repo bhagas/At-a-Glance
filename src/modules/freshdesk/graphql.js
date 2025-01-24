@@ -696,13 +696,14 @@ const resolvers = {
 
 
           //longlat
-          let locations = await db.query(`SELECT long,lat,location_tag FROM fd_conversations_locations WHERE "deletedAt" is null AND fd_conv_id = '${data.conversations[i].id}'`, { type: QueryTypes.SELECT })
+          let locations = await db.query(`SELECT long,lat,location_tag,id FROM fd_conversations_locations WHERE "deletedAt" is null AND fd_conv_id = '${data.conversations[i].id}'`, { type: QueryTypes.SELECT })
          
           if (locations.length) {
           
             data.conversations[i].long = locations[0].long;
             data.conversations[i].lat = locations[0].lat;
             data.conversations[i].location_tag = locations[0].location_tag;
+            data.conversations[i].location_id = locations[0].id;
            
            
           }
