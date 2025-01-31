@@ -269,10 +269,13 @@ class Fd{
       })
 
   }
-  static getConversationsByTicketid(id){
+  static getConversationsByTicketid(id, page=0){
     return new Promise(async (resolve, reject) => {
         try {
             let PATH = `/api/v2/tickets/${id}/conversations`;
+            if(page>1){
+              PATH = `/api/v2/tickets/${id}/conversations?page=`+page;
+            }
             let dt =    await axios.get(URL+PATH, {
                     auth: {
                       username: API_KEY,

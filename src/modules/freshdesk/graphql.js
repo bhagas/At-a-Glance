@@ -31,7 +31,7 @@ type SyncTicket {
     ticketOverview(input:inputFilterTicketOverview): ticketOverviewOutput
     listTicket(input:inputFilterListTicket): listTicketOutput
     dayGraph(input: inputDayGraph): listDayGraphOutput
-    ticketDetail(id: Int!): detailTicketOutput
+    ticketDetail(id: Int!, page:Int): detailTicketOutput
     listAgents: listAgentOutput
    
     ticketFields: listTicketFields
@@ -671,7 +671,7 @@ const resolvers = {
 
 
     },
-    ticketDetail: async (_, { id }) => {
+    ticketDetail: async (_, { id, page }) => {
       try {
 
         let data = await fd_module.getTicketByid(id);
@@ -680,7 +680,7 @@ const resolvers = {
         data.requester_email = data.requester.email;
         data.amount =0;
         // console.log(data.conversations);
-         data.conversations = await fd_module.getConversationsByTicketid(id);
+         data.conversations = await fd_module.getConversationsByTicketid(id, page);
         for (let i = 0; i < data.conversations.length; i++) {
           let result_conv = await db.query(`SELECT sum(amount::FLOAT) as amount FROM fd_ticket_conversations WHERE "deletedAt" is null AND fd_conv_id = '${data.conversations[i].id}'`, { type: QueryTypes.SELECT })
          
