@@ -53,6 +53,7 @@ queue_update.process(50,async function (job, done) {
         // input.id=uuidv4()
         // input.json = job.data.freshdesk_webhook
         let ticket = await fd_module.getTicketByid(job.data.freshdesk_webhook.ticket_id);
+        let id = ticket.id;
         ticket.fd_created_at = ticket.created_at;
         ticket.fd_updated_at = ticket.updated_at;
         ticket.ticket_id = ticket.id;
@@ -69,7 +70,7 @@ queue_update.process(50,async function (job, done) {
         await model.update(merged,  { where: { ticket_id: merged.ticket_id } })
         await activitiesModel.create({
           id:uuidv4(),
-            freshdesk_id:merged.ticket_id,
+            freshdesk_id:id,
             status: merged.status,
             priority: merged.priority
 
