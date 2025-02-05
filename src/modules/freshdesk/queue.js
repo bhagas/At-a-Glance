@@ -71,7 +71,7 @@ queue_update.process(50,async function (job, done) {
         ticket.to_emails = JSON.stringify(ticket.to_emails);
         let merged = {...input, ...ticket};
        
-        await model.update(merged,  { where: { ticket_id: merged.ticket_id }, returning:true })
+       let results= await model.update(merged,  { where: { ticket_id: merged.ticket_id }, returning:true })
         if(results[1].length){
           await activitiesModel.create({
             id:uuidv4(),
