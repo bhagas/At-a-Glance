@@ -3,5 +3,7 @@ import model from"../modules/freshdesk/model.js";
 // let ticket = await fd_module.getTicketByid(5510);
 // console.log(ticket);
 let results = await model.update({ticket_id:4953},  { where: { ticket_id: 4953 }, returning:true })
+if(results[1].length){
 console.log(results[1][0].dataValues.id);
+}
 
