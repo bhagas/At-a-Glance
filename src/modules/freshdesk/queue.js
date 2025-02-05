@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from'uuid';
 import fd_module from"./module.js";
 import activitiesModel from'../freshdesk_activites/model.js'
 import pubsub from '../../config/redis.js'
+import * as Sentry from "@sentry/node";
 let redisConn = `redis://${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}?db=${process.env.REDIS_DB}`
 const queue_create = new Queue('create_ticket', redisConn);
 // const create_queue = new Queue('create_ticket', { redis: { port: 8379, host: '8.215.33.60'} });
@@ -38,6 +39,7 @@ queue_create.process(50,async function (job, done) {
         done();
     } catch (error) {
         console.log(error);
+        Sentry.captureException(error);
         done(new Error(error));
     }
 
@@ -78,7 +80,7 @@ queue_update.process(50,async function (job, done) {
         done();
     } catch (error) {
       console.log(error);
-      
+      Sentry.captureException(error);
         done(new Error(error));
     }
 
