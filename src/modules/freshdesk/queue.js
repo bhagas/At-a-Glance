@@ -27,6 +27,7 @@ queue_create.process(50,async function (job, done) {
         delete ticket.attachments;
         delete ticket.source_additional_info;
         delete ticket.id;
+        ticket.to_emails = JSON.stringify(ticket.to_emails);
         let merged = {...input, ...ticket};
         // console.log(merged, 'tickets created');
         await model.create(merged)
@@ -67,6 +68,7 @@ queue_update.process(50,async function (job, done) {
         delete ticket.attachments;
         delete ticket.source_additional_info;
         delete ticket.id;
+        ticket.to_emails = JSON.stringify(ticket.to_emails);
         let merged = {...input, ...ticket};
        
         await model.update(merged,  { where: { ticket_id: merged.ticket_id } })
