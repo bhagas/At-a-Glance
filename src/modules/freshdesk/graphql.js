@@ -201,7 +201,8 @@ enum sort {
              approved_at: String,
              approved_by: String,
              approved_by_name: String,
-             created_by_name: String
+             created_by_name: String,
+             subject: String
   }
   type logExpense{
     id:String,
@@ -859,13 +860,13 @@ const resolvers = {
         if(filter.approved){
           a+= ` and a.approved = '${filter.approved}'`
         }
-        const result_conv = await db.query(`SELECT a.*,
+        const result_conv = await db.query(`SELECT a.*, c.subject,
         (select name from users where id = a.approved_by) as approved_name, 
         (select name from users where id = a.created_by) as created_by_name, 
          CAST(a."createdAt" AS TEXT) as created_at,
          CAST(a."updatedAt" AS TEXT) as updated_at,
          CAST(a."approved_at" AS TEXT) as approved_at_date,
-          b.type_name FROM fd_ticket_conversations a join types b on a."typeId" = b.id  WHERE a."deletedAt" is null ${a}`, { type: QueryTypes.SELECT })
+          b.type_name FROM fd_ticket_conversations a join types b on a."typeId" = b.id join fd_tickets c on a."fdTicketId" = c.id   WHERE a."deletedAt" is null ${a}`, { type: QueryTypes.SELECT })
   //  console.log('abcde');
         if (result_conv) {
           // console.log(result_conv);
@@ -884,6 +885,7 @@ const resolvers = {
              approved_at: result_conv[i].approved_at_date,
              approved_by: result_conv[i].approved_by,
              approved_by_name: result_conv[i].approved_name,
+             subject : result_conv[i].subject,
              })
           }
         }
