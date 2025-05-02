@@ -10,12 +10,18 @@ const typeDefs =
 
  "Query untuk user by id"
  checkinStatus(user_id: ID!, fd_ticket_id:ID!): checkInStatusResult
+ userCheckinDay(user_id: ID!, date:String!): userCheckinDayResult
  getUserHours(user_id: ID!, fd_ticket_id:ID!): getUserHoursResult
  getAllUserHours(fd_ticket_id:ID!): getAllUserHoursResult
 }
 
 type checkInStatusResult{
   data:checkInStatus,
+  message:String,
+  status:Int
+}
+type userCheckinDayResult{
+  data:[userCheckinDay],
   message:String,
   status:Int
 }
@@ -33,6 +39,15 @@ type checkInStatus{
     isCheckedIn:Boolean!
     id:ID,
     location:String
+}
+type userCheckinDay{
+    fd_ticket_id:ID!
+    id:ID,
+    check_in:String,
+    check_in_location:String,
+    check_out:String,
+    check_out_location:String,
+    ticket:ticket
 }
 type userHours{
     totalMinutes:Int!,
@@ -293,6 +308,53 @@ const resolvers = {
         }
       }
       return { data: output, status: 200, message: 'Success' };
+      } catch (error) {
+          console.log(error);
+          return { data: error, status: 500, message: 'Failed' };
+      }
+      
+    },
+
+    userCheckinDay: async (obj, args, context, info) => {
+      try {
+        let replacements = {}
+      let a = "";
+      if (args) {
+        if (args.user_id) {
+          a += ` AND a."user_id" = :user_id`;
+          replacements.user_id = args.user_id;
+      }
+      if (args.date) {
+        a += ` AND CAST(a."check_in" AS DATE) = :date`;
+        replacements.date = args.date;
+    }
+    }
+     
+      let dt = await db.query('select a.* from check_in a join fd_tickets b on a.fd_ticket_id = cast(b.ticket_id as VARCHAR) where a."deletedAt"  is null '+a+' order by a."createdAt" desc', {
+        replacements
+      })
+      // console.log(dt[0]);
+     
+      if(dt[0].length){
+        for (let u = 0; u < dt[0].length; u++) {
+          let tckt = await db.query('select a.* from fd_tickets a where a."ticket_id" = :ticket_id  order by a."createdAt" desc', {
+            replacements:{
+              ticket_id:dt[0][u].fd_ticket_id
+            }
+            
+          })
+          dt[0][u].ticket = {};
+          if(tckt[0].length){
+            dt[0][u].ticket = tckt[0][0]
+          }
+        }
+        
+       
+        return { data: dt[0], status: 200, message: 'Success' };
+      }else{
+        return { data: [], status: 200, message: 'Success' };
+      }
+    
       } catch (error) {
           console.log(error);
           return { data: error, status: 500, message: 'Failed' };

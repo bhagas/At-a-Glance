@@ -86,6 +86,7 @@ app.use(
               // console.log(data);
               if(data){
                user = data
+               user.token = token
                 let dataa = {
                      "id": uuidv4(),
                      "email": user.email,
@@ -146,6 +147,7 @@ app.use(
                  // user=await jwt.verify(dt[1]);
                  if(h.me){
                    user = h.me
+                    user.token = token
                    let dataa = {
                      "id": uuidv4(),
                      "email": user.email,

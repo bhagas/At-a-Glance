@@ -2,7 +2,8 @@ import db from'../../config/koneksi.js';
 import { QueryTypes } from'sequelize';
 import userModel from'./model.js';
 import rolePoolModel from'../rolePool/model.js';
-import gql from'graphql-tag';
+import { request } from 'graphql-request'
+import gql from 'graphql-tag'
 import { v4 as uuidv4 } from'uuid';
 import jwt from'../../helper/jwt.js';
 import mail from'../../helper/mail.js';
@@ -147,7 +148,66 @@ const resolvers= {
     },
     user: async (obj, args, context, info) =>
         {
+          // console.log(context.user);
+          
            try {
+            //----------get data sheliak
+      //       let qu = gql`
+      //       query getMe($email:String) {
+      //         users(email: $email) {
+      //           edges{
+      //             node{
+      //               id
+      //                      email
+      //                      firstName
+      //                      middleName
+      //                      lastName
+      //                      dateJoined
+      //                      modified
+      //                      dateJoined
+      //                      lastName
+      //                      lastLogin
+      //                      verified
+      //                      socialAuth {
+      //                        id
+      //                        provider
+      //                      }
+      //                      profile {
+      //                        created
+      //                        modified
+      //                        id
+      //                        gender
+      //                        picture
+      //                        dateOfBirth
+      //                        nationality
+      //                        timezone
+      //                        address
+      //                        inviteCode
+      //                        company
+      //                        legacyId
+      //                        }
+      //                       }
+                         
+      //                     }
+                          
+      //                    }
+      //                  }`
+      //        let requestHeaders = {
+      //          authorization: `Bearer ${context.user.token}`
+      //        }
+      //        // console.log(requestHeaders);
+      //        let h=    await request({
+      //          url:process.env.SHELIAK_URL,
+      //          document:qu,
+      //          requestHeaders,
+      //          variables:{
+      //           "email": context.user.email
+      //          }
+      //        });
+
+      // console.log(h);
+
+//--------- end get data sheliak
             let dt =[];
             if(args.id){
               dt = await db.query(`select * from Users where id= $1`,{bind:[args.id], type:QueryTypes.SELECT});
