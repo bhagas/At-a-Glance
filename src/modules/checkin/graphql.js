@@ -314,7 +314,6 @@ const resolvers = {
       }
       
     },
-
     userCheckinDay: async (obj, args, context, info) => {
       try {
         let replacements = {}
