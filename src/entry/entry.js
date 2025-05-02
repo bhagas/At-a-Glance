@@ -60,7 +60,7 @@ const server = new ApolloServer({
         };
       },
     },
-    ApolloServerPluginLandingPageDisabled()
+    // ApolloServerPluginLandingPageDisabled()
     // ApolloServerPluginCacheControl({ defaultMaxAge: 100 }),
     // ApolloServerPluginCacheControlDisabled(),
     // responseCachePlugin()
