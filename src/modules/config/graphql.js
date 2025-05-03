@@ -34,7 +34,8 @@ input testMailInput {
     mail_host:String,
     mail_port:Int,
     mail_password:String,
-    mail_secure:Boolean
+    mail_secure:Boolean,
+    expense_mail:String
   }
 
 
@@ -44,7 +45,8 @@ input testMailInput {
     mail_host:String,
     mail_port:String,
     mail_password:String,
-    mail_secure:Boolean
+    mail_secure:Boolean,
+    expense_mail:String
   }
 `
 

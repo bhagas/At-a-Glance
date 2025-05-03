@@ -29,7 +29,11 @@ const Config = koneksi.define('config', {
     mail_secure:{
         type: DataTypes.BOOLEAN,
         defaultValue: false
-    }
+    },
+    expense_mail:{
+      type: DataTypes.STRING,
+      allowNull: true
+  }
   }, {
     // Other model options go here
     freezeTableName: true,

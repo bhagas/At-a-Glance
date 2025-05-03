@@ -1328,7 +1328,7 @@ const resolvers = {
          CAST(a."updatedAt" AS TEXT) as updated_at,
          CAST(a."approved_at" AS TEXT) as approved_at_date,
           b.type_name FROM fd_ticket_conversations a join types b on a."typeId" = b.id  WHERE  a.id = '${id}'`, { type: QueryTypes.SELECT })
-   
+ 
         // console.log(result_conv,'dataaa',context.user_app);
         if(result_conv.length && context.user_app){
           await fd_expense_log_model.create({
@@ -1352,6 +1352,128 @@ const resolvers = {
         //   "created_by":context.user_app.id,
         //   "action":act
         // })
+
+
+
+         //sendmail-----------
+         if(act=='APPROVE'){  
+          let obj ={attachments:[]};
+          if(result_conv.length){
+            obj.amount =  result_conv[0].amount;
+            obj.type_name= result_conv[0].type_name;
+         
+          let data = await fd_module.getTicketByid(result_conv[0].fd_ticket_id);
+          
+              data.requester_name = data.requester.name;
+              data.requester_email = data.requester.email;
+              data.amount =0;
+              // console.log(data.conversations);
+            
+              
+              if(data.attachments.length){
+                obj.subject = data.subject
+              for (let p = 0; p < data.attachments.length; p++) {
+                obj.attachments.push({   
+                  name: data.attachments[p].name,
+                  attachment_url:data.attachments[p].attachment_url
+              })
+                
+              }
+                
+              }
+
+              data.conversations = await fd_module.getConversationsByTicketid(result_conv[0].fd_ticket_id, 0);
+              for (let i = 0; i < data.conversations.length; i++) {
+               if(data.conversations[i].id == result_conv[0].fd_conv_id && result_conv[0].typeId){
+                obj.body = data.conversations[i].body
+
+                if(data.conversations[i].attachments.length){
+                 for (let l = 0; l < data.conversations[i].attachments.length; l++) {
+                  obj.attachments.push({   
+                    name: data.conversations[i].attachments[l].name,
+                    attachment_url:data.conversations[i].attachments[l].attachment_url
+                })
+                  
+                 }
+                }
+               }
+              }
+
+              // console.log(data);
+              // console.log(obj);
+              let html=`<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      color: #333;
+      background-color: #f9f9f9;
+      padding: 20px;
+    }
+    .container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .header {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+    .section {
+      margin-bottom: 15px;
+    }
+    .label {
+      font-weight: bold;
+    }
+
+    .amount {
+      font-size: 18px;
+      color: #1a73e8;
+    }
+    .footer {
+      font-size: 12px;
+      color: #999;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+  <div class="container">
+    <div class="header">${data.subject}</div>
+
+    <div class="section">
+      <span class="label">Type:</span> ${obj.type_name}
+    </div>
+
+    <div class="section">
+      <span class="label">Amount:</span>
+      <span class="amount">${obj.amount}</span>
+    </div>
+
+    <div class="section">
+      <span class="label">Details:</span>
+      ${obj.body}
+    </div>
+
+  
+
+    <div class="footer">
+      This is an automated email. Please do not reply.
+    </div>
+  </div>
+
+
+`
+// console.log(obj.attachments);
+let conf = await db.query("select * from config where id='60d9c4ad-d770-4999-9468-a7953fbc42xx'",{type: QueryTypes.SELECT});
+     if(conf[0].expense_mail){
+      mail(conf[0].expense_mail,data.subject, html, obj.attachments)
+     }
+       
+        }
+         }
         return {
           status: '200',
           message: 'Ok',
