@@ -53,7 +53,7 @@ const resolvers = {
     //   }
     // }
      
-      let dt = await db.query('select * from ms_point a where a.deleted is null order by a."createdAt" desc'+a, {
+      let dt = await db.query('select * from ms_point a order by a."createdAt" desc'+a, {
         replacements
       })
       // console.log(dt);
@@ -69,7 +69,7 @@ const resolvers = {
     msPoint: async (obj, args, context, info) => {
       // console.log("get review");
       try {
-        let dt = await db.query(`select a.* from ms_point a where a.deleted is null and a.id= $1`, { bind: [args.id], type: QueryTypes.SELECT })
+        let dt = await db.query(`select a.* from ms_point a where a.id= $1`, { bind: [args.id], type: QueryTypes.SELECT })
         // console.log(dt);
         // return dt[0];
         return { data: dt, status: 200, message: 'Success' };
@@ -89,7 +89,7 @@ const resolvers = {
         // process_code:String,
         // point:Int
         let data = {
-          "id": uuidv4(),
+          "id": input.process_code,
           "process_name": input.process_name,
           "point": input.point,
           "process_code": input.process_code

@@ -51,4 +51,4 @@ const point_log = koneksi.define('point_log', {
   point_log.belongsTo(ms_point,{
     foreignKey: 'ms_point_id'
   });
-export default ms_point;
+export default point_log;
