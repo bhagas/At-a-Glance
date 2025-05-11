@@ -106,6 +106,8 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
       checkinStatus:chain(isAuthenticated),
       getUserHours:chain(isAuthenticated),
       getAllUserHours:chain(isAuthenticated),
+      msPoints:chain(isAuthenticated),
+      msPoint:chain(isAuthenticated),
       // role:chain(isAuthenticated, isActive,isSuperAdmin),
       // roles:chain(isAuthenticated, isActive,isSuperAdmin)
       // listLogExpenseByTicketId:chain(isAuthenticated)
@@ -165,7 +167,10 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
     checkinUpdate:chain(isAuthenticated),
     checkoutUpdate:chain(isAuthenticated),
     travelCheckinUpdate:chain(isAuthenticated),
-    travelCheckoutUpdate:chain(isAuthenticated)
+    travelCheckoutUpdate:chain(isAuthenticated),
+    createMsPoint:chain(isAuthenticated),
+    updateMsPoint:chain(isAuthenticated),
+    deleteMsPoint:chain(isAuthenticated),
       // createRole:chain(isAuthenticated, isActive, isSuperAdmin),
       // createUser:chain(isAuthenticated, isActive, isSuperAdmin),
       // removeRole:chain(isAuthenticated, isActive,isSuperAdmin),
