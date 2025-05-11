@@ -21,6 +21,7 @@ const typeDefs =
     id: ID!, 
     createdAt: String,
     updatedAt:String,
+    deleted:String,
     process_name:String,
     process_code:String,
     point:Int
