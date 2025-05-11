@@ -3,6 +3,7 @@ import userModel from '../modules/user/model.js';
 import roleModel from '../modules/role/model.js';
 import rolePoolModel from '../modules/rolePool/model.js';
 import configModel from '../modules/config/model.js';
+import msPointModel from '../modules/ms_point/model.js'
 function seed() {
     return new Promise(async (resolve, reject) => {
         try {
@@ -70,6 +71,48 @@ function seed() {
                   mail_port:465,
                   mail_password:'abcd',
                   mail_secure:true
+                }
+              })
+
+              await msPointModel.findOrCreate({
+                where: { id: 'J01' },
+                defaults: {
+                  id: 'J01',
+                  createdAt: new Date(),
+                  process_name:'starts travel',
+                  process_code:'J01',
+                  point:1
+                }
+              })
+
+              await msPointModel.findOrCreate({
+                where: { id: 'J02' },
+                defaults: {
+                  id: 'J02',
+                  createdAt: new Date(),
+                  process_name:'signs into a job',
+                  process_code:'J02',
+                  point:1
+                }
+              })
+              await msPointModel.findOrCreate({
+                where: { id: 'J03' },
+                defaults: {
+                  id: 'J03',
+                  createdAt: new Date(),
+                  process_name:'signs off a job',
+                  process_code:'J03',
+                  point:1
+                }
+              })
+              await msPointModel.findOrCreate({
+                where: { id: 'J04' },
+                defaults: {
+                  id: 'J04',
+                  createdAt: new Date(),
+                  process_name:'ends travel',
+                  process_code:'J04',
+                  point:1
                 }
               })
               resolve()
