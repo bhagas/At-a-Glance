@@ -78,4 +78,4 @@ if(data){
 }
 
 // await addPoints({process_code:'J01', user_id:"17d5cf0f-fa90-4cec-8db5-3e0a51e9ab60"})
-await addPoints({process_code:'J01', user_id:"6c862d4a-05b2-487e-ac70-c93abf616073"})
+// await addPoints({process_code:'J01', user_id:"6c862d4a-05b2-487e-ac70-c93abf616073"})
