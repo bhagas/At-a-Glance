@@ -1369,18 +1369,18 @@ const resolvers = {
               data.amount =0;
               // console.log(data.conversations);
             
-              
-              if(data.attachments.length){
-                obj.subject = data.subject
-              for (let p = 0; p < data.attachments.length; p++) {
-                obj.attachments.push({   
-                  name: data.attachments[p].name,
-                  attachment_url:data.attachments[p].attachment_url
-              })
+              // kirim file utama dari ticket
+              // if(data.attachments.length){
+              //   obj.subject = data.subject
+              // for (let p = 0; p < data.attachments.length; p++) {
+              //   obj.attachments.push({   
+              //     name: data.attachments[p].name,
+              //     attachment_url:data.attachments[p].attachment_url
+              // })
                 
-              }
+              // }
                 
-              }
+              // }
 
               data.conversations = await fd_module.getConversationsByTicketid(result_conv[0].fd_ticket_id, 0);
               for (let i = 0; i < data.conversations.length; i++) {

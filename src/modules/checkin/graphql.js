@@ -4,6 +4,7 @@ import { QueryTypes } from 'sequelize';
 import gql from 'graphql-tag';
 import { v4 as uuidv4 } from 'uuid';
 import moment from 'moment/moment.js';
+import { addPoints } from '../point/module.js';
 const typeDefs =
   gql`
  extend type Query {
@@ -380,6 +381,7 @@ const resolvers = {
           "checkin_location":input.location,
         }
         await checkInModel.create(data)
+        await addPoints({process_code:'J02', user_id:input.user_id})
         return {
           status: '200',
           message: 'Success'
@@ -410,6 +412,7 @@ const resolvers = {
           data,
           { where: { id } }
         )
+        await addPoints({process_code:'J03', user_id:input.user_id})
         return {
           status: '200',
           message: 'Updated'
