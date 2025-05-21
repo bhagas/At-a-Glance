@@ -171,6 +171,7 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
     createMsPoint:chain(isAuthenticated),
     updateMsPoint:chain(isAuthenticated),
     deleteMsPoint:chain(isAuthenticated),
+    activateMsPoint:chain(isAuthenticated),
       // createRole:chain(isAuthenticated, isActive, isSuperAdmin),
       // createUser:chain(isAuthenticated, isActive, isSuperAdmin),
       // removeRole:chain(isAuthenticated, isActive,isSuperAdmin),

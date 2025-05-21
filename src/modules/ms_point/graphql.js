@@ -31,6 +31,7 @@ const typeDefs =
  extend type Mutation{
   createMsPoint(input: msPointInput): Output
   updateMsPoint(id: ID!, input: msPointInput): Output
+  activateMsPoint(id: ID!): Output
   deleteMsPoint(id: ID!): Output
  }
  input msPointInput{
@@ -116,6 +117,27 @@ const resolvers = {
           input,
           { where: { id } }
         )
+        return {
+          status: '200',
+          message: 'Updated'
+        }
+      } catch (error) {
+        console.log(error);
+        return {
+          status: '500',
+          message: 'Failed',
+          error: JSON.stringify(error)
+        }
+      }
+    },
+    activateMsPoint: async (_, { id }) => {
+      try {
+        
+        // await Model.update(
+        //   {deleted:null},
+        //   { where: { id } }
+        // )
+        await Model.restore({ where: { id } });
         return {
           status: '200',
           message: 'Updated'
