@@ -18,6 +18,9 @@ const point_log = koneksi.define('point_log', {
       total_point : {
         type: DataTypes.INTEGER
       },
+      point_type : {
+        type: DataTypes.TEXT
+      },
       desc : {
         type: DataTypes.TEXT
       },

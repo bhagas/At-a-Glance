@@ -29,6 +29,8 @@ export async function addPoints(data=null) {
                     }else{
                         ttl=dt[0][0].point
                     }
+                }else{
+                    ttl=dt[0][0].point
                 }
                 
                 let dataInput = {
@@ -38,7 +40,8 @@ export async function addPoints(data=null) {
                     "total_point":ttl,
                     "desc":dt[0][0].process_name,
                     "ms_point_id": data.process_code,
-                    "user_id": data.user_id
+                    "user_id": data.user_id,
+                    "point_type": 'SYSTEM_ADDED'
                   }
                 //   console.log(dataInput);
                   

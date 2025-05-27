@@ -34,12 +34,10 @@ const typeDefs =
   type transactionsPoint {
     id: ID!, 
     user_id:String,
-    email:String,
-    name:String,
-    point_debit:String,
-    point_credit:String,
-    process_name: String,
-    process_code:String
+    point:String,
+
+    desc: String,
+    point_type:point_type
  }
 
  type totalPointAllUsers {
@@ -56,11 +54,18 @@ const typeDefs =
  }
  input updatePointInput{
 
-    process_name:String,
-    process_code:String,
-    point:Int
+    user_id:String,
+    point:String,
+
+    desc: String,
+    point_type:point_type
  
  }
+ enum point_type {
+  REDEEM
+  ADJUSTMENT
+  SYSTEM_ADDED
+}
   `
 const resolvers = {
   Query: {
@@ -123,13 +128,41 @@ const resolvers = {
         // process_name:String,
         // process_code:String,
         // point:Int
-        let data = {
-          "id": input.process_code,
-          "process_name": input.process_name,
-          "point": input.point,
-          "process_code": input.process_code
-        }
-        await Model.create(data)
+        // let dt = await db.query('select a.* from ms_point a where a.deleted is null AND a."id" = :process_code', {
+        //     replacements
+        //   })
+          // console.log(dt[0]);
+          let replacements = {}
+          replacements.user_id = input.user_id
+              let total = await db.query('select (sum(point_debit) - sum(point_credit)) as total from point_log pl where user_id = :user_id', {
+                  replacements
+                })
+                let ttl=0
+              if(total[0].length){
+                  if(total[0][0].total){
+                      ttl=parseInt(total[0][0].total)+input.point
+                  }else{
+                      ttl=input.point
+                  }
+              }else{
+                ttl=input.point
+              }
+              
+              let dataInput = {
+                  "id": uuidv4(),
+                  "point_debit": input.point,
+                  "point_credit": 0,
+                  "total_point":ttl,
+                  "desc":input.desc,
+                  "user_id": input.user_id,
+                  "point_type": input.point_type
+                }
+              //   console.log(dataInput);
+                
+              await Model.create(dataInput)
+              //  console.log(h);
+               
+
         return {
           status: '200',
           message: 'Success'
@@ -144,24 +177,55 @@ const resolvers = {
       }
     },
     removeUsersPoint: async (_, { id, input }) => {
-      try {
-        
-        await Model.update(
-          input,
-          { where: { id } }
-        )
-        return {
-          status: '200',
-          message: 'Updated'
-        }
-      } catch (error) {
-        console.log(error);
-        return {
-          status: '500',
-          message: 'Failed',
-          error: JSON.stringify(error)
-        }
-      }
+        try {
+            // input.id = uuidv4()
+            // console.log(input);
+            // process_name:String,
+            // process_code:String,
+            // point:Int
+            // let dt = await db.query('select a.* from ms_point a where a.deleted is null AND a."id" = :process_code', {
+            //     replacements
+            //   })
+              // console.log(dt[0]);
+              let replacements = {}
+              replacements.user_id = input.user_id
+                  let total = await db.query('select (sum(point_debit) - sum(point_credit)) as total from point_log pl where user_id = :user_id', {
+                      replacements
+                    })
+                    let ttl=0
+                  if(total[0].length){
+                      if(total[0][0].total){
+                          ttl=parseInt(total[0][0].total)-input.point
+                      }
+                  }
+                  
+                  let dataInput = {
+                      "id": uuidv4(),
+                      "point_debit": 0,
+                      "point_credit": input.point,
+                      "total_point":ttl,
+                      "desc":input.desc,
+                      "user_id": input.user_id,
+                      "point_type": input.point_type
+                    }
+                  //   console.log(dataInput);
+                    
+                  await Model.create(dataInput)
+                  //  console.log(h);
+                   
+    
+            return {
+              status: '200',
+              message: 'Success'
+            }
+          } catch (error) {
+            console.log(error);
+            return {
+              status: '500',
+              message: 'Failed',
+              error: JSON.stringify(error)
+            }
+          }
     },
  
 
