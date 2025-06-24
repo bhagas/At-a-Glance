@@ -6,44 +6,38 @@ import { v4 as uuidv4 } from 'uuid';
 const typeDefs =
   gql`
   extend type Query{
-    items:itemsResult
-    item(id: ID!):item
+    warehouses:warehousesResult
+    warehouse(id: ID!):warehouse
   }
 
-  type itemsResult{
-    data:[item],
+  type warehousesResult{
+    data:[warehouse],
     message:String,
     status:Int
   }
 
-  type item {
+  type warehouse {
     id: ID!, 
     createdAt: String,
     updatedAt:String,
-    item_name:String,
-    item_code:String,
-    default_uom:String,
-    default_sell_price:Float
+    name:String,
  }
 
 
  extend type Mutation{
-  createItem(input: itemInput): Output
-  updateItem(id: ID!, input: itemInput): Output
-  deleteItem(id: ID!): Output
+  createWarehouse(input: warehouseInput): Output
+  updateWarehouse(id: ID!, input: warehouseInput): Output
+  deleteWarehouse(id: ID!): Output
  }
- input itemInput{
+ input warehouseInput{
 
-    item_name:String,
-    item_code:String,
-    default_uom:String,
-    default_sell_price:Float
+  name:String
  
  }
   `
 const resolvers = {
   Query: {
-    items: async (obj, args, context, info) => {
+    warehouses: async (obj, args, context, info) => {
       try {
         let replacements = {}
       let a = "";
@@ -54,7 +48,7 @@ const resolvers = {
     //   }
     // }
      
-      let dt = await db.query('select * from items a where a.deleted is null'+a, {
+      let dt = await db.query('select * from warehouse a where a.deleted is null'+a, {
         replacements
       })
       // console.log(dt);
@@ -67,23 +61,21 @@ const resolvers = {
     },
 
   
-    item: async (obj, args, context, info) => {
-      console.log("get review");
-      let dt = await db.query(`select a.* from items a where a.deleted is null and a.id= $1`, { bind: [args.id], type: QueryTypes.SELECT })
-      // console.log(dt);
+    warehouse: async (obj, args, context, info) => {
+     
+      let dt = await db.query(`select a.* from warehouse a where a.deleted is null and a.id= $1`, { bind: [args.id], type: QueryTypes.SELECT })
+    
       return dt[0];
     }
   },
   Mutation: {
-    createItem: async (_, { input }, context) => {
+    createWarehouse: async (_, { input }, context) => {
       try {
         // input.id = uuidv4()
         // console.log(input);
         let data = {
           "id": uuidv4(),
-          "item_name": input.item_name,
-          "item_code": input.item_code,
-          "default_uom": input.default_uom,
+          "name": input.name,
        
         }
         await Model.create(data)
@@ -100,7 +92,7 @@ const resolvers = {
         }
       }
     },
-    updateItem: async (_, { id, input }) => {
+    updateWarehouse: async (_, { id, input }) => {
       try {
         
         await Model.update(
@@ -120,7 +112,7 @@ const resolvers = {
         }
       }
     },
-    deleteItem: async (_, { id }) => {
+    deleteWarehouse: async (_, { id }) => {
       try {
         await Model.destroy(
           { where: { id } }

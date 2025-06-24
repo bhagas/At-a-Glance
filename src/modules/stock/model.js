@@ -2,6 +2,7 @@ import {DataTypes, ENUM } from'sequelize';
 import koneksi from'../../config/koneksi.js';
 import uomModel from '../uom/model.js'
 import itemModel from '../items/model.js'
+import warehouseModel from '../warehouse/model.js'
 
 const stock = koneksi.define('stock', {
     // Model attributes are defined here
@@ -14,7 +15,13 @@ const stock = koneksi.define('stock', {
         },
     status:{
       type: DataTypes.STRING,
-    }
+    },
+    price:{
+      type: DataTypes.STRING,
+    },
+    transaction_date : {
+      type: DataTypes.DATE
+    },
     
   }, {
     // Other model options go here
@@ -28,4 +35,7 @@ const stock = koneksi.define('stock', {
 
      uomModel.hasMany(stock);
 stock.belongsTo(uomModel);
+
+warehouseModel.hasMany(stock);
+stock.belongsTo(warehouseModel);
 export default stock;

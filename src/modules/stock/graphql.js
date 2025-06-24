@@ -6,44 +6,56 @@ import { v4 as uuidv4 } from 'uuid';
 const typeDefs =
   gql`
   extend type Query{
-    items:itemsResult
-    item(id: ID!):item
+    stocks:stockCardResult
+    stockCard(item_id: ID!):stockCardResult
   }
 
-  type itemsResult{
+  type stockCardResult{
     data:[item],
     message:String,
     status:Int
   }
 
-  type item {
+  type stockCard {
     id: ID!, 
     createdAt: String,
     updatedAt:String,
     item_name:String,
     item_code:String,
-    default_uom:String,
-    default_sell_price:Float
+    uom:String,
+    price:Float,
+    status:stockStatus,
+    qty:Float,
+    transaction_date:String
  }
 
 
  extend type Mutation{
-  createItem(input: itemInput): Output
-  updateItem(id: ID!, input: itemInput): Output
-  deleteItem(id: ID!): Output
- }
- input itemInput{
+  stock_transaction(input: stockInput): Output
 
-    item_name:String,
-    item_code:String,
-    default_uom:String,
-    default_sell_price:Float
+ }
+ input stockInput{
+
+    itemId:ID!,
+    uomId:ID!,
+    warehouseId:ID!,
+    qty:Float,
+    price:Float,
+    transaction_date:String,
+    status: stockStatus
  
  }
+
+
+ enum stockStatus {
+  INBOUND
+  OUTBOUND
+  ADJUSTMENT
+}
   `
 const resolvers = {
   Query: {
-    items: async (obj, args, context, info) => {
+    stocks: async (obj, args, context, info) => {
       try {
         let replacements = {}
       let a = "";
@@ -67,7 +79,7 @@ const resolvers = {
     },
 
   
-    item: async (obj, args, context, info) => {
+    stockCard: async (obj, args, context, info) => {
       console.log("get review");
       let dt = await db.query(`select a.* from items a where a.deleted is null and a.id= $1`, { bind: [args.id], type: QueryTypes.SELECT })
       // console.log(dt);
@@ -75,22 +87,27 @@ const resolvers = {
     }
   },
   Mutation: {
-    createItem: async (_, { input }, context) => {
+    stock_transaction: async (_, { input }, context) => {
       try {
         // input.id = uuidv4()
         // console.log(input);
         let data = {
-          "id": uuidv4(),
-          "item_name": input.item_name,
-          "item_code": input.item_code,
-          "default_uom": input.default_uom,
+            "id": uuidv4(),
+            "itemId": input.itemId,
+            "uomId": input.uomId,
+            "warehouseId": input.warehouseId,
+            "qty": input.qty,
+            "price": input.price,
+            "status": input.status,
+            "transaction_date": input.transaction_date
+         
+          }
+          await Model.create(data)
+          return {
+            status: '200',
+            message: 'Success'
+          }
        
-        }
-        await Model.create(data)
-        return {
-          status: '200',
-          message: 'Success'
-        }
       } catch (error) {
         console.log(error);
         return {
@@ -100,43 +117,7 @@ const resolvers = {
         }
       }
     },
-    updateItem: async (_, { id, input }) => {
-      try {
-        
-        await Model.update(
-          input,
-          { where: { id } }
-        )
-        return {
-          status: '200',
-          message: 'Updated'
-        }
-      } catch (error) {
-        console.log(error);
-        return {
-          status: '500',
-          message: 'Failed',
-          error: JSON.stringify(error)
-        }
-      }
-    },
-    deleteItem: async (_, { id }) => {
-      try {
-        await Model.destroy(
-          { where: { id } }
-        )
-        return {
-          status: '200',
-          message: 'Removed'
-        }
-      } catch (error) {
-        return {
-          status: '500',
-          message: 'Internal Server Error',
-          error: JSON.stringify(error)
-        }
-      }
-    }
+
 
   }
 }

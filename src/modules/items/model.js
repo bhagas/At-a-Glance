@@ -14,7 +14,10 @@ const items = koneksi.define('items', {
       item_code: {
           type: DataTypes.STRING,
         },
-    
+        default_sell_price: {
+          type: DataTypes.STRING,
+        },
+      
   }, {
     // Other model options go here
     freezeTableName: true,
