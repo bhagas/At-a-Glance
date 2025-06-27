@@ -23,7 +23,9 @@ const typeDefs =
     item_name:String,
     item_code:String,
     default_uom:String,
+    unit:String,
     default_sell_price:Float
+
  }
 
 
@@ -54,7 +56,7 @@ const resolvers = {
     //   }
     // }
      
-      let dt = await db.query('select * from items a where a.deleted is null'+a, {
+      let dt = await db.query('select a.*, u.unit from items a join uom u on a.default_uom = u.id where a.deleted is null'+a, {
         replacements
       })
       // console.log(dt);
@@ -69,7 +71,7 @@ const resolvers = {
   
     item: async (obj, args, context, info) => {
       console.log("get review");
-      let dt = await db.query(`select a.* from items a where a.deleted is null and a.id= $1`, { bind: [args.id], type: QueryTypes.SELECT })
+      let dt = await db.query(`select a.*, u.unit from items a join uom u on a.default_uom = u.id where a.deleted is null and a.id= $1`, { bind: [args.id], type: QueryTypes.SELECT })
       // console.log(dt);
       return dt[0];
     }
