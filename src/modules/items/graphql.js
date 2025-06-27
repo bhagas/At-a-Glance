@@ -86,7 +86,7 @@ const resolvers = {
           "item_name": input.item_name,
           "item_code": input.item_code,
           "default_uom": input.default_uom,
-       
+       "default_sell_price": input.default_sell_price,
         }
         await Model.create(data)
         return {
