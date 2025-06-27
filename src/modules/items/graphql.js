@@ -24,7 +24,7 @@ const typeDefs =
     item_code:String,
     default_uom:String,
     unit:String,
-    default_sell_price:Float
+    default_sell_price:String
 
  }
 
@@ -39,7 +39,7 @@ const typeDefs =
     item_name:String,
     item_code:String,
     default_uom:String,
-    default_sell_price:Float
+    default_sell_price:String
  
  }
   `
