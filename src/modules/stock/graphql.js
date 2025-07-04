@@ -80,7 +80,7 @@ const resolvers = {
     //   }
     // }
      
-      let dt = await db.query(`select i.item_code , i.item_name , u.unit as uom ,(select COALESCE(SUM(qty::numeric), 0) jml from stock where "itemId" = i.id and status='INBOUND') - (select COALESCE(SUM(qty::numeric), 0) jml from stock where "itemId" = i.id and status='OUTBOUND') as total_qty from items i join uom u on i.default_uom =u.id `+a, {
+      let dt = await db.query(`select i.id, i.item_code , i.item_name , u.unit as uom ,(select COALESCE(SUM(qty::numeric), 0) jml from stock where "itemId" = i.id and status='INBOUND') - (select COALESCE(SUM(qty::numeric), 0) jml from stock where "itemId" = i.id and status='OUTBOUND') as total_qty from items i join uom u on i.default_uom =u.id where i.deleted  is null`+a, {
         replacements
       })
       // console.log(dt);
