@@ -108,6 +108,8 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
       getAllUserHours:chain(isAuthenticated),
       msPoints:chain(isAuthenticated),
       msPoint:chain(isAuthenticated),
+      stocks:chain(isAuthenticated),
+      stockCard:chain(isAuthenticated),
       // role:chain(isAuthenticated, isActive,isSuperAdmin),
       // roles:chain(isAuthenticated, isActive,isSuperAdmin)
       // listLogExpenseByTicketId:chain(isAuthenticated)
@@ -183,6 +185,9 @@ const isActive = rule({ cache: 'contextual' })(async (parent, args, ctx, info) =
     createWarehouse:chain(isAuthenticated, isSuperAdmin),
     updateWarehouse:chain(isAuthenticated, isSuperAdmin),
     deleteWarehouse:chain(isAuthenticated, isSuperAdmin),
+    stock_transaction:chain(isAuthenticated),
+   
+
       // createRole:chain(isAuthenticated, isActive, isSuperAdmin),
       // createUser:chain(isAuthenticated, isActive, isSuperAdmin),
       // removeRole:chain(isAuthenticated, isActive,isSuperAdmin),

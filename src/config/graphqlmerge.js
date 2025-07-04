@@ -21,6 +21,7 @@ import {typeDefs as pointTypeDefs, resolvers as pointResolvers} from '../modules
 import {typeDefs as uomTypeDefs, resolvers as uomResolvers} from '../modules/uom/graphql.js';
 import {typeDefs as itemsTypeDefs, resolvers as itemsResolvers} from '../modules/items/graphql.js';
 import {typeDefs as warehouseTypeDefs, resolvers as warehouseResolvers} from '../modules/warehouse/graphql.js';
+import {typeDefs as stockTypeDefs, resolvers as stockResolvers} from '../modules/stock/graphql.js';
 let gabungan= [
   {typeDefs:userTypeDefs, resolvers: userResolvers},
   {typeDefs:roleTypeDefs, resolvers: roleResolvers},
@@ -40,6 +41,7 @@ let gabungan= [
   {typeDefs:uomTypeDefs, resolvers: uomResolvers},
   {typeDefs:itemsTypeDefs, resolvers: itemsResolvers},
   {typeDefs:warehouseTypeDefs, resolvers: warehouseResolvers},
+  {typeDefs:stockTypeDefs, resolvers: stockResolvers},
 ]
 // gabungan.push(permissions);
 const schemaWithMiddleware = applyMiddleware(buildSubgraphSchema(gabungan), permissions);

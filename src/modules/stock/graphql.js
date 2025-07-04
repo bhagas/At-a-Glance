@@ -26,7 +26,8 @@ const typeDefs =
     price:Float,
     status:stockStatus,
     qty:Float,
-    transaction_date:String
+    transaction_date:String,
+    warehousename:String,
  }
 
 
@@ -66,7 +67,7 @@ const resolvers = {
     //   }
     // }
      
-      let dt = await db.query('select * from items a where a.deleted is null'+a, {
+      let dt = await db.query('select a.*, i.item_name , i.item_code , u.unit as uom , w."name" as warehousename from stock a join items i on a."itemId" = i.id join uom u on a."uomId" = u.id join warehouse w on a."warehouseId" = w.id where a.deleted is null'+a, {
         replacements
       })
       // console.log(dt);
@@ -81,7 +82,7 @@ const resolvers = {
   
     stockCard: async (obj, args, context, info) => {
       console.log("get review");
-      let dt = await db.query(`select a.* from items a where a.deleted is null and a.id= $1`, { bind: [args.id], type: QueryTypes.SELECT })
+      let dt = await db.query(`select a.*, i.item_name , i.item_code , u.unit as uom , w."name" as warehousename from stock a join items i on a."itemId" = i.id join uom u on a."uomId" = u.id join warehouse w on a."warehouseId" = w.id where a.deleted is null a."itemId"= $1`, { bind: [args.id], type: QueryTypes.SELECT })
       // console.log(dt);
       return dt[0];
     }
