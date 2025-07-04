@@ -6,12 +6,17 @@ import { v4 as uuidv4 } from 'uuid';
 const typeDefs =
   gql`
   extend type Query{
-    stocks:stockCardResult
+    stocks:stockResult
     stockCard(item_id: ID!):stockCardResult
   }
 
   type stockCardResult{
-    data:[item],
+    data:[stockCard],
+    message:String,
+    status:Int
+  }
+  type stockResult{
+    data:[stock],
     message:String,
     status:Int
   }
@@ -23,11 +28,19 @@ const typeDefs =
     item_name:String,
     item_code:String,
     uom:String,
-    price:Float,
+    price:String,
     status:stockStatus,
-    qty:Float,
+    qty:String,
     transaction_date:String,
     warehousename:String,
+ }
+
+ type stock {
+    id: ID!,
+    item_name:String,
+    item_code:String,
+    uom:String, 
+    total_qty:String,
  }
 
 
@@ -40,8 +53,8 @@ const typeDefs =
     itemId:ID!,
     uomId:ID!,
     warehouseId:ID!,
-    qty:Float,
-    price:Float,
+    qty:String,
+    price:String,
     transaction_date:String,
     status: stockStatus
  
@@ -67,7 +80,7 @@ const resolvers = {
     //   }
     // }
      
-      let dt = await db.query('select a.*, i.item_name , i.item_code , u.unit as uom , w."name" as warehousename from stock a join items i on a."itemId" = i.id join uom u on a."uomId" = u.id join warehouse w on a."warehouseId" = w.id where a.deleted is null'+a, {
+      let dt = await db.query(`select i.item_code , i.item_name , u.unit as uom ,(select COALESCE(SUM(qty::numeric), 0) jml from stock where "itemId" = i.id and status='INBOUND') - (select COALESCE(SUM(qty::numeric), 0) jml from stock where "itemId" = i.id and status='OUTBOUND') as total_qty from items i join uom u on i.default_uom =u.id `+a, {
         replacements
       })
       // console.log(dt);
