@@ -64,7 +64,8 @@ const typeDefs =
  enum stockStatus {
   INBOUND
   OUTBOUND
-  ADJUSTMENT
+  ADJUSTMENT_IN
+  ADJUSTMENT_OUT
 }
   `
 const resolvers = {
@@ -95,9 +96,16 @@ const resolvers = {
   
     stockCard: async (obj, args, context, info) => {
       console.log("get review");
-      let dt = await db.query(`select a.*, i.item_name , i.item_code , u.unit as uom , w."name" as warehousename from stock a join items i on a."itemId" = i.id join uom u on a."uomId" = u.id join warehouse w on a."warehouseId" = w.id where a.deleted is null a."itemId"= $1`, { bind: [args.id], type: QueryTypes.SELECT })
-      // console.log(dt);
-      return dt[0];
+      try {
+        let dt = await db.query(`select a.*, i.item_name , i.item_code , u.unit as uom , w."name" as warehousename from stock a join items i on a."itemId" = i.id join uom u on a."uomId" = u.id join warehouse w on a."warehouseId" = w.id where a.deleted is null and a."itemId"= $1`, { bind: [args.item_id], type: QueryTypes.SELECT })
+        // console.log(dt);
+        // return dt[0];
+        return { data: dt, status: 200, message: 'Success' };
+      } catch (error) {
+        console.log(error);
+          return { data: error, status: 500, message: 'Failed' };
+      }
+   
     }
   },
   Mutation: {
