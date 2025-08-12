@@ -302,7 +302,7 @@ Mutation:{
         dt[0].roles= await db.query(`select b.id, b.code, b.role_name from role_pool a join roles b on a."roleId" = b.id where a."userId"= $1`, { bind: [dt[0].id],type: QueryTypes.SELECT });
         agent= await db.query(`select a.id from fd_agents a where a."email"= $1`, { bind: [input.email],type: QueryTypes.SELECT });
         dt[0].agent_id = agent[0].id;
-        let token = await jwt.generate({id: dt[0].id}, '24h');
+        let token = await jwt.generate({id: dt[0].id});
             return {
                 status: '200',
                 message: 'Success',
@@ -500,7 +500,7 @@ biometricAuthResult: async (_, {mobile})=>{
             {last_login:moment()},
              { where: { id:dt[0].id } }
            )
-             let token = await jwt.generate({id: dt[0].id, email:dt[0].email, name:dt[0].name}, '24h');
+             let token = await jwt.generate({id: dt[0].id, email:dt[0].email, name:dt[0].name});
                  return {
                      status: '200',
                      message: 'Success',
