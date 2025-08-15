@@ -1,7 +1,7 @@
 import db from'../../config/koneksi.js';
 import { QueryTypes } from'sequelize';
 import userModel from'./model.js';
-import rolePoolModel from'../rolePool/model.js';
+// import rolePoolModel from'../rolePool/model.js';
 import { request } from 'graphql-request'
 import gql from 'graphql-tag'
 import { v4 as uuidv4 } from'uuid';
@@ -409,41 +409,41 @@ Mutation:{
     },
     
 
-  setRole: async (_, {idUser, roles})=>{
-    try {
+//   setRole: async (_, {idUser, roles})=>{
+//     try {
  
-      const result = await db.transaction(async (t) => {
-        await rolePoolModel.destroy({
-          where: {
-            userId:idUser
-          },
-          force: true,
-          transaction: t
-        });
-        for (let i = 0; i < roles.length; i++) {
-          roles[i].id = uuidv4();
-          roles[i].userId = idUser;
+//       const result = await db.transaction(async (t) => {
+//         await rolePoolModel.destroy({
+//           where: {
+//             userId:idUser
+//           },
+//           force: true,
+//           transaction: t
+//         });
+//         for (let i = 0; i < roles.length; i++) {
+//           roles[i].id = uuidv4();
+//           roles[i].userId = idUser;
           
-        }
-        // console.log(idUser, roles);
-       await rolePoolModel.bulkCreate(roles, {transaction:t})
-          return {
-            status: '200',
-            message: 'Updated'
-        }
-      })
+//         }
+//         // console.log(idUser, roles);
+//        await rolePoolModel.bulkCreate(roles, {transaction:t})
+//           return {
+//             status: '200',
+//             message: 'Updated'
+//         }
+//       })
 
-      return result
-    } catch (error) {
-      console.log(error);
-      return {
-        status: '500',
-        message: 'Failed',
-        error
-    }
-    }
+//       return result
+//     } catch (error) {
+//       console.log(error);
+//       return {
+//         status: '500',
+//         message: 'Failed',
+//         error
+//     }
+//     }
    
-},
+// },
 biometricAuthRequest: async (_, {mobile})=>{
   try {
     let PATH = `/biometric-auth-request`;

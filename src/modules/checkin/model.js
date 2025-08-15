@@ -1,7 +1,6 @@
 import {DataTypes } from'sequelize';
 import koneksi from'../../config/koneksi.js';
-import fdModel from'../freshdesk/model.js';
-import user from '../user/model.js'
+
 const check_in = koneksi.define('check_in', {
     // Model attributes are defined here
     id: {
@@ -41,19 +40,8 @@ const check_in = koneksi.define('check_in', {
     paranoid:true
   });
 
-  fdModel.hasMany(check_in, {
-    foreignKey: 'ticket_id'
-  });
-  check_in.belongsTo(fdModel,{
-    foreignKey: 'ticket_id'
-  });
 
 
 
-user.hasMany(check_in,{
-  foreignKey: 'user_id'
-});
-check_in.belongsTo(user,{
-  foreignKey: 'user_id'
-});
+
 export default check_in;

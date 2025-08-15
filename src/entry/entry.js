@@ -5,7 +5,7 @@ import { expressMiddleware } from'@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer }from'@apollo/server/plugin/drainHttpServer';
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs';
 import { ApolloServerPluginLandingPageDisabled }  from'@apollo/server/plugin/disabled';
-import log_model from '../modules/log/model.js';
+// import log_model from '../modules/log/model.js';
 import path from'path';
 import http from'http';
 import cors from'cors';
@@ -96,7 +96,7 @@ app.use(
                      "graphql_queries": req.body.query,
                      "graphql_variables":req.body.variables
                    }
-                   log_model.create(dataa)
+                  //  log_model.create(dataa)
               //  console.log(data, 'haha');
               }else{
                 let qu = gql`
@@ -161,7 +161,7 @@ app.use(
                     {last_login:user.lastLogin},
                      { where: { email:user.email } }
                    )
-                   log_model.create(dataa)
+                  //  log_model.create(dataa)
                    // console.log(user);
                    //     console.log(req.body.query);
                    //    console.log(req.body.variables);
