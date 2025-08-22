@@ -2,9 +2,17 @@ import db from '../../config/koneksi.js';
 import reviewModel from './model.js'
 import { QueryTypes } from 'sequelize';
 import gql from 'graphql-tag';
+import pubsub from '../../config/redis.js';
 import { v4 as uuidv4 } from 'uuid';
 const typeDefs =
   gql`
+    scalar JSONObject
+extend type Subscription {
+    updateKpi: SyncKpi
+}
+type SyncKpi {
+    status: String
+}
   extend type Query{
     serviceUtilization:serviceUtilizationResult
      kpi:kpiResult
@@ -120,6 +128,12 @@ GROUP BY  a."name" , a.email , a.id;`+a, {
     },
 
   
+  },
+    Subscription: {
+    updateKpi: {
+      // More on pubsub below
+      subscribe: () => pubsub.asyncIterator(['UPDATE_TICKET']),
+    },
   },
   // Mutation: {
   //   createVersion: async (_, { input }, context) => {

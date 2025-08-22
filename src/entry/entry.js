@@ -5,6 +5,8 @@ import { expressMiddleware } from'@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer }from'@apollo/server/plugin/drainHttpServer';
 import graphqlUploadExpress from 'graphql-upload/graphqlUploadExpress.mjs';
 import { ApolloServerPluginLandingPageDisabled }  from'@apollo/server/plugin/disabled';
+import db from '../config/koneksi.js';
+import archiver from "archiver";
 // import log_model from '../modules/log/model.js';
 import path from'path';
 import http from'http';
@@ -187,7 +189,43 @@ app.use(
     }
   }),
 );
+const tables = ["ticket_member", "point_log", "uom","stock","check_in","version","travel_log","ms_point","users","role_pool","roles","config","fd_expense_log","types","fd_status","fd_agents","fd_activities","fd_escalations","fd_group","fd_priority","log","fd_tickets","fd_agent_member","fd_ticket_conversations","review","fd_conversations_locations","qw_opportunity","items","warehouse"]; // ganti sesuai kebutuhan
 
+app.get("/export", async (req, res) => {
+  try {
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader("Content-Disposition", 'attachment; filename="export.zip"');
+
+    const archive = archiver("zip", { zlib: { level: 9 } });
+    archive.pipe(res);
+
+    // ambil semua nama tabel (hanya public schema)
+    const [tables] = await db.query(`
+      SELECT tablename 
+      FROM pg_tables 
+      WHERE schemaname = 'public'
+    `);
+
+    // loop tiap tabel
+    for (const t of tables) {
+      const tableName = t.tablename;
+
+      // ambil semua data dari tabel
+      const [rows] = await db.query(`SELECT * FROM "${tableName}"`);
+
+      // ubah ke JSON string
+      const jsonContent = JSON.stringify(rows, null, 2);
+
+      // tambahkan ke zip
+      archive.append(jsonContent, { name: `${tableName}.json` });
+    }
+
+    await archive.finalize();
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error exporting data");
+  }
+});
  app.use('/',router);
  app.use((err, req, res, next)=>{
   res.json({pesan:'error', error: err})
